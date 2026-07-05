@@ -6,7 +6,7 @@
     "fr": "Catalogue des azans telechargeables. Champ 'prayerScope': 'fajr' signifie que le nom de fichier original indiquait explicitement un azan du Fajr (contenant normalement la phrase additionnelle « As-salatu khayrun min an-nawm »). 'general' signifie que ce marquage explicite est absent du nom de fichier ; ces fichiers sont utilisables pour Dhuhr/Asr/Maghreb/Icha/Joumoua, et peuvent aussi convenir au Fajr mais SANS certitude qu'ils contiennent la phrase specifique du Fajr (verification audio automatique impossible : la transcription vocale echoue sur le chant melismatique de l'azan, testee et abandonnee). Champ 'reciter.attribution' indique le niveau de confiance sur l'identite : 'named-public-figure' = personnalite verifiee par recherche web comme recitant/muezzin documente ayant reellement enregistre des azans ; 'place-style' = le nom de fichier designe un lieu/style regional plutot qu'une personne ; 'named-unverified' = un nom de personne figure dans le fichier mais aucune source publique independante n'a ete trouvee pour le confirmer (a verifier manuellement en ecoutant si necessaire).",
     "howToFillBaseUrl": "Remplacer {{BASE_URL}} par l'URL brute GitHub, ex: https://raw.githubusercontent.com/<owner>/<repo>/<branch>/app/src/main/assets/spec/audio/azan une fois le depot choisi.",
     "audioFormat": "Tous les fichiers .ogg utilisent le codec Opus (plus efficace que Vorbis/MP3 a bas debit pour la voix), compatible lecture HTML5 audio dans GeckoView/Firefox et navigateurs modernes.",
-    "hosting": "Chaque azan est heberge comme asset d'une GitHub Release dediee (tag = id de l'azan) dans le depot https://github.com/TAOUKITPRAYER/azan . Le champ 'downloadUrl' de chaque item pointe directement vers l'asset.",
+    "hosting": "Chaque azan est heberge en tant que fichier committe dans le dossier audio/ de ce depot (https://github.com/TAOUKITPRAYER/azan), servi via raw.githubusercontent.com (CORS actif, contrairement aux assets de GitHub Release utilises precedemment qui bloquaient fetch()). Le champ 'downloadUrl' de chaque item pointe directement vers ce fichier brut.",
     "groups": "Le catalogue est organise en deux blocs distincts via le tableau 'groups' : groups[0] (key='fajr') = azans du Fajr, groups[1] (key='general') = azans pour les autres prieres. Chaque groupe a un 'label' (titre a afficher pour le bloc dans l'application) et sa propre liste 'items'. Le champ 'prayerScope' est conserve sur chaque item par redondance/compatibilite mais l'application doit se baser sur l'appartenance au groupe pour l'affichage des deux blocs."
   },
   "groups": [
@@ -46,7 +46,7 @@
           },
           "fileSizeBytes": 1740233,
           "originalFileSizeBytes": 3933831,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/kods-fajr/kods-fajr.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/AZAN%20KODS%20FAJR.ogg"
         },
         {
           "id": "azan-kuwait-fajr",
@@ -73,7 +73,7 @@
           },
           "fileSizeBytes": 310634,
           "originalFileSizeBytes": 483352,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/azan-kuwait-fajr/azan-kuwait-fajr.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/azan_kuwait_fajr.ogg"
         }
       ]
     },
@@ -113,7 +113,7 @@
           },
           "fileSizeBytes": 1783991,
           "originalFileSizeBytes": 4033350,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/bilel-aghbari/bilel-aghbari.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/AZAN%20BILEL%20AGHBARI.ogg"
         },
         {
           "id": "abdul-basit",
@@ -141,7 +141,7 @@
           },
           "fileSizeBytes": 170172,
           "originalFileSizeBytes": 207723,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/abdul-basit/abdul-basit.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Abdul-Basit.ogg"
         },
         {
           "id": "abdul-ghaffar",
@@ -168,7 +168,7 @@
           },
           "fileSizeBytes": 154317,
           "originalFileSizeBytes": 188551,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/abdul-ghaffar/abdul-ghaffar.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Abdul-Ghaffar.ogg"
         },
         {
           "id": "abdul-hakam",
@@ -195,7 +195,7 @@
           },
           "fileSizeBytes": 157479,
           "originalFileSizeBytes": 192363,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/abdul-hakam/abdul-hakam.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Abdul-Hakam.ogg"
         },
         {
           "id": "adhan-alaqsa",
@@ -222,7 +222,7 @@
           },
           "fileSizeBytes": 186318,
           "originalFileSizeBytes": 227263,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/adhan-alaqsa/adhan-alaqsa.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Adhan-Alaqsa.ogg"
         },
         {
           "id": "adhan-egypt",
@@ -249,7 +249,7 @@
           },
           "fileSizeBytes": 151375,
           "originalFileSizeBytes": 184996,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/adhan-egypt/adhan-egypt.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Adhan-Egypt.ogg"
         },
         {
           "id": "adhan-halab",
@@ -276,7 +276,7 @@
           },
           "fileSizeBytes": 184343,
           "originalFileSizeBytes": 224859,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/adhan-halab/adhan-halab.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Adhan-Halab.ogg"
         },
         {
           "id": "adhan-madinah",
@@ -303,7 +303,7 @@
           },
           "fileSizeBytes": 79475,
           "originalFileSizeBytes": 98062,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/adhan-madinah/adhan-madinah.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Adhan-Madinah.ogg"
         },
         {
           "id": "adhan-makkah",
@@ -330,7 +330,7 @@
           },
           "fileSizeBytes": 166641,
           "originalFileSizeBytes": 203440,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/adhan-makkah/adhan-makkah.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Adhan-Makkah.ogg"
         },
         {
           "id": "al-hussaini",
@@ -357,7 +357,7 @@
           },
           "fileSizeBytes": 162617,
           "originalFileSizeBytes": 198580,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/al-hussaini/al-hussaini.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Al-Hussaini.ogg"
         },
         {
           "id": "bakir-bash",
@@ -384,7 +384,7 @@
           },
           "fileSizeBytes": 287477,
           "originalFileSizeBytes": 349567,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/bakir-bash/bakir-bash.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Bakir-Bash.ogg"
         },
         {
           "id": "hafez",
@@ -411,7 +411,7 @@
           },
           "fileSizeBytes": 138057,
           "originalFileSizeBytes": 168899,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/hafez/hafez.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Hafez.ogg"
         },
         {
           "id": "hafiz-murad",
@@ -438,7 +438,7 @@
           },
           "fileSizeBytes": 84564,
           "originalFileSizeBytes": 104226,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/hafiz-murad/hafiz-murad.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Hafiz-Murad.ogg"
         },
         {
           "id": "minshawi",
@@ -466,7 +466,7 @@
           },
           "fileSizeBytes": 194568,
           "originalFileSizeBytes": 237238,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/minshawi/minshawi.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Minshawi.ogg"
         },
         {
           "id": "naghshbandi",
@@ -493,7 +493,7 @@
           },
           "fileSizeBytes": 134483,
           "originalFileSizeBytes": 164568,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/naghshbandi/naghshbandi.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Naghshbandi.ogg"
         },
         {
           "id": "saber",
@@ -520,7 +520,7 @@
           },
           "fileSizeBytes": 123443,
           "originalFileSizeBytes": 151240,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/saber/saber.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Saber.ogg"
         },
         {
           "id": "sharif-doman",
@@ -547,7 +547,7 @@
           },
           "fileSizeBytes": 232598,
           "originalFileSizeBytes": 283218,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/sharif-doman/sharif-doman.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Sharif-Doman.ogg"
         },
         {
           "id": "yusuf-islam",
@@ -574,7 +574,7 @@
           },
           "fileSizeBytes": 81987,
           "originalFileSizeBytes": 101091,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/yusuf-islam/yusuf-islam.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/Yusuf-Islam.ogg"
         },
         {
           "id": "azan-chahhat",
@@ -601,7 +601,7 @@
           },
           "fileSizeBytes": 1576613,
           "originalFileSizeBytes": 3603556,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/azan-chahhat/azan-chahhat.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/azan_chahhat.ogg"
         },
         {
           "id": "azan-kods",
@@ -628,7 +628,7 @@
           },
           "fileSizeBytes": 269815,
           "originalFileSizeBytes": 428038,
-          "downloadUrl": "https://github.com/TAOUKITPRAYER/azan/releases/download/azan-kods/azan-kods.ogg"
+          "downloadUrl": "https://raw.githubusercontent.com/TAOUKITPRAYER/azan/main/audio/azan_kods.ogg"
         }
       ]
     }
