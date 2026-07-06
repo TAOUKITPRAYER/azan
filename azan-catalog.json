@@ -83,7 +83,7 @@
           "sourceFileName": "azan_fajr_barrak.mp3",
           "displayName": {
             "fr": "Cheikh Mohammed Al-Barrak (Fajr)",
-            "ar": "الشيخ محمد البراك (الفجر)"
+            "ar": "الشيخ محمد البراق (الفجر)"
           },
           "prayerScope": "fajr",
           "reciter": {
@@ -637,7 +637,7 @@
           "sourceFileName": "AZAN_BARRAK.mp3",
           "displayName": {
             "fr": "Cheikh Mohammed Al-Barrak",
-            "ar": "الشيخ محمد البراك"
+            "ar": "الشيخ محمد البراق"
           },
           "prayerScope": "general",
           "reciter": {
