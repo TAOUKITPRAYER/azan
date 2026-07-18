@@ -1,0 +1,953 @@
+@font-face {
+    font-family: 'Amiri';
+    font-style: normal;
+    font-weight: normal;
+    src: url('./font/AmiriRegular.woff2');
+}
+
+@font-face {
+    font-family: 'AmiriBold';
+    font-style: normal;
+    font-weight: Bold;
+    src: url('./font/AmiriBold.woff2');
+}
+
+@font-face {
+    font-family: 'Andalus';
+    font-style: normal;
+    font-weight: normal;
+    src: url('./font/Andalus.woff2');
+}
+
+@font-face {
+    font-family: 'KSA';
+    font-style: normal;
+    font-weight: normal;
+    src: url('./font/KSARegular.woff2');
+}
+
+@font-face {
+    font-family: 'FreeSans';
+    font-style: normal;
+    font-weight: 500;
+    src: url('./font/FreeSans.woff2');
+}
+
+@font-face {
+    font-family: 'FreeSansBold';
+    font-style: normal;
+    font-weight: Bold;
+    src: url('./font/FreeSansBold.woff2');
+}
+
+@font-face {
+    font-family: 'FreeSerif';
+    font-style: normal;
+    src: url('./font/FreeSerif.woff2');
+}
+
+@font-face {
+    font-family: 'FreeSerifBold';
+    font-style: normal;
+    font-weight: Bold;
+    src: url('./font/FreeSerifBold.woff2');
+}
+
+@font-face {
+    font-family: 'FONTO';
+    font-style: normal;
+    font-weight: 500;
+    src: url('./font/Monofonto.woff2');
+}
+/*   */
+@font-face {
+    font-family: 'Taha';
+    font-style: normal;
+    src: url('./font/KFGQPCUthmanTaha.woff2');
+}
+
+@font-face {
+    font-family: 'CORDOBA';
+    font-style: normal;
+    src: url('./font/samir-khouaja-maghribi-bold.woff2');
+}
+
+@font-face {
+    font-family: 'STC';
+    font-style: normal;
+    src: url('./font/STC-Regular.woff2');
+}
+
+@font-face {
+    font-family: 'SULTAN';
+    font-style: normal;
+    src: url('./font/SFSultan-Black.woff2');
+}
+
+@font-face {
+    font-family: 'FODA';
+    src: url('./font/FodaFreeFont.woff2');
+    font-style: normal;
+}
+
+
+
+@font-face {font-family:'BN'; font-style:normal; src:url('./font/BN.woff2');}
+@font-face {font-family:'AM'; font-style:normal; src:url('./font/AM.woff2');}
+@font-face {font-family:'KU'; font-style:normal; src:url('./font/AmiriRegular.woff2');}
+@font-face {font-family:'HI'; font-style:normal; src:url('./font/IN-Shobhika.woff2');}
+@font-face {font-family:'PA'; font-style:normal; src:url('./font/MehrNastaliqWeb.woff');}
+@font-face {font-family:'PS'; font-style:normal; src:url('./font/MehrNastaliqWeb.woff');}
+@font-face {font-family:'SI'; font-style:normal; src:url('./font/WARNA.ttf');}
+@font-face {font-family:'TA'; font-style:normal; src:url('./font/MeeraTamil.woff');}
+@font-face {font-family:'ZH'; font-style:normal; src:url('./font/HanSansLight.otf');}
+@font-face {font-family:'TH'; font-style:normal; src:url('./font/TlwgTypo.woff');}
+@font-face {font-family:'KO'; font-style:normal; src:url('./font/FreeSans.woff2');}
+@font-face {font-family:'JA'; font-style:normal; src:url('./font/dejima-mincho-r227.ttf');}
+
+
+
+
+
+
+:root {
+    --esCLOCK: gray;
+    --esSALATS: gray;
+    --esLOWER: gray;
+    --esBGTUB: gray;
+    --MED_VIS: visible;
+    --METEO: visible;
+    --IQAMAT: visible;
+    --MTOSLWTS: visible;
+    --PSFLG: visible;
+    --BgsTranspa: 0.89;
+    --VRBigCNTR: 1;
+    --csvar_nowDIR: 'rtl';
+    --HR_HHHTOP: 6.5%;
+    --HR_NAMTOP: 13%;
+    --TXT_SHDW: 0.2vw 0.2vw 0.2vw rgba(0, 0, 0, 0.2);
+    --CLK_SHDW: 0.3vw 0.3vw 0.3vw rgba(0, 0, 0, 0.3);
+    --BIG_SHDW: 0.7vw 0.7vw 0.7vw rgba(0, 0, 0, 0.3);
+    --AyatSHDW: 0.3vw 0.3vw 0.3vw rgba(0, 0, 0, 0.3);
+    --csvar_backFONT: 'FreeSans';
+    --csvar_fontSECONDARY: 'Amiri';
+    --csvar_mainFONT: 'Amiri';
+    --fnDIGITS: 'FONTO';
+    --fnCLOKEN: 'FONTO';
+    --HRBG: url();
+    --BgOnOff: 100% 100%;
+    --VRBgOnOff: url(./images/xbg.png);
+    --j6iqamaSZ: 4.0vw;
+    --j5iqamaSZ: 4.5vw;
+    --BsCLock500: 500;
+    --jnamTOP: 3%;
+    --jhourTOP: 32%;
+    --j6iqamaTOP: 65%;
+    --j5hourTOP: 30%;
+    --j5iqamaTOP: 64%;
+    --mt7: 1%;
+    --OPAK: 1;
+    --HRdiffRight:2.5%; 
+    --HRdiffBtm:55%;
+    --NowSULTAN: 0vw;
+    --MenuColorFG: #ACA091;
+    --eMarqueeSpeed: 10s;
+    --eWillChange: auto;
+    --vrCounterTOP: 15.0%;
+    --vrCounterLEFT: 32.5%;
+    --ForAzkarON_opac: 1;
+    --ForAzkarON_zedex: 300;
+    --eBtmMiniTIMES: 8.8%;
+    --FontSizeCALIBRA: 0vw;
+    --ayatsFont: 'Amiri';
+    --ayatsSize: 100%;
+    --ayatsFHeight: 1.0;
+	--ayatsLtrRtl: rtl;
+	
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    font-family: 'FreeSans';
+    font-size: 9pt;
+    color: var(--MenuColorFG);
+    background-color: #151515;
+    
+}
+body {
+  position: relative
+}
+
+/*  
+body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+body::-webkit-scrollbar {
+    display: none;
+}
+*/
+
+hr {
+    border: 1px solid #333333;
+}
+
+img {
+    border: 0;
+}
+
+td {
+    padding: 0;
+}
+
+table {
+    border-spacing: 0;
+}
+
+label {
+    cursor: pointer;;
+}
+
+a {
+    color: #D2C7AA;
+    text-decoration: none;
+}
+
+
+.locationSettingsClass {
+    opacity: var(--OPAK);
+}
+
+
+
+.reminderContentClass{
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
+
+
+}
+
+.backgroundFadeInClass{
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s ease-in 1.9s, opacity 1.9s ease-in;
+}
+
+.backgroundFadeOutClass{
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 1.0s linear;
+}
+
+
+.hiddenClass {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s ease-in 1.9s, opacity 1.9s ease-in;
+}
+
+.visibleTransitionClass {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 1.7s linear;
+}
+
+.semiTransparentClass {
+    visibility: visible;
+    opacity: 0.93;
+    transition: opacity 1.7s linear;
+}
+
+
+.fullScreenHiddenClass {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s ease-in 2.5s, opacity 2.5s ease-in;
+}
+
+.fullScreenVisibleClass {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 2.5s linear;
+}
+
+
+.fadeOutClass {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s ease-in 5.5s, opacity 5.5s ease-in;
+}
+
+.fadeInClass {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 5.5s linear;
+}
+
+#autoBootButton {
+	position: absolute;
+	right: 0%;
+	top: 0%;
+	width: 20%;
+	height: 5%;
+	z-index: 700000;
+}
+
+
+.modalContentClass div,span,label,li{font-family: var(--csvar_backFONT),'Amiri';}
+
+
+#slidesContainerVertical,
+#slidesContainerHorizontal {
+	position: absolute;
+	left: 0%;
+	top: 0%;
+	width: 100%;
+	height: 100%;
+	z-index: 999;
+}
+
+
+#blackScreenVertical,
+#blackScreenHorizontal {
+    position: absolute;
+    z-index: 996;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    background: black;
+ 	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform 5s ease-out;
+}
+
+
+
+#internetStatusIndicatorHorizontal {
+    position: absolute;
+    z-index: 555;
+    left: 1.0%;
+    bottom: 0.6%;
+    color: silver;
+    font-family: 'Amiri';
+    font-size: 1.7vw;
+    height: auto;
+    width: auto;
+}
+
+
+
+#mainMenuContainer {
+    position: absolute;
+    height: 100%;
+    left: 0%;
+    top: 0%;
+    font-family: var(--csvar_backFONT);
+    visibility: hidden;
+    z-index: 99998;
+    background: #151515;
+    color: var(--MenuColorFG);
+}
+
+
+
+
+.dohaTimeClass {
+    font-family: var(--fnDIGITS);
+    letter-spacing: 0.075em;
+}
+
+#gregorianDateSpan, #hijriDaySpan, #hijriYearSpan {
+    font-family: var(--fnDIGITS);
+    letter-spacing: 0.075em;
+    font-size: 85%;
+}
+
+.specialAyaClass {color: var(--esCLOCK);}
+
+.hijriDateClass {color: var(--esCLOCK);font-family: var(--csvar_mainFONT);}
+
+#daySpan, #gregorianMonthSpanId {color: var(--esCLOCK);font-family: var(--fnDIGITS);}
+#weekDaySpan {font-family: var(--csvar_mainFONT);}
+
+
+.amPmArabicClass {
+    font-family: var(--csvar_mainFONT);
+    color: var(--esLOWER);
+}
+
+.amSymbolHtml {
+    color: var(--esLOWER);
+}
+
+
+
+
+.displayTableClass {
+    display: table;
+}
+
+.tableCellMiddleClass {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+
+#menuSymbolSpanId {padding-left:18px;}
+
+.messageSeparatorClass {padding:0 33px;}
+
+.goldenColorClass {
+    color: var(--esGOLDEN);
+}
+
+
+#dateSeparatorId { color:var(--esSALATS);}
+
+#jomoaLabel {color:white; font-size:110%;}
+
+#prayerDurationsTitle {color:white; text-align:center;}
+
+.settingsActionButtonClass {
+    margin: 1.0% 0%;
+    font-family: var(--csvar_backFONT);
+    width: 50%;
+    border-radius:75px;
+    border:1px solid #786E5F;
+    padding: 1.7% 4%;
+    text-align: left;
+    cursor: pointer;
+    color:#DFCDB1;
+    direction: ltr;
+    background-color:#313131;
+    margin-right:1%;
+}
+	
+.jomoaDimmerTable {
+	font-family: var(--csvar_backFONT),var(--csvar_fontSECONDARY);
+    width: 100%;
+    padding: 5px;
+    text-align: center;
+    padding-bottom: 5%;
+    border-bottom: 2px solid gray;
+}
+
+.jomoaDimmerTable tr td:nth-child(1) {width:17%;}
+.jomoaDimmerTable tr td:nth-child(2) {width:63%; text-align:right;}
+.jomoaDimmerTable tr td:nth-child(3) {width:12%; text-align:center;}
+.jomoaDimmerTable tr td:nth-child(4) {width:4%; text-align:left;}
+.jomoaDimmerTable tr td:nth-child(5) {width:4%; text-align:left;}
+
+
+.prayerDurationTableClass {
+    font-family: var(--csvar_backFONT),var(--csvar_fontSECONDARY);
+    width: 80%;
+    padding: 5px;
+    text-align: center;
+    padding-bottom: 2%;
+    border-bottom: 2px solid gray;
+    
+}
+
+.prayerDurationTableClass tr td:nth-child(1) {width:50%; text-align:left;}
+.prayerDurationTableClass tr td:nth-child(2) {width:20%; text-align:left;}
+.prayerDurationTableClass tr td:nth-child(3) {width:15%; text-align:left;}
+.prayerDurationTableClass tr td:nth-child(4) {width:15%; text-align:left;}
+
+
+
+#menuVersionDisplay{
+    position: absolute;
+    letter-spacing: 0.07em;
+    font-family: 'FreeSans';
+    left: 10%;
+    top: 35%;
+    width: 70%;
+    text-align: left;
+    font-size :67%;
+}
+
+#menuFooterLinks{
+    font-family: 'FreeSans';
+    margin-top: 5%;
+    font-size :55%;
+}
+#menuFooterLinks a{ 
+    padding: 3px; 
+    line-height: 2.1;
+    color:#787065;
+}
+
+#menuFooterLinks label{
+	font-size :110%;
+	color:gray;
+	}
+
+
+
+input[type='checkbox'] {
+    vertical-align: middle;
+}
+
+label {
+    vertical-align: middle;
+}
+
+
+.modalHeaderClass {
+    position: absolute;
+    display: table;
+    left: 0%;
+    top: 0%;
+    width: 100%;
+    background-color: #282828;
+}
+
+.modalCloseButtonClass {
+    text-align: right;
+    font-size: 115%;
+    display: table-cell;
+    vertical-align: middle;
+    background-color: #282828;
+    padding-right: 12%;
+}
+
+.modalTitleClass {
+    position:relative;
+    width: 60%;
+    text-align: left;
+    display: table-cell;
+    vertical-align: middle;
+    color: white;
+    
+}
+.textLeftClass {text-align: left;}
+.textRightClass {text-align: right;}
+.textAlignCenterClass {text-align: center;}
+.textLeftClass {direction: ltr;}
+
+#menuFooterCredits {
+    direction: ltr;
+    padding: 5% 0%;
+    text-align: center;
+}
+
+#creditsContent span,a{
+    letter-spacing: 0.07em;
+    padding: 23px 0;
+    font-family: 'FreeSans';
+    cursor: pointer;
+}
+
+
+
+.cursorPointerClass {cursor: pointer;}
+
+
+
+#menuContentContainer {
+    position: absolute;
+    left: 0%;
+    width: 100%;
+    height: 90%;
+    overflow-y: auto;
+    line-height: 1em;
+    direction: rtl;
+    padding-top: 3%;
+    text-align: right;
+}
+
+#menuScrollButtons {
+    position: absolute;
+    right: 12%;
+    top: 30%;
+    font-size: 115%;
+}
+
+#languageSelectionContainer {
+    position: absolute;
+    left: 2.3%;
+    top: 0.5%;
+    padding: 1.2%;
+    width: 45%;
+    height: auto;
+    direction: ltr;
+    color:#787065;
+    text-align: left;
+}
+
+#languageSelectionContainer span{
+    font-family: 'Amiri';
+    font-size:85%;
+    margin:0 2.1%;
+    letter-spacing: 0.04em;
+    line-height: 1.8em;
+}
+#languageSelectionContainer span:nth-of-type(n+9) {font-family:'FONTO'; line-height:1.0em; font-size:65%; margin:0;}
+
+
+	#headerRowVertical {
+		display: block;
+	}
+
+#menuSectionsContainer div {
+    width: 80%;
+    padding: 2.1% 0 2.3% 2.1%;
+    cursor: pointer;
+    margin-right: 3%;
+}
+
+
+
+#ayatsLanguageSelector { position: relative; cursor: pointer;}
+#ayatsLangListContainer {
+		position: absolute; 
+		direction: ltr;
+		background-color:#000;
+		left: 20%;
+		padding:15px;
+		 border:2px solid silver;
+		width: 60%;
+		display: none;
+	}
+
+
+#ayatsLangListContainer span{font-family:'FONTO'; font-size:80%; line-height:0.80em; padding:0; margin:0; cursor:pointer;}
+#ayatsLangListContainer span:before { content: '\00a0 \00a0';}
+
+
+
+
+.infoTextClass {
+    font-size: 80%;
+    line-height: 1.4em;
+    color: gray;
+    padding: 5px 0;
+}
+
+button {
+    font-family: var(--csvar_backFONT),var(--csvar_fontSECONDARY);
+    line-height: 1em;
+}
+
+
+
+#bottomMessagesTable {
+    width: 100%;
+}
+
+#bottomMessagesTable tr td:nth-child(1) {
+    width: 7%;
+}
+
+#bottomMessagesTable tr td:nth-child(2) {
+    width: 7%;
+    text-align: center;
+}
+
+#bottomMessagesTable tr td:nth-child(3) {
+    width: 15%;
+}
+
+#bottomMessagesTable tr td:nth-child(4) {
+    width: 64%;
+}
+
+#bottomMessagesTable tr td:nth-child(5) {
+    width: 7%;
+    text-align: right;
+}
+
+#bottomMessagesTable td {
+    vertical-align: top;
+    font-family: 'FreeSans';
+    font-size: 60%;
+    padding: 2% 0.5%;
+    line-height: 1.3em;
+    border-bottom: 1px dashed silver;
+}
+
+#bottomMessagesTable tr td:nth-child(4) {
+    font-family: var(--csvar_backFONT);
+    direction: rtl;
+    text-align: right;
+}
+
+
+
+#slidesTable,#remindersTable {
+    width: 100%;
+}
+
+#remindersTable tr td:nth-child(1),
+#slidesTable tr td:nth-child(1) {
+    width: 10%;
+}
+
+#remindersTable tr td:nth-child(2),
+#slidesTable tr td:nth-child(2) {
+    width: 80%;
+    position:relative;
+    font-family: var(--csvar_backFONT);
+    line-height: 1.9em;
+    text-align: right;
+}
+
+
+#remindersTable tr td:nth-child(2) {
+    direction: ltr;
+}
+#slidesTable tr td:nth-child(2) {
+    direction: rtl;
+}
+
+
+#remindersTable tr td:nth-child(3),
+#slidesTable tr td:nth-child(3) {
+    width: 10%;
+    text-align: right;
+}
+#remindersTable td,
+#slidesTable td {
+    vertical-align: top;
+    font-family: 'FreeSans';
+    font-size: 85%;
+    padding: 2% 0.5%;
+    border-bottom: 1px dashed silver;
+}
+
+
+
+.addSlideButtonClass {
+    margin: 1.5% 0;
+    width: auto;
+    font-size: 1.9vw;
+    padding: 1.5% 7%;
+}
+.settingsCheckboxClass {
+    height: 2.3vw;
+    width: 1.9vw;
+}
+
+
+ul {
+  list-style-type: circle;
+  font-size: 90%;
+  line-height: 1.20em;
+  margin:5% 0%;
+  width: 96%;
+}
+
+li {
+  padding:1.6% 0%;
+}
+
+#locationSectionTitle {font-size:90%; margin-left:15%;}
+
+#currentThemeDisplay {
+		background: url();
+		background-repeat: no-repeat;
+		background-size: auto 100%;
+		font-family: var(--csvar_backFONT);
+	}
+
+.settingsTableClass {
+    width: 100%;
+}
+
+.settingsTableClass td:nth-child(1) {
+    width: 55%;
+}
+
+.settingsTableClass td:nth-child(2) {
+    direction : ltr;
+    width: 20%;
+    text-align: center;
+}
+
+.settingsTableClass td:nth-child(3) {
+    width: 25%;
+	font-size: 150%;
+	color:silver;
+    text-align: center;
+    vertical-align:middle;
+}
+
+.settingsTableClass span{color:silver; font-family: var(--csvar_backFONT);}
+
+
+.themesBySalatTable { width: 100%}
+.themesBySalatTable td {
+    width: 16%;
+    text-align: center;
+    line-height: 1.3em;
+    border-right: 1px dashed #454545;
+    font-family: var(--csvar_backFONT);
+}
+
+
+
+.themesByDayTable { width: 100%}
+.themesByDayTable td {
+    width: 14%;
+    text-align: center;
+    line-height: 1.3em;
+    border-right: 1px dashed #454545;
+    font-family: var(--csvar_backFONT);
+}
+
+
+
+#iqamaAdjustmentsTable { width: 100%; font-family: var(--csvar_backFONT);}
+
+#iqamaAdjustmentsTable td:nth-child(1) {
+    width: 30%;
+    text-align: center;
+}
+
+#iqamaAdjustmentsTable td:nth-child(2) {
+    width: 10%;
+    text-align: left;
+}
+
+#iqamaAdjustmentsTable td:nth-child(3) {
+    width: 10%;
+    text-align: left;
+}
+
+#iqamaAdjustmentsTable td:nth-child(4) {
+    width: 10%;
+    text-align: left;
+}
+
+#iqamaAdjustmentsTable td:nth-child(5) {
+    width: 40%;
+    text-align: right;
+    direction: ltr;
+    padding-right:5%;
+}
+
+.whiteTextClass {color: white;}
+
+
+.clickableWhiteClass {cursor:pointer; color: white;}
+
+
+#audioElementsContainer {
+    position: absolute;
+    left: 33%;
+    top: 2%;
+}
+
+.azkarClockClass {
+    position: absolute;
+    line-height:1.0em;
+    font-family: var(--fnDIGITS);
+    letter-spacing: 0.085em;
+    color: var(--esSALATS);
+}
+
+#picture5minClockDisplayHorizontal {right:35%; top:1.2%; width:30%; font-size:300%; text-align:center;}
+#azkarClockDisplayHorizontal, #slidesClockDisplayHorizontal {right:1%; top:1.2%; width:30%; font-size:300%; text-align:right;}
+
+#picture5minClockDisplayVertical {right:2%; top:1.0%; width:30%; font-size:300%; text-align:right;}
+#azkarClockDisplayVertical, #slidesClockDisplayVertical {right:2%; top:1.0%; width:30%; font-size:300%; text-align:right;}
+
+
+
+#fontsSettingsTitle {text-align: center;}
+#closeMobileAlertButton {text-align: center; margin-bottom:5px;}
+
+#psFlagImageVertical {
+    position: absolute;
+    left: 1.5%;
+    top: 5%;
+    width: 5.5%;
+    border-radius: 50%;
+    opacity: 0.8;
+    z-index: var(--ForAzkarON_zedex);
+    visibility:var(--PSFLG);
+}
+#psFlagImageHorizontal {
+    position: absolute;
+    left: 1.0%;
+    top: 8.7%;
+    width: 2.70%;
+    border-radius: 50%;
+    opacity: 0.8;
+    z-index: var(--ForAzkarON_zedex);
+    visibility:var(--PSFLG);
+}
+
+#fontsTable {width: 100%;}
+#fontsTable label,th{font-family: 'Amiri';}
+
+#userFilesUploadSection {padding:10px 20px;}
+#storageInfoDisplay {padding:10px; direction: var(--csvar_nowDIR);}
+.uploadButtonClass {margin:3px 7px; width:auto; font-size:90%; padding:5px;}
+
+#autoStartContainer {margin-top:10px; display:none;}
+
+.uploadTableClass {
+			width: 96%;
+			}
+
+.uploadTableClass td{
+			direction: var(--csvar_nowDIR);
+			padding:6px 3px;
+			vertical-align: top;
+			
+			 width: 50%;
+			 border-bottom:1px dashed silver;
+			}
+			
+.uploadTableClass img{
+			width: 50%;
+			border:0;
+			min-height:80px;
+			background-color: #656565;
+			}
+
+
+#fontsTable td {
+    width: 25%;
+    direction: rtl;
+    text-align: right;
+    font-size: 75%;
+    vertical-align: top;
+}
+
+.hiddenFontColumnClass{visibility:var(--AllowVisioMainFONTS);}
+
+
+
+
+#alertToastDiv {
+    position: fixed;
+    bottom: 3%;
+    left: 10%;
+    width: 80%;
+    height: 16%;
+    background-color: black;
+    border: 2px solid #333;
+    border-radius: 0%;
+    z-index: 9999999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: var(--csvar_mainFONT), serif;
+    font-size: 2.9vw;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+

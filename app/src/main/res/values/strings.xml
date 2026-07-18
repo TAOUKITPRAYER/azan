@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tawkit</string>
+    <string name="widget_description">أوقات الصلاة والتاريخ — تطبيق توقيت</string>
+    <string name="autostart_prompt_title">التشغيل التلقائي</string>
+    <string name="autostart_prompt_message">هل تريد أن يعمل التطبيق تلقائيًا (في الخلفية دون فتح الواجهة) عند إعادة تشغيل الهاتف، لتحديث أوقات الصلاة والتنبيهات؟</string>
+    <string name="autostart_prompt_yes">نعم</string>
+    <string name="autostart_prompt_no">لا</string>
+    <string name="splash_basmala">بسم الله الرحمن الرحيم</string>
+    <string name="tv_home_launcher_prompt_title">تشغيل تلقائي عند إعادة تشغيل الجهاز</string>
+    <string name="tv_home_launcher_prompt_message">لضمان تشغيل التطبيق تلقائيًا عند كل إعادة تشغيل، يمكن تعيينه كشاشة رئيسية (Home) للجهاز. بعد الموافقة، اختر "Tawkit" في الشاشة التي ستظهر.</string>
+    <string name="tv_home_launcher_prompt_yes">تعيين كشاشة رئيسية</string>
+    <string name="tv_home_launcher_prompt_no">لا، شكرًا</string>
+    <string name="tv_home_launcher_manual_hint">اضغط على زر الشاشة الرئيسية في جهاز التحكم واختر Tawkit</string>
+    <string name="tv_menu_title">أدوات الجهاز</string>
+    <string name="tv_menu_open_android_settings">فتح إعدادات أندرويد (واي فاي...)</string>
+    <string name="tv_menu_change_home_launcher">تغيير الشاشة الرئيسية الافتراضية</string>
+</resources>

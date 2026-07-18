@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Affiche QR — Tawkit</title>
+<style>
+  /* ── Tokens : chrome d'écran (respecte le thème du visiteur) ───────────── */
+  :root {
+    --bg: #EDEAE1;
+    --bg-ink: #2A2014;
+    --toolbar-bg: #FBF8F0;
+    --toolbar-border: #D8CDB4;
+    --btn-bg: #2A2014;
+    --btn-ink: #FBF8F0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14110B;
+      --bg-ink: #EDE6D6;
+      --toolbar-bg: #1C170F;
+      --toolbar-border: #3A3020;
+      --btn-bg: #C9A54B;
+      --btn-ink: #1C170F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14110B; --bg-ink: #EDE6D6; --toolbar-bg: #1C170F;
+    --toolbar-border: #3A3020; --btn-bg: #C9A54B; --btn-ink: #1C170F;
+  }
+  :root[data-theme="light"] {
+    --bg: #EDEAE1; --bg-ink: #2A2014; --toolbar-bg: #FBF8F0;
+    --toolbar-border: #D8CDB4; --btn-bg: #2A2014; --btn-ink: #FBF8F0;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--bg-ink);
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 28px 14px 60px;
+    min-height: 100vh;
+  }
+
+  /* ── Barre d'outils (écran uniquement) ─────────────────────────────────── */
+  .toolbar {
+    width: 100%;
+    max-width: 210mm;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--toolbar-bg);
+    border: 1px solid var(--toolbar-border);
+    border-radius: 10px;
+    padding: 10px 16px;
+  }
+  .toolbar p {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.75;
+    line-height: 1.4;
+  }
+  .toolbar button {
+    flex-shrink: 0;
+    border: none;
+    border-radius: 7px;
+    background: var(--btn-bg);
+    color: var(--btn-ink);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  .toolbar button:focus-visible {
+    outline: 2px solid var(--btn-bg);
+    outline-offset: 3px;
+  }
+
+  /* ── La feuille A4 : identité fixe (papier), indépendante du thème ─────── *
+   * Choix délibéré : c'est un document destiné à être imprimé sur du papier
+   * clair — le papier n'a pas de "mode sombre". La feuille garde donc ses
+   * propres tons ivoire/or quel que soit le thème du visiteur ; seul le
+   * chrome autour (fond de page, barre d'outils) suit le thème. */
+  .sheet {
+    --paper:      #FAF6EA;
+    --ink:        #2A2014;
+    --ink-soft:   #5A4A32;
+    --gold:       #A8792A;
+    --gold-deep:  #7C5518;
+    --green:      #1E4638;
+    --hairline:   #DFCFA6;
+
+    width: 210mm;
+    height: 297mm;
+    max-width: 100%;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.28);
+    padding: 16mm 16mm 14mm;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .top-ornament {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    max-width: 130mm;
+    margin-bottom: 11mm;
+  }
+  .top-ornament .line { flex: 1; height: 1px; background: var(--hairline); }
+  .top-ornament .mark {
+    width: 8px; height: 8px;
+    background: var(--gold);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+
+  h1.title {
+    font-family: "Traditional Arabic", "Arabic Typesetting", "Sakkal Majalla", "Segoe UI", serif;
+    direction: rtl;
+    font-size: 46px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--ink);
+    margin: 0 0 13mm;
+    white-space: nowrap;
+  }
+  h1.title .accent { color: var(--gold-deep); }
+
+  .qr-frame {
+    position: relative;
+    padding: 9mm;
+    border: 1.5px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FFFDF7;
+    margin-bottom: 10mm;
+  }
+  .qr-frame::before,
+  .qr-frame::after {
+    content: "";
+    position: absolute;
+    width: 16px; height: 16px;
+    border: 1.5px solid var(--gold-deep);
+  }
+  .qr-frame::before { top: -6px; left: -6px; border-width: 1.5px 0 0 1.5px; }
+  .qr-frame::after   { bottom: -6px; right: -6px; border-width: 0 1.5px 1.5px 0; }
+  .qr-frame img {
+    width: 62mm;
+    height: 62mm;
+    display: block;
+  }
+
+  p.invite {
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--ink);
+    max-width: 134mm;
+    margin: 0;
+  }
+  p.invite strong {
+    color: var(--green);
+    font-weight: 700;
+  }
+
+  /* ── Impression : la feuille seule, sans chrome, sans ombre ────────────── */
+  @page { size: A4; margin: 0; }
+  @media print {
+    body { padding: 0; gap: 0; background: none; min-height: 0; }
+    .toolbar { display: none; }
+    .sheet { box-shadow: none; width: 210mm; height: 297mm; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="toolbar">
+  <p>Aperçu à l'écran — utilisez « Imprimer » pour générer un PDF ou lancer l'impression directement en A4.</p>
+  <button type="button" id="printBtn">Imprimer</button>
+</div>
+
+<div class="sheet">
+  <div class="top-ornament"><span class="line"></span><span class="mark"></span><span class="line"></span></div>
+
+  <h1 class="title">تطبيق <span class="accent">تَوقيت</span> الصلاة</h1>
+
+  <div class="qr-frame">
+    <img
+      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAnwAAAJ8CAIAAADrj+sBAAAP+0lEQVR4nO3cW47rwBEFwUtj9r9leQsE3E5UNSMWMOJLSnA+zvP7/f4BAP9//wk+AwAQXQDoeNMFgIjoAkBEdAEgIroAEBFdAIiILgBERBcAIqILABHRBYCI6AJARHQBICK6ABARXQCIiC4AREQXACKiCwAR0QWAiOgCQER0ASAiugAQEV0AiPyd+kPP8/z7qt/vl33Wm+v85nim/Z1pz+Gpc9/4Wbd+38tzL5/5N8rv+61+h+6pN10AiIguAEREFwAiogsAEdEFgIjoAkBEdAEgIroAEBFdAIiILgBERBcAtm0vvzFtj/SNaVuj03aMp93TjcdTPmPlPf3yzvOXt46nfQffKK+zN10AiIguAEREFwAiogsAEdEFgIjoAkBEdAEgIroAEBFdAIiILgBERBcAbtxenraBOW0jdOPOanlep7Zqp933jTvGtx5P6cv7zM+Hf+e96QJARHQBICK6ABARXQCIiC4AREQXACKiCwAR0QWAiOgCQER0ASAiugDw1e1l+NoubrkNWx7zxm3hjTvGG/eHv8ybLgBERBcAIqILABHRBYCI6AJARHQBICK6ABARXQCIiC4AREQXACKiCwAR28uRaTu0p7ZYy23haTvGp+7Fxr3fafdi4zFP+y7T8KYLABHRBYCI6AJARHQBICK6ABARXQCIiC4AREQXACKiCwAR0QWAiOgCwFe3l2/dET11Xqf2mTduJp8692nP2Ma9343Hs/E6b3ye3/gtPOZTvOkCQER0ASAiugAQEV0AiIguAEREFwAiogsAEdEFgIjoAkBEdAEgIroAcOP28rTd19KpDdXy75zy5c3kjRu8X35+br3O07bWv8ybLgBERBcAIqILABHRBYCI6AJARHQBQHQB4C7edAEgIroAEBFdAIiILgBEnml7trfauH067dmYdg2nbfl+eRe33DGe9j3d+F3+Mm+6ABARXQCIiC4AREQXACKiCwAR0QWAiOgCQER0ASAiugAQEV0AiIguAET+qg9668v7qBt3eqftD0+7hrfuIZdbx6Xy2Zj2XT5l2m/CNN50ASAiugAQEV0AiIguAEREFwAiogsAEdEFgIjoAkBEdAEgIroAEBFdALhxe3naBu+Xd0SnbedO29w+pXx+bn0Op33WtB3jU3/n1HlN+53/DXvmvekCQER0ASAiugAQEV0AiIguAEREFwAiogsAEdEFgIjoAkBEdAEgIroAsG17edre5sb94Y27rxvv+8a91lNufX6mfU83HnPp+fC5e9MFgIjoAkBEdAEgIroAEBFdAIiILgBERBcAIqILABHRBYCI6AJARHQBIPJM28UtN2+/vPv6xpc3rjduC2/8O6d8+fmZ5tbfn9+h8/KmCwAR0QWAiOgCQER0ASAiugAQEV0AiIguAEREFwAiogsAEdEFgIjoAkDk719o2gbmrZvSG7dhp12fcvN22h7yqXPf+GxsvD6ljb/h03jTBYCI6AJARHQBICK6ABARXQCIiC4AREQXACKiCwAR0QWAiOgCQER0AeDG7eUv7/2We6TTNl3L49m4nTtth/bW7+Cpz5r2PZ32/Ew792fYFrQ3XQCIiC4AREQXACKiCwAR0QWAiOgCQER0ASAiugAQEV0AiIguAEREFwC2bS+Xe6S3biaXys3SWzdmT537xh3aaec+zbTvzhvTvqfPpc+PN10AiIguAEREFwAiogsAEdEFgIjoAkBEdAEgIroAEBFdAIiILgBERBcAtm0vb9ztPLUxe8rGDd5bnTr3afu6075ffjfmXMPS8+HfH2+6ACC6AHAXb7oAEBFdAIiILgBERBcAIqILABHRBYCI6AJARHQBICK6ALBte/nLu6/Tzn3jFmu5s3rrpmvJNWxM+y5P+119hm3+v+FNFwAiogsAEdEFgIjoAkBEdAEgIroAEBFdAIiILgBERBcAIqILABHRBYAbt5dLp/aZT33Wqb8zbcP5zfFM2+ktr/Mb5WdNO/fSxnMvt45PnfvGY37CZ8ObLgBERBcAIqILABHRBYCI6AJARHQBICK6ABARXQCIiC4AREQXACKiCwCR59bd11Pbnqds3Agt91HL+zXtXkzboS1Ne56n3a+Ne9Ff/i6/4U0XACKiCwAR0QWAiOgCQER0ASAiugAQEV0AiIguAEREFwAiogsAEdEFgMjfqT80bSP01j3Sjduw0z7r1LM6bVP6jS/vPE8z7TezPJ7fsO97yZsuAEREFwAiogsAEdEFgIjoAkBEdAEgIroAEBFdAIiILgBERBcAIqILAJFn47Zn+XfeOHUNN+4YT/usL2/nTtuhnbZNvfFZ3fiMnfJceu7edAEgIroAEBFdAIiILgBERBcAIqILABHRBYCI6AJARHQBICK6ABARXQCI/P0LbdzJLLegb92qnbZN/cap+7XxvMrjOeXUvTh1fcrfhFOm7U7/hv3+nOJNFwAiogsAEdEFgIjoAkBEdAEgIroAEBFdAIiILgBERBcAIqILABHRBYDIYz92l2n3qzyeabvB047ny89Y+fxM2/Ld+Iy9cev98qYLABHRBYCI6AJARHQBICK6ABARXQCIiC4AREQXACKiCwAR0QWAiOgCwLbt5VOmbeeeMm2HtvysWzdUp+1Xb9zpnXZPS+UzP+379Qz7nS+vjzddAIiILgBERBcAIqILABHRBYCI6AJARHQBICK6ACC6AHAXb7oAEBFdAIj83brpekq5yTltI7S0cWO23MG+9b5vPK9pv3Xl8dx6v37hMXvTBYCI6AJARHQBICK6ABARXQCIiC4AREQXACKiCwAR0QWAiOgCQER0ASDy3LqTOW1vs9xHdV7/O/ereQ6n7Rhv/O7c+nv4u/R4vOkCQER0ASAiugAQEV0AiIguAEREFwAiogsAEdEFgIjoAkBEdAEgIroAEPn7F5q2szrteG7dGr31vE659TmctqP+5u+Ue8jl39n4HD6X7tV70wWAiOgCQER0ASAiugAQEV0AiIguAEREFwAiogsAEdEFgIjoAkBEdAEg8pQ7qxtt3KEtTdsxfmPavm65F73xOdx4PF9+5qftnz/DjsebLgBERBcAIqILABHRBYCI6AJARHQBICK6ABARXQCIiC4AREQXACKiCwCRv1v3SKdtzJabpdO2Rt+Ydr/emLaDPe0abtx1n7YJXB7zxu/X78UxT/vN9KYLABHRBYCI6AJARHQBICK6ABARXQCIiC4AREQXACKiCwAR0QWAiOgCQOSZtjU6bRP4lC/v4k57xjZuZU+z8fmZdp03npfv8v/Omy4AREQXACKiCwAR0QWAiOgCQER0ASAiugAQEV0AiIguAEREFwAiogsAkb9Tf6jcoZ22WTptL3ra8UyzcVd52j3deF4bd7Cn7SqX9/037Hf+FG+6ABARXQCIiC4AREQXACKiCwAR0QWAiOgCQER0ASAiugAQEV0AiIguAGzbXp62gTltG3ba7vQbG4/nlGlbx7dew40b19O+F7f+Zj7hdS7vlzddAIiILgBERBcAIqILABHRBYCI6AJARHQBICK6ABARXQCIiC4AREQXALZtL2/c4L11Z/XUMU87r1P3q9z7LXeDS9OejWlu3Q3euOE87X550wWAiOgCQER0AUB0AeAu3nQBICK6ABARXQCIiC4AREQXACKiCwAR0QWAyDNt3/KNU8f85V3l8rPKbeGN96tUPhun3LqRXtp4fZ5hG+mneNMFgIjoAkBEdAEgIroAEBFdAIiILgBERBcAIqILABHRBYCI6AJARHQBIPL3b5hyy/fLu8GnzmvavZi2s1rauKv85b3xafdr4zG/Me377k0XACKiCwAR0QWAiOgCQER0ASAiugAQEV0AiIguAEREFwAiogsAEdEFgMizcbN0495m6cv7w1/ezn3j1u/7rddnmlu/F2+cOi9vugAQEV0AiIguAEREFwAiogsAEdEFgIjoAkBEdAEgIroAEBFdAIiILgBs214ufXn3ddr26Zefn1OftfHZKG28X6dM26v/8m/vKd50ASAiugAQEV0AiIguAEREFwAiogsAEdEFgIjoAkBEdAEgIroAEBFdAIis3F6eptwRnXa/pp37tJ3ejTu0X34Ob91w3njuv2Hf91O86QJARHQBICK6ABARXQCIiC4AREQXACKiCwAR0QWAiOgCQER0ASAiugAQ+fsXmraTuXEjdNre77T7Ne3cp33WtC3oU8c87bymmbZj/Bv2PJe/Y950ASAiugAQEV0AiIguAEREFwAiogsAEdEFgIjoAkBEdAEgIroAEBFdAIg807ZzT9l4XuUxn7Jx77d06p5ufMbKzduN12fjNZy2N77xOnvTBYCI6AJARHQBICK6ABARXQCIiC4AREQXACKiCwAR0QWAiOgCQER0ASDyd+oPfXlXeeN+7KnzKu9FeV7TdmhPcX3m2PjbsvF5fqP8HfOmCwAR0QWAiOgCQER0ASAiugAQEV0AiIguAEREFwAiogsAEdEFANEFgLs85ebkl9265ftGuXV868b1KRvPfdoxl6Zdn1u3+p/we+rfywAQEV0AiIguAEREFwAiogsAEdEFgIjoAkBEdAEgIroAEBFdAIiILgBE/k79oWmbpaVb96tPbZZO21XeuMFbXsPy70y7ztN2eqdd5y+f+ynedAEgIroAEBFdAIiILgBERBcAIqILABHRBYCI6AJARHQBICK6ABARXQDYtr1860bxqd3OjZuu5blP21We9qxOO56Nz8/G7e5p933a8Ww8Zm+6ABARXQCIiC4AREQXACKiCwAR0QWAiOgCQER0ASAiugAQEV0AiIguANy4vfzGqc3SjZucG7dh3yg/q3TqvDZen3K/etpW9q3nvvE53Pj8eNMFgIjoAkBEdAEgIroAEBFdAIiILgBERBcAIqILABHRBYCI6AJARHQB4Kvby7eatpm8cat24zasDd451/DUZ5Wb2xu/F9O2oH+HruGp8/KmCwAR0QWAiOgCQER0ASAiugAQEV0AiIguAEREFwAiogsAEdEFgIjoAkDE9vIg5YZquWtabueeMm0Xt9yPPfVZ0zaBT5m25TvtmKf9jv2G/UZ50wWAiOgCQER0ASAiugAQEV0AiIguAEREFwAiogsAEdEFgIjoAkBEdAHgq9vLG3d6N55XeTzTNoE33q83pu3iTtsoPnXu04552rM67X5N400XACKiCwAR0QWAiOgCQER0ASAiugAQEV0AiIguAEREFwAiogsAEdEFgBu3l2/d0jzly5uuG/eZ39h4v6Zt50479zfHM+23buP3/ZRpe+zedAEgIroAEBFdAIiILgBERBcAIqILABHRBYCI6AJARHQBICK6ABARXQCIPOXeJgB8mTddAIiILgBERBcAIqILABHRBYCI6AJARHQBICK6ABARXQCIiC4AREQXACKiCwAR0QWAiOgCQER0ASAiugAQEV0AiIguAEREFwAiogsAEdEFgIjoAkBEdAHgX+O/NfSkJo4CKS4AAAAASUVORK5CYII="
+      alt="QR code de telechargement de l'application Tawkit"
+      width="500" height="500">
+  </div>
+
+  <p class="invite">
+    Chers Frères, <strong>scannez ce code</strong> pour télécharger gratuitement
+    l'application et recevoir les notifications (Dourouss, Coran, Janaza, etc..)
+    ainsi que les horaires de prière de votre mosquée directement sur votre téléphone.
+  </p>
+</div>
+
+<script>
+  // Attache l'ecouteur via addEventListener (pas d'attribut onclick="") :
+  // certains bacs a sable/CSP stricts bloquent silencieusement les
+  // gestionnaires d'evenements inline, ce qui laissait le bouton "Imprimer"
+  // sans aucune reaction au clic.
+  var printBtn = document.getElementById('printBtn');
+  if (printBtn) {
+    printBtn.addEventListener('click', function () {
+      window.print();
+    });
+  }
+</script>
+
+</body>
+</html>

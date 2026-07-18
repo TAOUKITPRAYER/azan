@@ -1,0 +1,300 @@
+[23:32:10][CFG] QURAN_PRAYER prayer=MGRB enabled=1 delay=900s days=1111111
+[23:32:10][CFG] QURAN_PRAYER prayer=ISHA enabled=1 delay=900s days=1111111
+[23:32:10][CFG] QURAN_PRAYER prayer=JOMOA enabled=1 delay=900s
+[23:32:10][CFG] QURAN_RECITERS total=10 enabled=10 active=C1,C2,C3,C4,C5,C6,C7,C8,C9,C10
+[23:32:10][THEME] INFO customThemes=5 idxRange=1000-1004
+[23:32:10][THEME] PATCH fn=apply/increment/decrement coreMax=39 customMin=1000 customMax=1004
+[23:32:10] 🔴 🔴 [RES] AUDIO load failed: file:///android_asset/spec/audio/fin.ogg
+[23:32:10] TWKT : LOAD_COMPLETED
+[23:32:11] [SUPABASE_KEEPALIVE] ping OK
+[23:32:11] [QR] VISIBILITY isQr=false
+[23:32:11][ICONS] INFO psFlagImageVertical vMode=0 left=6 top=37 width=21 height=21
+[23:32:11][ICONS] POS isHR=false vMode=0 spLeft=10% spTop=10% qrLeft=80% qrTop=10%
+[23:32:11] [LOGO] FRAME_INIT
+[23:32:12] [QR] VISIBILITY isQr=false
+[23:32:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=unknown
+[23:32:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:32:12][QP] STOP action=server_error
+[23:32:13][METEO] FETCH lat=35.685869143315436 lon=10.846734637739171 tz=Africa/Tunis src=MOSQUE_CONFIG
+[23:32:13][METEO] OK http=200
+[23:32:13][METEO] CACHE action=saved
+[23:32:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:32:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:34:02][NPT] TICK_MISS expected=1414 got=1413
+[23:34:02][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:34:02][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:34:03][AUDIO] FIRE action=unlock reason=first_user_gesture
+[23:34:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:34:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:34:18][ICONS] INFO psFlagImageVertical vMode=0 left=6 top=22 width=21 height=21
+[23:34:18][ICONS] POS isHR=false vMode=0 spLeft=10% spTop=10% qrLeft=80% qrTop=10%
+[23:34:21][ICONS] INFO psFlagImageVertical vMode=0 left=6 top=37 width=21 height=21
+[23:34:21][ICONS] POS isHR=false vMode=0 spLeft=10% spTop=10% qrLeft=80% qrTop=10%
+[23:34:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:34:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:35:04][ICONS] INFO psFlagImageVertical vMode=0 left=6 top=37 width=21 height=21
+[23:35:04][ICONS] POS isHR=false vMode=0 spLeft=10% spTop=10% qrLeft=80% qrTop=10%
+[23:35:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:35:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:35:33][RM] DL_START id=husary url=https://github.com/TAOUKITPRAYER/tawkit-reciters/releases/download/reciter-husary/husary.zip
+[23:35:33] [RM] KEEP_SCREEN_ON enabled=true activeIds=husary
+[23:35:33][RM] DL_STATUS id=husary from=(none) to=downloading data={"status":"downloading","downloaded":0,"total":-1,"percent":-1}
+[23:35:39][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":335872,"total":235044626,"percent":0}
+[23:35:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:35:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:35:45][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":1269760,"total":235044626,"percent":0}
+[23:35:50][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":2203648,"total":235044626,"percent":0}
+[23:35:56][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":3596288,"total":235044626,"percent":1}
+[23:36:01][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":5087232,"total":235044626,"percent":2}
+[23:36:07][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":5726208,"total":235044626,"percent":2}
+[23:36:12][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":6217728,"total":235044626,"percent":2}
+[23:36:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:36:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:36:18][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":7315456,"total":235044626,"percent":3}
+[23:36:23][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":8151040,"total":235044626,"percent":3}
+[23:36:29][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":9560064,"total":235044626,"percent":4}
+[23:36:34][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":10493952,"total":235044626,"percent":4}
+[23:36:40][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":11509760,"total":235044626,"percent":4}
+[23:36:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:36:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:36:45][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":12591104,"total":235044626,"percent":5}
+[23:36:51][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":13885440,"total":235044626,"percent":5}
+[23:36:56][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":15097856,"total":235044626,"percent":6}
+[23:37:02][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":16293888,"total":235044626,"percent":6}
+[23:37:07][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":17637376,"total":235044626,"percent":7}
+[23:38:36][NPT] TICK_MISS expected=1418 got=1417
+[23:38:36][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":34168832,"total":235044626,"percent":14}
+[23:38:36][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:38:36][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:38:42][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":35184640,"total":235044626,"percent":14}
+[23:38:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:38:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:38:44][ICONS] INFO psFlagImageVertical vMode=0 left=6 top=22 width=21 height=21
+[23:38:44][ICONS] POS isHR=false vMode=0 spLeft=10% spTop=10% qrLeft=80% qrTop=10%
+[23:38:45][ICONS] INFO psFlagImageVertical vMode=0 left=6 top=37 width=21 height=21
+[23:38:45][ICONS] POS isHR=false vMode=0 spLeft=10% spTop=10% qrLeft=80% qrTop=10%
+[23:38:47][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":35987456,"total":235044626,"percent":15}
+[23:38:53][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":37429248,"total":235044626,"percent":15}
+[23:38:59][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":38510592,"total":235044626,"percent":16}
+[23:39:04][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":39411712,"total":235044626,"percent":16}
+[23:39:10][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":40607744,"total":235044626,"percent":17}
+[23:39:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:39:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:39:15][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":41672704,"total":235044626,"percent":17}
+[23:39:21][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":42950656,"total":235044626,"percent":18}
+[23:39:27][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":44048384,"total":235044626,"percent":18}
+[23:39:32][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":45162496,"total":235044626,"percent":19}
+[23:39:38][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":46654164,"total":235044626,"percent":19}
+[23:39:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:39:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:39:43][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":47948500,"total":235044626,"percent":20}
+[23:39:49][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":49160916,"total":235044626,"percent":20}
+[23:39:55][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":51241684,"total":235044626,"percent":21}
+[23:40:00][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":52650708,"total":235044626,"percent":22}
+[23:40:06][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":53338836,"total":235044626,"percent":22}
+[23:40:11][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":54436564,"total":235044626,"percent":23}
+[23:40:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:40:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:40:17][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":55501524,"total":235044626,"percent":23}
+[23:40:23][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":56632020,"total":235044626,"percent":24}
+[23:40:28][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":57925632,"total":235044626,"percent":24}
+[23:40:34][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":58630144,"total":235044626,"percent":24}
+[23:40:39][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":59777024,"total":235044626,"percent":25}
+[23:40:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:40:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:40:45][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":60481536,"total":235044626,"percent":25}
+[23:40:51][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":61497344,"total":235044626,"percent":26}
+[23:40:56][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":62529536,"total":235044626,"percent":26}
+[23:41:02][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":63610880,"total":235044626,"percent":27}
+[23:41:07][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":64921600,"total":235044626,"percent":27}
+[23:41:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:41:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:41:13][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":66592768,"total":235044626,"percent":28}
+[23:41:19][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":67624960,"total":235044626,"percent":28}
+[23:41:24][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":69033984,"total":235044626,"percent":29}
+[23:41:30][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":70852608,"total":235044626,"percent":30}
+[23:41:35][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":71983104,"total":235044626,"percent":30}
+[23:41:41][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":73129984,"total":235044626,"percent":31}
+[23:41:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:41:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:41:47][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":73964878,"total":235044626,"percent":31}
+[23:41:52][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":75242830,"total":235044626,"percent":32}
+[23:41:58][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":76143950,"total":235044626,"percent":32}
+[23:42:03][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":77225294,"total":235044626,"percent":32}
+[23:42:09][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":79076686,"total":235044626,"percent":33}
+[23:42:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:42:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:42:15][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":80567630,"total":235044626,"percent":34}
+[23:42:20][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":81796430,"total":235044626,"percent":34}
+[23:42:26][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":83303758,"total":235044626,"percent":35}
+[23:42:31][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":84368718,"total":235044626,"percent":35}
+[23:42:37][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":86072654,"total":235044626,"percent":36}
+[23:42:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:42:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:42:43][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":87268686,"total":235044626,"percent":37}
+[23:42:48][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":88055118,"total":235044626,"percent":37}
+[23:42:54][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":89382222,"total":235044626,"percent":38}
+[23:42:59][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":90660174,"total":235044626,"percent":38}
+[23:43:05][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":92134734,"total":235044626,"percent":39}
+[23:43:11][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":93347150,"total":235044626,"percent":39}
+[23:43:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:43:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:43:16][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":94526798,"total":235044626,"percent":40}
+[23:43:22][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":95886670,"total":235044626,"percent":40}
+[23:43:27][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":97115470,"total":235044626,"percent":41}
+[23:43:33][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":98426190,"total":235044626,"percent":41}
+[23:43:39][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":99867982,"total":235044626,"percent":42}
+[23:43:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:43:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:43:44][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":101358926,"total":235044626,"percent":43}
+[23:43:50][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":103079246,"total":235044626,"percent":43}
+[23:43:55][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":104766798,"total":235044626,"percent":44}
+[23:44:01][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":106044750,"total":235044626,"percent":45}
+[23:44:07][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":107322702,"total":235044626,"percent":45}
+[23:44:12][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":108715342,"total":235044626,"percent":46}
+[23:44:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:44:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:44:18][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":110337358,"total":235044626,"percent":46}
+[23:44:23][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":112041294,"total":235044626,"percent":47}
+[23:44:29][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":113794382,"total":235044626,"percent":48}
+[23:44:35][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":115072334,"total":235044626,"percent":48}
+[23:44:40][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":115957068,"total":235044626,"percent":49}
+[23:44:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:44:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:44:46][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":117726540,"total":235044626,"percent":50}
+[23:44:51][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":119119180,"total":235044626,"percent":50}
+[23:44:57][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":120364364,"total":235044626,"percent":51}
+[23:45:03][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":121658700,"total":235044626,"percent":51}
+[23:45:08][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":122871116,"total":235044626,"percent":52}
+[23:45:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:45:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:45:14][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":124607820,"total":235044626,"percent":53}
+[23:45:19][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":125754700,"total":235044626,"percent":53}
+[23:45:25][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":127262028,"total":235044626,"percent":54}
+[23:45:26][RM] DL_STATUS id=husary from=downloading to=idle data={"status":"idle"}
+[23:45:26][RM] DL_STATUS id=husary from=idle to=downloading data={"status":"downloading","downloaded":127491404,"total":235044626,"percent":54}
+[23:45:32][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":128490828,"total":235044626,"percent":54}
+[23:45:38][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":130047308,"total":235044626,"percent":55}
+[23:45:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:45:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:45:43][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":131030348,"total":235044626,"percent":55}
+[23:45:49][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":132488524,"total":235044626,"percent":56}
+[23:45:54][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":133438796,"total":235044626,"percent":56}
+[23:46:00][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":134470988,"total":235044626,"percent":57}
+[23:46:06][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":135765324,"total":235044626,"percent":57}
+[23:46:11][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":137125196,"total":235044626,"percent":58}
+[23:46:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:46:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:46:17][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":138272076,"total":235044626,"percent":58}
+[23:46:19][ICONS] INFO psFlagImageVertical vMode=0 left=6 top=37 width=21 height=21
+[23:46:19][ICONS] POS isHR=false vMode=0 spLeft=10% spTop=10% qrLeft=80% qrTop=10%
+[23:46:22][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":139631948,"total":235044626,"percent":59}
+[23:46:28][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":140401996,"total":235044626,"percent":59}
+[23:46:34][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":141008204,"total":235044626,"percent":59}
+[23:46:39][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":141450572,"total":235044626,"percent":60}
+[23:46:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:46:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:46:45][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":141647180,"total":235044626,"percent":60}
+[23:46:50][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":141974860,"total":235044626,"percent":60}
+[23:46:56][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":142662988,"total":235044626,"percent":60}
+[23:47:02][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":144104780,"total":235044626,"percent":61}
+[23:47:07][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":144956748,"total":235044626,"percent":61}
+[23:47:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:47:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:47:13][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":146054476,"total":235044626,"percent":62}
+[23:47:18][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":147070284,"total":235044626,"percent":62}
+[23:47:24][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":147807564,"total":235044626,"percent":62}
+[23:47:30][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":149151052,"total":235044626,"percent":63}
+[23:47:35][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":150085632,"total":235044626,"percent":63}
+[23:47:41][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":150446080,"total":235044626,"percent":64}
+[23:47:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:47:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:47:46][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":150757376,"total":235044626,"percent":64}
+[23:47:52][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":151789568,"total":235044626,"percent":64}
+[23:47:58][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":152182784,"total":235044626,"percent":64}
+[23:48:03][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":152281088,"total":235044626,"percent":64}
+[23:48:09][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":153395200,"total":235044626,"percent":65}
+[23:48:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:48:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:48:14][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":154099712,"total":235044626,"percent":65}
+[23:48:20][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":154640384,"total":235044626,"percent":65}
+[23:48:26][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":155426816,"total":235044626,"percent":66}
+[23:48:31][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":155918336,"total":235044626,"percent":66}
+[23:48:37][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":156672000,"total":235044626,"percent":66}
+[23:48:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:48:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:48:42][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":157261824,"total":235044626,"percent":66}
+[23:48:48][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":157949952,"total":235044626,"percent":67}
+[23:48:54][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":158474240,"total":235044626,"percent":67}
+[23:48:59][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":159211520,"total":235044626,"percent":67}
+[23:49:05][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":159932416,"total":235044626,"percent":68}
+[23:49:10][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":160636928,"total":235044626,"percent":68}
+[23:49:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:49:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:49:16][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":161258307,"total":235044626,"percent":68}
+[23:49:22][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":161766211,"total":235044626,"percent":68}
+[23:49:27][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":162388803,"total":235044626,"percent":69}
+[23:49:33][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":163076931,"total":235044626,"percent":69}
+[23:49:38][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":163633987,"total":235044626,"percent":69}
+[23:49:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:49:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:49:44][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":164141891,"total":235044626,"percent":69}
+[23:49:50][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":164584259,"total":235044626,"percent":70}
+[23:49:55][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":165141315,"total":235044626,"percent":70}
+[23:50:01][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":165845827,"total":235044626,"percent":70}
+[23:50:06][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":166566723,"total":235044626,"percent":70}
+[23:50:12][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":167287619,"total":235044626,"percent":71}
+[23:50:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:50:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:50:18][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":168124416,"total":235044626,"percent":71}
+[23:50:23][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":168615936,"total":235044626,"percent":71}
+[23:50:29][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":169205760,"total":235044626,"percent":71}
+[23:50:34][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":169893888,"total":235044626,"percent":72}
+[23:50:40][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":170418176,"total":235044626,"percent":72}
+[23:50:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:50:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:50:46][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":171204608,"total":235044626,"percent":72}
+[23:50:51][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":172072960,"total":235044626,"percent":73}
+[23:50:57][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":172695552,"total":235044626,"percent":73}
+[23:51:02][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":173367296,"total":235044626,"percent":73}
+[23:51:08][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":174088192,"total":235044626,"percent":74}
+[23:51:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:51:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:51:14][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":174989312,"total":235044626,"percent":74}
+[23:51:19][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":176218112,"total":235044626,"percent":74}
+[23:51:25][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":177381376,"total":235044626,"percent":75}
+[23:51:30][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":178872320,"total":235044626,"percent":76}
+[23:51:36][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":179707904,"total":235044626,"percent":76}
+[23:51:42][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":180871168,"total":235044626,"percent":76}
+[23:51:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:51:42][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:51:47][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":182149120,"total":235044626,"percent":77}
+[23:51:52][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":183099392,"total":235044626,"percent":77}
+[23:51:58][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":184180736,"total":235044626,"percent":78}
+[23:52:03][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":185081856,"total":235044626,"percent":78}
+[23:52:09][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":186343424,"total":235044626,"percent":79}
+[23:52:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:52:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:52:15][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":187424768,"total":235044626,"percent":79}
+[23:52:21][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":188456960,"total":235044626,"percent":80}
+[23:52:26][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":189227008,"total":235044626,"percent":80}
+[23:52:32][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":190324736,"total":235044626,"percent":80}
+[23:52:37][RM] DL_PROGRESS id=husary data={"status":"downloading","downloaded":190914560,"total":235044626,"percent":81}
+[23:54:55][NPT] TICK_MISS expected=1434 got=1432
+[23:54:56][RM] DL_STATUS id=husary from=downloading to=error data={"status":"error","downloaded":209124684,"total":-1,"percent":-1,"message":"timeout"}
+[23:54:56] [RM] KEEP_SCREEN_ON enabled=false activeIds=(none)
+[23:54:56][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:54:56][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:55:02][RM] DL_PAUSE_CLICK id=husary
+[23:55:04][RM] DL_PAUSE_CLICK id=husary
+[23:55:05][RM] DL_PAUSE_CLICK id=husary
+[23:55:05][RM] DL_PAUSE_CLICK id=husary
+[23:55:05][RM] DL_PAUSE_CLICK id=husary
+[23:55:12][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:55:12][QP] STOP action=server_probe result=error reason=Failed to fetch
+[23:55:16][RM] DL_PAUSE_CLICK id=husary
+[23:55:16][RM] DL_PAUSE_CLICK id=husary
+[23:55:17][RM] DL_PAUSE_CLICK id=husary
+[23:55:37] [QR] VISIBILITY isQr=true
+[23:55:42][QP] FIRE action=server_probe url=http://127.0.0.1:8080/health state=error
+[23:55:42][QP] STOP action=server_probe result=error reason=Failed to fetch

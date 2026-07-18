@@ -1,0 +1,85 @@
+======================================================
+ TAWKIT MOBILE — INTEGRATION NOTIFICATIONS ANDROID
+======================================================
+
+Les fichiers Tawkit ont ete copies dans ce dossier.
+L'app charge : file:///android_asset/index.html
+
+------------------------------------------------------
+ AJOUTER dans spec/custom.js (a la fin du fichier)
+------------------------------------------------------
+
+// =============================================================
+// ANDROID MOBILE — Notifications d'heure de priere
+// Bridge: window.AndroidMobile (injecte par MobileJsBridge.kt)
+// prayerTimesMinutesObject est une const globale de m1prime.js
+// Cles: FAJR, DOHR, ASSR, MGRB, ISHA  (minutes depuis minuit)
+// =============================================================
+
+(function _installAndroidNotifications() {
+    if (typeof window.AndroidMobile === 'undefined') return; // pas dans l'app Android
+
+    function _minutesToHHMM(minutes) {
+        return { hour: Math.floor(minutes / 60), minute: minutes % 60 };
+    }
+
+    function _schedulePrayerNotifications() {
+        // prayerTimesMinutesObject est rempli par calculateAndDisplayTimesFunction()
+        var obj = prayerTimesMinutesObject;
+        if (!obj || !obj.FAJR) return; // pas encore calcule
+
+        var fajr  = _minutesToHHMM(obj.FAJR);
+        var dohr  = _minutesToHHMM(obj.DOHR);
+        var assr  = _minutesToHHMM(obj.ASSR);
+        var mgrb  = _minutesToHHMM(obj.MGRB);
+        var isha  = _minutesToHHMM(obj.ISHA);
+
+        var prayers = [
+            { prayer: 'Fajr',    hour: fajr.hour,  minute: fajr.minute  },
+            { prayer: 'Dhuhr',   hour: dohr.hour,  minute: dohr.minute  },
+            { prayer: 'Asr',     hour: assr.hour,  minute: assr.minute  },
+            { prayer: 'Maghreb', hour: mgrb.hour,  minute: mgrb.minute  },
+            { prayer: 'Isha',    hour: isha.hour,  minute: isha.minute  }
+        ];
+
+        window.AndroidMobile.schedulePrayerNotifications(JSON.stringify(prayers));
+        window.AndroidMobile.log('[Tawkit] Notifications schedulees: ' + prayers.map(function(p){
+            return p.prayer + ' ' + String(p.hour).padStart(2,'0') + ':' + String(p.minute).padStart(2,'0');
+        }).join(', '));
+    }
+
+    // Appel initial : attendre que calculateAndDisplayTimesFunction() ait tourne
+    setTimeout(_schedulePrayerNotifications, 4000);
+
+    // Re-programmer chaque jour a minuit (les heures changent chaque jour)
+    var _lastScheduledDay = -1;
+    ucOn(UC_EVT.AZAN_TIME, function() {
+        var today = new Date().getDate();
+        if (today !== _lastScheduledDay) {
+            _lastScheduledDay = today;
+            setTimeout(_schedulePrayerNotifications, 2000);
+        }
+    });
+})();
+
+------------------------------------------------------
+ VERIFICATION (dans le navigateur Chrome, pas Android)
+------------------------------------------------------
+
+Coller dans la console pour tester les valeurs :
+  console.log(prayerTimesMinutesObject);
+  // Resultat attendu : { FAJR: 328, DOHR: 765, ASSR: 990, MGRB: 1172, ISHA: 1310, ... }
+
+  // Convertir en HH:MM :
+  Object.entries(prayerTimesMinutesObject).forEach(([k,v]) =>
+    console.log(k, Math.floor(v/60) + ':' + String(v%60).padStart(2,'0'))
+  );
+
+------------------------------------------------------
+ LOGCAT (pour voir les logs Android pendant le dev)
+------------------------------------------------------
+
+Dans Android Studio > Logcat, filtrer sur le tag : TWKT
+Ou dans un terminal : adb logcat -s TWKT_JS:D TWKT:D
+
+======================================================

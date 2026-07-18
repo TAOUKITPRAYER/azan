@@ -1,0 +1,85 @@
+Investigation Report
+1. Layout-mode system (data-layout-mode)
+Where it's set: entirely in the patch layer, not core code.
+
+app/src/main/assets/spec/custom.js:7390-7483 — a self-invoking function _installLayoutModes() that overrides the core window.toggleHrNamesMiddleFunction and window.updateHrNamesPositionFunction.
+Core original functions (what's being overridden) live in app/src/main/assets/m2body.js:6573 (JS_DATA.ucHrNamesInMiddle = +(!JS_DATA.ucHrNamesInMiddle) — only ever toggled 0/1) and m2body.js:6581.
+The patch changes the cycle to 5 states: custom.js:7404: JS_DATA.ucHrNamesInMiddle = (JS_DATA.ucHrNamesInMiddle + 1) % 5.
+data-layout-mode attribute is set/removed at custom.js:7420 (removeAttribute), :7444 ('2'), :7454 ('3'), :7464 ('4'). Mode 1 and mode 0 never set the attribute (mode 1 is the original core "names in middle" state, mode 0 = no attribute = default/original layout), so :not([data-layout-mode]) in CSS = mode 0 or 1 combined and JS_DATA.ucHrNamesInMiddle distinguishes them further.
+How many modes exist (horizontal only): 5 (JS_DATA.ucHrNamesInMiddle = 0–4), all defined/commented at custom.js:7391-7399:
+
+Mode 0 – Standard: names top, hours middle, iqama bottom
+Mode 1 – Names in middle, iqama top (this is the only mode that existed in core m2body.js originally)
+Mode 2 – "Islamic Green": same positions as mode 0, emerald-green cell styling
+Mode 3 – "Gold Minimal": same positions as mode 1, transparent cells with a gold line
+Mode 4 – "pb.png" background ornament theme (added later, comment at custom.js:7456)
+Visual differences (CSS), all scoped to #mainHorizontalContainer[data-layout-mode="N"], entirely in app/src/main/assets/spec/custom.css (style1.css has zero data-layout-mode rules — confirmed via grep):
+
+Mode 2 block: custom.css:706-765 (and duplicated at :2768-2816) — emerald borders/glow on .prayerCellClass, arc-shaped border-radius, green/mint text colors.
+Mode 2 also has a sub-feature: adaptive palette keyed off the current background-theme index via data-bg-palette="or|teal|bleu" (see point 2), styled at custom.css:1081-1197 and :3054-3161.
+Mode 3 block: custom.css:767-880 (dup :2829-2930) plus extra rules at custom.css:1495-1497 and :3471 — fully transparent cells, borders removed, azan/iqama shown as pill-shaped bordered badges, gold (#DDC091) text.
+Mode 4 block: custom.css:1895-2051 (header comment block describing pb.png geometry) and more at custom.css:1907-2051, :3884 — uses a background image asset (pb.png) with hand-tuned percentage offsets per cell, different font sizes, crescent icon ::before pseudo-elements per prayer name (custom.css:1957-2006).
+Mode-3-specific night-prayers/weather repositioning: custom.css:609-661 (dup :2664-2714).
+UI toggle: Yes — it's the existing checkbox #middleSalatNamesCheckbox in the Options settings panel, app/src/main/assets/index.html:689, wired to onchange='toggleHrNamesMiddleFunction()'. This checkbox was originally a simple binary toggle; the patch repurposes it to cycle through all 5 modes on each click (checkbox visually shows checked only for mode 1, per custom.js:7410). There is no separate dropdown/radio UI for the 5 modes — it's one checkbox cycling silently.
+
+2. Theme/color system
+applyThemeChange() — m2body.js:8069-8094. Dispatches on JS_DATA.ucThemesActiveType: 0 = no auto change, 1 = changeThemeByPrayer (m2body.js:8079, defined ~line 590s), 2 = changeThemeByDay (m2body.js:8050), 3 = changeThemeRandomly (m2body.js:8036ish).
+initializeThemeScheduler() — m2body.js:8287-8291, called once via setTimeout(initializeThemeScheduler, 3000) at m2body.js:8827; sets isThemeChangeBySalatActive = true then calls applyThemeChange(). isThemeChangeBySalatActive is read at m2body.js:2345.
+Actual per-theme color application: applyThemeFunction() — m2body.js:438-597. Sets currentBackgroundUrl to themes/HR-{currentThemeIndex}.jpg (horizontal, m2body.js:460) or themes/VR-{currentThemeIndex}.jpg (vertical, :476), and sets CSS vars --esCLOCK/--esSALATS/--esLOWER/--esBGTUB at m2body.js:580-583 from a pipe-delimited palette string.
+There are only two fixed color palettes total, defined as constants in app/src/main/assets/settings-defaults.js:164-165:
+JS_COLORS_FOR_DARK_THEMES = "#FFFFFF|#DDC091|#BEAF97|#000000" (default for all themes)
+JS_COLORS_FOR_LIGHT_THEMES = "#462412|#A45015|#6D5646|#F8F5F0" (only for vertical theme index 38, see lightThemeIndices at m2body.js:447 and the swap at m2body.js:482)
+Important: that light-theme override only happens inside the else (vertical) branch (m2body.js:470-505). For horizontal orientation, themeColorsString is never reassigned, so all 40 horizontal background themes always use the single dark palette — i.e., today there is no separate "light" or multi-named color skin for the horizontal view; only the background photo changes.
+--MenuColorFG and other root defaults declared once in app/src/main/assets/style0.css:113-167 (the :root block); these are largely static UI-chrome colors, not swapped per theme.
+--csvar_mainFONT / --csvar_backFONT are not part of the theme system — they're driven by language selection, set in m2body.js:13,15,21,23,3082 (font-per-language, independent axis).
+User-facing theme picker: #themesSectionId modal, index.html:845-895. Radio buttons BGsType_0..3 (index.html:862-893) call setThemeTypeFunction(0..3) to choose "no auto-change / by-prayer / by-day / random", plus prev/next arrows (index.html:857) calling incrementThemeFunction()/decrementThemeFunction() (m2body.js:665-684) to manually cycle through the 40 background themes (currentThemeIndex wraps at 0..39).
+Orthogonality to layout-mode: Largely orthogonal — layout-mode (JS_DATA.ucHrNamesInMiddle) and theme (currentThemeIndex/JS_DATA.ucUserThemeBG) are separate JS_DATA fields with separate UI controls. The one coupling point is the patch's "Mode 2 adaptive palette" feature (custom.js:8337-8394): it reads currentThemeIndex and sets data-bg-palette="or"/"teal"/"bleu"/"sombre" on #mainHorizontalContainer (mapping tables at custom.js:8351-8358) purely to retint layout-mode-2's cell colors to contrast with whatever background photo theme is active — CSS consumers at custom.css:1081-1197/3054-3161.
+
+3. Horizontal layout inventory
+All under <div id='mainHorizontalContainer'>, app/src/main/assets/index.html:293-493. Key structural components (element IDs):
+
+Background layer: horizontalBackgroundLayer (:294)
+Menu toggle: menuToggleButtonHorizontal (:296)
+Mosque logo: appLogoImageHorizontal (:297)
+Date: dateDisplayHorizontal / dateTextSpanHorizontal (:298)
+Mosque name: mosqueNameDisplayHorizontal (:299)
+Weather widget: weatherWidgetHorizontal with weatherIconHorizontal, weatherTempHorizontal, weatherMinMaxHorizontal (:300-304)
+Doha time: dohaTimeDisplayHorizontal (:305)
+Full clock: fullClockContainerHorizontal (time/seconds/AM-PM spans) (:307-311)
+Mini clock: miniClockContainerHorizontal (:313-315)
+Aya (Quran verse) display: ayaDisplayContainerHorizontal / ayaTextDisplayHorizontal (:317-319)
+Message display: messageDisplayContainerHorizontal (:320-322)
+Next-prayer countdown: nextPrayerCounterHorizontal (:324-327)
+Jomoa (Friday) counter: jomoaCounterHorizontal (:329-333)
+Azan popup: azanPopupHorizontal (:335-340)
+Iqama popup: iqamaPopupHorizontal (:343-346)
+Doha popup: dohaPopupHorizontal (:348-351)
+Mini prayer-times table (for the "big counter" reduced view): miniPrayerTimesHorizontal (:355-385)
+Highlight bar: highlightBarHorizontal (:387)
+Main prayer times table: prayerTimesContainerHorizontal > prayerTimesTableHorizontal with 6 cells prayerCellFajrHorizontal…prayerCellIshaHorizontal each containing prayer-name/azan-time/iqama-time/weather-icon (HmtALT0..5) sub-elements (:388-436); Fajr cell also nests nightPrayersContainerHorizontal (midnight/last-third/tomorrow-Fajr) (:397-401)
+App/mosque name footer text: tawkitNameDisplayHorizontal (:441)
+Hadith display: hadithDisplayHorizontal (:442)
+Marquee: marqueeContainerHorizontal / marqueeTextHorizontal (:443)
+Static message: staticMessageDisplayHorizontal (:444)
+City code: cityCodeDisplayHorizontal (:445)
+Internet status dot: internetStatusIndicatorHorizontal (:446)
+Black screen (screensaver): blackScreenHorizontal (:447)
+Azkar overlay: azkarContainerHorizontal (:449-454)
+Slides overlay: slidesContainerHorizontal (:456-461)
+5-min picture overlay: azkar5minPictureContainerHorizontal (:463-465)
+Iqama counter (circular SVG countdown): iqamaCounterContainerHorizontal (:469-475)
+Second counter: secondCounterContainerHorizontal (:478)
+Eid message: eidMessageContainerHorizontal (:479)
+Full-screen counter overlay: fullScreenCounterContainerHorizontal (:481-487)
+QR code flag: qrFlagImageHorizontal (:489)
+Palestine flag icon: psFlagImageHorizontal (:490)
+4. Existing "professional"-tier reference points / naming convention
+Vertical convention (confirmed, as you suspected): verticalMainContainer.className is set to 'classicVrClass' or 'specialVrClass' in m2body.js:485-499 (inside applyThemeFunction), driven by which currentThemeIndex falls into specialVrThemesList vs otherSpecialThemes (m2body.js:445,448). Full alternate positioning rules for each class exist natively in core style1.css:1880-3044 and style2.css:456-1615 — e.g. different top% for clock, date, weather, iqama counter, aya text, prayer rows, etc. This is a genuine "two full alternate layouts" system built into the core CSS files.
+Horizontal has no equivalent core-CSS class-based system. style1.css has zero HrClass-style full-layout alternates (only a minor .dateDisplayHrClass/.mosqueNameHrClass toggle at style1.css:47,103, driven by toggleDatePositionFunction at m2body.js:6931-6932, which is a small cosmetic swap, not a full theme).
+The only "multiple full alternate horizontal layouts" that exist today are the 5 data-layout-mode variants described in point 1, and critically they exist exclusively in the patch layer (spec/custom.js + spec/custom.css), not in core style1.css. The convention used is: hmc.setAttribute('data-layout-mode', 'N') on #mainHorizontalContainer (JS, custom.js:7444/7454/7464) + CSS selectors #mainHorizontalContainer[data-layout-mode="N"] ... (custom.css, throughout).
+Given the codebase's own established pattern, a new horizontal theme should most likely follow the data-layout-mode attribute convention (e.g. mode "5") inside custom.js/custom.css, rather than inventing a vertical-style class name — since core style1.css doesn't support a class-based horizontal skin system at all, and per this project's CLAUDE.md, core CSS files aren't meant to be touched anyway.
+5. Settings UI pattern for adding a new option
+There is no dedicated ucSettingsSection — the actual pattern is: a checkbox/label pair added to the existing Options panel in index.html (the panel containing #middleSalatNamesCheckbox etc., index.html:682-699), wired via onchange to a toggle function that mutates a JS_DATA.uc... field, calls saveSettingsToStorageFunction(), and re-renders.
+For layout-mode specifically, the pattern establishing precedent for a new mode is exactly custom.js:7390-7483: reuse/extend the existing checkbox (middleSalatNamesCheckbox) and its handler (toggleHrNamesMiddleFunction/updateHrNamesPositionFunction), bump the modulus in (JS_DATA.ucHrNamesInMiddle + 1) % 5 to % 6 (or however many total modes), add a new else if (JS_DATA.ucHrNamesInMiddle == 5) { ... hmc.setAttribute('data-layout-mode', '5'); } branch, and add matching #mainHorizontalContainer[data-layout-mode="5"] ... rules in custom.css.
+Alternatively, entirely new/independent settings (a dedicated dropdown for theme selection rather than piggybacking the existing checkbox) would follow the pattern seen elsewhere in custom.js where new UI is injected via document.createElement(...) + appendChild into #menuSectionsContainer or an existing modal's content div (e.g. custom.js:1952-1969 adds new menu buttons; custom.js:4032-4038/4565-4570 add new button grids) plus corresponding new styles appended in custom.css.
+That confirms the landscape: horizontal already has 5 hidden "layout modes" (data-layout-mode="0"–"4"), cycled by clicking a single checkbox — no visible label for which mode you're in. A new theme would naturally become mode "5" in that same system. Before I design anything, a few direction calls only you can make:

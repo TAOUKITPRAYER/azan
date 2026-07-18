@@ -1,0 +1,3103 @@
+@media only screen and (orientation:landscape) 
+{
+
+
+	#mainHorizontalContainer {
+		position: absolute;
+		left: 0;
+		top: 0;
+		display: block;
+		width: 100%;
+		height: 100%;
+		background: url();
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+	}
+
+	#mainVerticalContainer {
+		position: absolute;
+		left: 0;
+		top: 0;
+		display: none;
+		width: 100%;
+		height: 100%;
+	}
+
+
+
+	#horizontalBackgroundLayer {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+	}
+
+	#menuToggleButtonHorizontal {
+		position: absolute;
+		z-index: 9999333;
+		padding:0.5% 1.1% 0.7% 0.5%;
+		left: 0%;
+		top: 0%;
+		font-size: 2.2vw;
+		cursor: pointer;
+	}
+
+
+	.dateDisplayHrClass {
+		position: absolute;
+		font-family: var(--csvar_mainFONT);
+		font-size: 3.4vw;
+		right: 15%;
+		top: 2.1%;
+		height: 9%;
+		width: 70%;
+		line-height: 1em;
+		text-align: center;
+		z-index: var(--BsDate500);
+		color: var(--esSALATS);
+		direction: var(--csvar_nowDIR);
+		text-shadow: var(--TXT_SHDW);
+	}
+
+	.dateDisplayClass {
+		position: absolute;
+		font-family: var(--csvar_mainFONT);
+		font-size: 3.4vw;
+		right: 1.5%;
+		top: 1.1%;
+		height: 15%;
+		width: auto;
+		line-height: 1.2em;
+		text-align: right;
+		z-index: var(--BsDate500);
+		color: var(--esSALATS);
+		direction: var(--csvar_nowDIR);
+		text-shadow: var(--TXT_SHDW);
+	}
+ 
+	.dateDisplayHrClass:lang(AR),
+	.dateDisplayHrClass:lang(UR),
+	.dateDisplayHrClass:lang(KU),
+	.dateDisplayHrClass:lang(AF),
+	.dateDisplayHrClass:lang(PA),
+	.dateDisplayHrClass:lang(PS),
+	.dateDisplayHrClass:lang(FA),
+	.dateDisplayHrClass:lang(UG){
+		font-size: 3.9vw;
+		}
+
+	.dateDisplayClass:lang(AR),
+	.dateDisplayClass:lang(UR),
+	.dateDisplayClass:lang(KU),
+	.dateDisplayClass:lang(AF),
+	.dateDisplayClass:lang(PA),
+	.dateDisplayClass:lang(PS),
+	.dateDisplayClass:lang(FA),
+	.dateDisplayClass:lang(UG){
+		font-size: 3.7vw;
+		}
+
+
+
+	.mosqueNameHrClass {
+		position: absolute;
+		font-family: var(--csvar_mainFONT),var(--csvar_fontSECONDARY);
+		font-size: 3.2vw;
+		left: 5%;
+		top: 12.3%;
+		height: 9%;
+		width: 90%;
+		text-align: center;
+		text-shadow: var(--TXT_SHDW);
+		color: var(--esLOWER);
+		line-height: 1em;
+		opacity: var(--izBigCNTR);
+		z-index: var(--ForAzkarON_zedex);
+	}
+
+	.mosqueNameClassHorizontal {
+		position: absolute;
+		font-family: var(--csvar_mainFONT),var(--csvar_fontSECONDARY);
+		font-size: 3.2vw;
+		left: 14.0%;
+		top: 2.4%;
+		height: 16%;
+		width: 40%;
+		text-align: center;
+		text-shadow: var(--TXT_SHDW);
+		color: var(--esLOWER);
+		line-height: 1.2em;
+		opacity: var(--izBigCNTR);
+		z-index: var(--ForAzkarON_zedex);
+	}
+
+
+	#dohaTimeDisplayHorizontal {
+	    position: absolute;
+	    right: 1.7%;
+	    top: 2.5%;
+	    width: auto;
+	    height: auto;
+	    opacity: 0.9;
+	    text-shadow: var(--TXT_SHDW);
+	    font-family: var(--csvar_mainFONT);
+	    color: var(--esLOWER);
+	    font-size: 2.0vw;
+	    line-height: 1.3em;
+	    text-align: right;
+	    z-index: var(--ForAzkarON_zedex);
+	}
+
+
+
+	.weatherWidgetClass {
+		position: absolute;
+		left: 9.1%;
+		top: 2.6%;
+		width: 13.0%;
+		height: 11%;
+		visibility: var(--METEO);
+		text-shadow: var(--TXT_SHDW);
+		z-index: var(--ForAzkarON_zedex);
+	}
+
+	#weatherTempHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 2%;
+		width: 50%;
+		text-align: left;
+		direction: ltr;
+		font-family: var(--fnDIGITS);
+		font-size: 2.0vw;
+		color: var(--esSALATS);
+		text-shadow: var(--TXT_SHDW);
+	}
+
+	#weatherMinMaxHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 57%;
+		width: 100%;
+		text-align: left;
+		opacity: 0.8;
+		font-size: 1.6vw;
+		color: var(--esLOWER);
+	}
+
+	#weatherMinMaxHorizontal span{font-family: var(--fnDIGITS);}
+
+	#weatherIconHorizontal {
+		position: absolute;
+		left: 28%;
+		top: 3%;
+		width: 18%;
+		height: auto;
+		text-align: right;
+	}
+
+	#weatherIconHorizontal img {
+		width: 100%;
+	}
+
+
+	.weatherWidgetHrDateRightClass {
+		position: absolute;
+		left: 6.1%;
+		top: 2.6%;
+		width: 13.0%;
+		height: 11%;
+		visibility: var(--METEO);
+		text-shadow: var(--TXT_SHDW);
+		z-index: var(--ForAzkarON_zedex);
+	}
+
+
+	#fullClockContainerHorizontal {
+		visibility: visible;
+		position: absolute;
+		left: 21%;
+		top: 21.6%;
+		width: 58%;
+		height: 25%;
+		opacity: var(--izBigCNTR);
+		text-shadow: var(--CLK_SHDW);
+		color: var(--esCLOCK);
+		z-index: var(--BsCLock500);
+	}
+
+	#fullClockTimeDisplayHorizontal {
+		position: absolute;
+		line-height: 1em;
+		font-size: 12.3vw;
+		letter-spacing: 0.13em;
+		font-family: var(--fnCLOKEN);
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		text-align: center;
+	}
+
+	#fullClockSecondsDisplayHorizontal {
+		position: absolute;
+		line-height: 1em;
+		font-size: 4.9vw;
+		letter-spacing: 0.13em;
+		font-family: var(--fnCLOKEN);
+		text-align: right;
+		right: 06%;
+		top: 07%;
+		width: 12%;
+	}
+
+	#fullClockAmPmDisplayHorizontal {
+		position: absolute;
+		line-height: 1em;
+		font-size: 3.2vw;
+		text-align: right;
+		font-family: var(--fnCLOKEN);
+		right: 07%;
+		top: 49%;
+		width: 12%;
+		text-shadow: var(--TXT_SHDW);
+	}
+
+
+
+	#miniClockContainerHorizontal {
+		position: absolute;
+		line-height: 1em;
+		font-size: 11.9vw;
+		left: 20.2%;
+		top: 21.6%;
+		z-index: var(--BsCLock500);
+		letter-spacing: 0.13em;
+		text-align: center;
+		width: 60%;
+		height: 25%;
+		text-shadow: var(--CLK_SHDW);
+		opacity: var(--izBigCNTR);
+		font-family: var(--fnCLOKEN);
+		color: var(--esCLOCK);
+	}
+
+	#miniClockContainerHorizontal span{
+		font-family: var(--fnCLOKEN);
+	}
+
+	#ayaDisplayContainerHorizontal {
+		position: absolute;
+		left: 1.5%;
+		font-size: 3.6vw;
+		height: 24%;
+		width: 97%;
+		top: 40.5%;
+		line-height: 1em;
+		text-align: center;
+		z-index: var(--ForAzkarON_zedex);
+		text-shadow: var(--AyatSHDW);
+	}
+
+	#ayaTextDisplayHorizontal {
+		font-family: var(--ayatsFont);
+		font-size: var(--ayatsSize);
+		direction: var(--ayatsLtrRtl);
+		line-height: var(--ayatsFHeight);
+		}
+
+
+
+	#ayaTextDisplayHorizontal span{
+		position: absolute;
+		left:16.1%;
+		top:-7%;
+		line-height:1em;
+		font-family: monospace;
+		font-size: 1.5vw;
+		opacity:0.33;
+		color: var(--esLOWER);
+		}
+	#ayaTextDisplayHorizontal span:before{ content: 'Surat ';}
+
+
+
+
+
+
+	#messageDisplayContainerHorizontal {
+		position: absolute;
+		right: 3%;
+		top: 40.5%;
+		z-index: var(--ForAzkarON_zedex);
+		height: 24%;
+		width: 94%;
+		font-size: 3.45vw;
+		text-align: center;
+		color: var(--esCLOCK);
+		visibility: hidden;
+	}
+	#messageDisplayContainerHorizontal div{line-height:1em; font-family:var(--csvar_mainFONT),var(--csvar_fontSECONDARY);}
+
+
+
+
+
+
+
+
+
+
+	#highlightBarHorizontal {
+		position: absolute;
+		left: 5%;
+		top: 0%;
+		width: 25%;
+		height: 35%;
+		background-image: url(./images/HrAzanCame.png);
+		background-size: 100% 100%;
+		visibility: hidden;
+	}
+
+
+	#prayerTimesContainerHorizontal {
+		position: absolute;
+		left: 0px;
+		top: 61.0%;
+		padding: 0 0.5%;
+		width: 99%;
+		z-index: var(--ForAzkarON_zedex);
+		direction: var(--csvar_nowDIR);
+	}
+
+
+	#prayerTimesTableHorizontal {
+		width: 100%;
+		border-spacing: 1vw;
+	}
+
+	#prayerTimesTableHorizontal td {
+		position: relative;
+		width: 16.6%;
+		text-shadow: var(--TXT_SHDW);
+	}
+
+
+	.prayerCellClass {
+		background-image: var(--HRBG);
+		background-size: var(--BgOnOff);
+	}
+
+	.highlightedCellClass {
+		background: none;
+	}
+
+	#spacerCellFajrHorizontal {
+		font-size: 12.1vw;
+	}
+
+
+	#secondCounterContainerHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		text-align: center;
+		font-family: var(--fnCLOKEN);
+		font-size: 57vw;
+		background-color: black;
+		color: var(--esSALATS);
+		z-index: 1000;
+		padding-bottom: 18%;
+	}
+
+
+
+
+
+
+	#miniPrayerTimesHorizontal {
+		position: absolute;
+		left: 10%;
+		bottom: 12.2%;
+		width: 80%;
+		z-index: 1001;
+		direction: var(--csvar_nowDIR);
+	}
+
+	#miniPrayerTimesTableHorizontal    {width:100%;}
+	#miniPrayerTimesTableHorizontal td {position:relative; width:16.6%; text-shadow:var(--TXT_SHDW);}
+	#spacerCellHorizontal   {font-size: 5.6vw;}
+
+
+
+
+.prayerNameClassHorizontal {
+		position: absolute; 
+		font-family: var(--csvar_mainFONT);
+		font-size: 2.3vw;
+		text-align: center;
+		top: 0;
+		width: 100%;
+		line-height: 1.0em;
+		color: var(--esLOWER);
+		}
+
+.prayerTimeClassHorizontal {
+		position: absolute;
+		left: 0%;
+		bottom: 0%;
+		font-family: var(--fnDIGITS);
+		letter-spacing: 0.070em;
+		width: 100%;
+		font-size: 2.9vw;
+		text-align: center;
+		color: var(--esSALATS);
+		}
+
+
+
+	.prayerNameHorizontalClass {
+		position: absolute;
+		font-family: var(--csvar_mainFONT);
+		font-size: 2.8vw;
+		top: var(--jnamTOP);
+		left: 0%;
+		width: 100%;
+		line-height: 1.3em;
+		text-align: center;
+		color: var(--esLOWER);
+	}
+	.prayerNameHorizontalClass:lang(AR),
+	.prayerNameHorizontalClass:lang(UR),
+	.prayerNameHorizontalClass:lang(KU),
+	.prayerNameHorizontalClass:lang(AF),
+	.prayerNameHorizontalClass:lang(PA),
+	.prayerNameHorizontalClass:lang(PS),
+	.prayerNameHorizontalClass:lang(FA),
+	.prayerNameHorizontalClass:lang(UG){
+		left: 0%;
+		width: 100%;
+		font-size: 3.1vw;
+		text-align: center;
+		line-height: 1em;
+	}
+
+
+	.sixPrayersTableClass .azanTimeHorizontalClass {
+		position: absolute;
+		left: 0%;
+		top: var(--j6hourTOP);
+		font-family: var(--fnDIGITS);
+		letter-spacing: 0.055em;
+		width: 100%;
+		line-height: 1em;
+		font-size: 4.5vw;
+		text-align: center;
+		color: var(--esCLOCK);
+	}
+
+	.sixPrayersTableClass .iqamaTimeHorizontalClass {
+		position: absolute;
+		left: 0%;
+		top: var(--j6iqamaTOP);
+		font-family: var(--fnDIGITS);
+		letter-spacing: 0.055em;
+		direction: ltr;
+		color: var(--esSALATS);
+		visibility: var(--IQAMAT);
+		opacity: var(--ForAzkarON_opac);
+		width: 100%;
+		line-height: 1em;
+		font-size: var(--j6iqamaSZ);
+		text-align: center;
+	}
+
+
+	.fivePrayersTableClass .azanTimeHorizontalClass {
+		position: absolute;
+		left: 0%;
+		top: var(--j5hourTOP);
+		font-family: var(--fnDIGITS);
+		letter-spacing: 0.065em;
+		width: 100%;
+		line-height: 1em;
+		font-size: 5.7vw;
+		text-align: center;
+		color: var(--esCLOCK);
+	}
+
+	.fivePrayersTableClass .iqamaTimeHorizontalClass {
+		position: absolute;
+		left: 0%;
+		top: var(--j5iqamaTOP);
+		font-family: var(--fnDIGITS);
+		letter-spacing: 0.065em;
+		direction: ltr;
+		color: var(--esSALATS);
+		visibility: var(--IQAMAT);
+		opacity: var(--ForAzkarON_opac);
+		width: 100%;
+		line-height: 1em;
+		font-size: var(--j5iqamaSZ);
+		text-align: center;
+	}
+
+
+	.sixPrayersTableClass .weatherIconHorizontalClass {
+		position: absolute;
+		left: 83%;
+		top: var(--mt7);
+		width: 22%;
+		height: 27%;
+		font-size: 1.5vw;
+		direction: ltr;
+		visibility: var(--MTOSLWTS);
+	}
+	.sixPrayersTableClass .weatherIconHorizontalClass:lang(AR),
+	.sixPrayersTableClass .weatherIconHorizontalClass:lang(UR),
+	.sixPrayersTableClass .weatherIconHorizontalClass:lang(KU),
+	.sixPrayersTableClass .weatherIconHorizontalClass:lang(AF),
+	.sixPrayersTableClass .weatherIconHorizontalClass:lang(PA),
+	.sixPrayersTableClass .weatherIconHorizontalClass:lang(PS),
+	.sixPrayersTableClass .weatherIconHorizontalClass:lang(FA),
+	.sixPrayersTableClass .weatherIconHorizontalClass:lang(UG){
+		left: 6%;
+	}
+
+	.fivePrayersTableClass .weatherIconHorizontalClass {
+		position: absolute;
+		left: 79%;
+		top: var(--mt7);
+		width: 22%;
+		height: 27%;
+		font-size: 1.5vw;
+		direction: ltr;
+		visibility: var(--MTOSLWTS);
+	}
+	.fivePrayersTableClass .weatherIconHorizontalClass:lang(AR),
+	.fivePrayersTableClass .weatherIconHorizontalClass:lang(UR),
+	.fivePrayersTableClass .weatherIconHorizontalClass:lang(KU),
+	.fivePrayersTableClass .weatherIconHorizontalClass:lang(AF),
+	.fivePrayersTableClass .weatherIconHorizontalClass:lang(PA),
+	.fivePrayersTableClass .weatherIconHorizontalClass:lang(PS),
+	.fivePrayersTableClass .weatherIconHorizontalClass:lang(FA),
+	.fivePrayersTableClass .weatherIconHorizontalClass:lang(UG){
+		left: 3%;
+	}
+
+
+#ayatsLangListContainer {
+		top: 28%;
+	}
+
+
+
+	#nightPrayersContainerHorizontal {
+		position: absolute;
+		font-family: 'FONTO';
+		direction :ltr;
+		width:45%;
+		left: 0%;
+		top: 0%;
+		line-height: 1.15;
+		opacity: .25;
+		font-size: 1.3vw;
+		color: var(--esSALATS);
+	}
+	#nightPrayersContainerHorizontal:lang(AR),
+	#nightPrayersContainerHorizontal:lang(UR),
+	#nightPrayersContainerHorizontal:lang(KU),
+	#nightPrayersContainerHorizontal:lang(AF),
+	#nightPrayersContainerHorizontal:lang(PA),
+	#nightPrayersContainerHorizontal:lang(PS),
+	#nightPrayersContainerHorizontal:lang(FA),
+	#nightPrayersContainerHorizontal:lang(UG){
+		right: -3%;
+		left: unset;
+		direction :rtl;
+	}
+
+
+
+
+
+	#azanPopupHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		height: 100%;
+		font-size: 8vw;
+		z-index: 99991;
+	}
+
+	#azanPopupBackgroundHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		height: 100%;
+		width: 100%;
+		opacity: var(--BgsTranspa);
+	}
+
+
+	#azanPopupTitleHorizontal {
+		position: absolute;
+		left: 30%;
+		top: 18%;
+		width: 40%;
+		text-align: center;
+		font-family: var(--csvar_mainFONT);
+		color: var(--esSALATS);
+		text-shadow: var(--vCLK_SHDW);
+	}
+
+	#azanPopupPrayerNameHorizontal {
+		position: absolute;
+		left: 10%;
+		top: 30%;
+		width: 80%;
+		text-align: center;
+		font-family: var(--csvar_mainFONT);
+		font-size: 190%;
+		color: var(--esCLOCK);
+		text-shadow: var(--BIG_SHDW);
+	}
+
+	#azanPopupTimeHorizontal {
+		position: absolute;
+		left: 30%;
+		top: 4%;
+		width: 40%;
+		text-align: center;
+		font-family: var(--fnDIGITS);
+		letter-spacing: 0.085em;
+		font-size: 4vw;
+		color: var(--esCLOCK);
+	}
+
+
+
+
+												
+
+
+	#iqamaPopupHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		height: 100%;
+		z-index: 99991;
+		font-size: 11.5vw;
+	}
+
+	#iqamaPopupBackgroundHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		height: 100%;
+		width: 100%;
+		opacity: var(--BgsTranspa);
+	}
+
+	#iqamaPopupTextHorizontal {
+		position: absolute;
+		left: 10%;
+		top: 30%;
+		width: 80%;
+		line-height: 1.2em;
+		text-align: center;
+		font-family: var(--csvar_mainFONT);
+		color: var(--esCLOCK);
+		text-shadow: var(--BIG_SHDW);
+	}
+
+
+
+
+	#dohaPopupHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		height: 100%;
+		z-index: 99991;
+		font-size: 8vw;
+	}
+
+	#dohaPopupBackgroundHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		height: 100%;
+		width: 100%;
+		opacity: var(--BgsTranspa);
+	}
+
+	#dohaPopupTextHorizontal {
+		position: absolute;
+		left: 10%;
+		top: 40%;
+		width: 80%;
+		line-height: 1.3em;
+		text-align: center;
+		font-family: var(--csvar_mainFONT);
+		color: var(--esSALATS);
+		text-shadow: var(--BIG_SHDW);
+	}
+
+#decodedStringDisplayId {
+    position: absolute;
+    left: 3%;
+    top: 70%;
+    font-size: 80%;
+    font-family: var(--csvar_backFONT),var(--csvar_fontSECONDARY);
+    line-height: 1.40em;
+    opacity:0.5;
+    text-align: center;
+}
+
+	#azkarContainerHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		height: 100%;
+		z-index: 998;
+		background-color:#121212;
+		background-image: url(./azkar/hr.jpg); 
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+	}
+
+	#azkarContentWrapperHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		height: 78%;
+	}
+
+
+
+	#azkarTextWrapperHorizontal {
+		position: absolute;
+		left: 1%;
+		top: 0%;
+		width: 98%;
+		height: 100%;
+		display: table;
+	}
+
+	#azkarTextDisplayHorizontal {
+		display: table-cell;
+		vertical-align: middle;
+		text-align: center;
+		direction: rtl;
+		font-family: var(--csvar_azkarFONT);
+		font-size: calc( 3.8vw - var(--NowSULTAN) ) ;
+		text-shadow: var(--CLK_SHDW);
+		line-height: 1.70em;
+		color: white;
+	}
+
+	#azkarTextDisplayHorizontal span { 
+		font-size: 55%;
+		line-height: 1.0em;
+		color: gray;
+	}
+
+
+	#azkar5minPictureContainerHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		height: 100%;
+		z-index: 9999444;
+		background-image: url();
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+	}
+
+
+	#slidesTextWrapperHorizontal {
+		position: absolute;
+		left: 1%;
+		top: 11.0%;
+		width: 98%;
+		height: 76%;
+		display: table;
+	}
+
+	#slidesTextDisplayHorizontal {
+		display: table-cell;
+		vertical-align: middle;
+		text-align: center;
+		direction: rtl;
+		font-family: var(--csvar_azkarFONT);
+		font-size: calc( 3.8vw - var(--NowSULTAN) ) ;
+		text-shadow: var(--CLK_SHDW);
+		line-height: 1.90em;
+		color: #EDDDC1;
+	}
+
+	#slidesTextDisplayHorizontal span {
+		font-size: 55%;
+		color: gray;
+	}
+
+
+
+
+	#appLogoImageHorizontal {
+		position: absolute;
+		left: 2.5%;
+		bottom: 55%;
+		width: 16vw;
+		height: 16vw;
+		visibility: visible;
+		z-index: 500;
+		opacity: var(--izBigCNTR);
+	}
+
+#alertToastDiv {
+    font-size: 2.9vw;
+}
+
+	#nextPrayerCounterHorizontal {
+		position: absolute; 
+		bottom:var(--HRdiffBtm); 
+		right:var(--HRdiffRight);
+		width: 16vw;
+		height: 16vw;
+		visibility: visible;
+		opacity: var(--izBigCNTR);
+		text-align: center;
+		z-index: 200;
+		color: var(--esSALATS);
+		line-height: 1em;
+		background-image: url(./images/HrTimeLeft.png);
+		background-size: 100% auto;
+		text-shadow: var(--TXT_SHDW);
+	}
+
+	#nextPrayerTimeDisplayHorizontal {
+		font-size: 5.1vw;
+		letter-spacing: 0.065em;
+		margin-top: 40%;
+		font-family: var(--fnDIGITS);
+	}
+
+	#nextPrayerLabelHorizontal {
+		font-family: var(--csvar_mainFONT);
+		letter-spacing: 0em;
+		margin: 15.5% 0 0 12%;
+		font-size: 2.1vw;
+		width:76%;
+		line-height: 1.2em;
+		color: var(--esLOWER);
+	}
+
+
+
+
+
+	#jomoaCounterHorizontal {
+		position: absolute;
+		left: 2.5%;
+		bottom: 55%;
+		width: 16vw;
+		height: 16vw;
+		visibility: hidden;
+		opacity: var(--izBigCNTR);
+		text-align: center;
+		z-index: var(--ForAzkarON_zedex);
+		color: var(--esSALATS);
+		line-height: 1em;
+		background-image: url(./images/HrTimeLeft.png);
+		background-size: 100% auto;
+		text-shadow: var(--TXT_SHDW);
+	}
+
+	#jomoaTimeDisplayHorizontal {
+		font-size: 5.1vw;
+		letter-spacing: 0.065em;
+		margin-top: 40%;
+		font-family: var(--fnDIGITS);
+	}
+
+	#jomoaLabelHorizontal {
+		font-family: var(--csvar_mainFONT);
+		letter-spacing: 0em;
+		margin-top: 15.5%;
+		font-size: 2.4vw;
+		line-height: 1.2em;
+		color: var(--esLOWER);
+	}
+
+	#secondJomoaTimeDisplayHorizontal {
+		position: absolute;
+		font-family: var(--fnDIGITS);
+		font-size: 1.8vw;
+		text-align: center;
+		bottom: 11%;
+		left: -15%;
+		width: 130%;
+		color: var(--esLOWER);
+	}
+
+
+	#iqamaCounterContainerHorizontal {
+		position: absolute; 
+		right: 2.0%;
+		bottom: 52%;
+		width: 19vw;
+		height:19vw;
+		z-index:250;
+		background: var(--esCountr); 
+		border-radius: 50%; 
+	}
+
+
+	#iqamaCounterSvgHorizontal {
+		position:absolute; 
+		left:-10%; 
+		top:-10%; 
+		width:120%; 
+		height:120%;
+	}
+
+	#iqamaCounterCircleHorizontal {
+		stroke:var(--esSALATS); 
+		fill:none;  
+		stroke-width:2.8;
+	}
+
+	#iqamaCounterTimeDisplayHorizontal {
+		position: absolute;
+		left: 5%;
+		top: 33%;
+		width: 90%;
+		height: 40%;
+		line-height: 1em;
+		font-size: 6.8vw;
+		color: var(--esSALATS);
+		font-family: var(--fnDIGITS);
+		text-align: center;
+	}
+
+	#iqamaCounterLabelHorizontal {
+		position: absolute;
+		left: 5%;
+		bottom:-4%;
+		line-height: 1em;
+		width: 90%;
+		height: 33%;
+		font-size: 2.3vw;
+		color: var(--esLOWER);
+		font-family: var(--csvar_mainFONT);
+		direction: var(--csvar_nowDIR);
+		text-align: center;
+	}
+
+
+
+
+
+	#eidMessageContainerHorizontal {
+		position: absolute;
+		z-index: 500;
+		left: 20%;
+		top: 10%;
+		width: 60%;
+		height: 10.6%;
+		font-family: var(--csvar_azkarFONT);
+		text-align: center;
+		font-size: calc( 3.4vw - var(--NowSULTAN) ) ;
+		color: var(--esCLOCK);
+		text-shadow: var(--TXT_SHDW);
+		visibility: hidden;
+	}
+
+
+
+
+
+
+	#hadithDisplayHorizontal { /* Ahadith */
+		position: absolute; 
+		z-index: 300;
+		right: 1%;
+		bottom: 1.9%;
+		width: 98%;
+		height: auto;
+		line-height: 1.6em;
+		white-space: nowrap;
+		display: inline;
+		font-family: var(--csvar_azkarFONT),var(--csvar_fontSECONDARY);
+		text-align: center;
+		overflow: hidden;
+		font-size: calc( 3.4vw - var(--NowSULTAN) ) ;
+		color: var(--esCLOCK);
+		text-shadow: var(--TXT_SHDW);
+		visibility: visible;
+	}
+
+	#marqueeContainerHorizontal {/* marquee HOLDER */
+		position: absolute;
+		z-index: 300;
+		right: 1%;
+		bottom: 1.9%;
+		width: 98%;
+		height: 9.1%;
+		line-height: 1.6em;
+		white-space: nowrap;
+    	overflow: hidden;
+	}
+
+	#marqueeTextHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width: auto;
+		display: inline-block;
+		white-space: nowrap;
+		line-height: 1.6em;
+		text-align: left;
+		color: var(--esCLOCK);
+		font-family: var(--csvar_azkarFONT),var(--csvar_fontSECONDARY);
+		font-size: calc( 3.4vw - var(--NowSULTAN) ) ;
+	}
+
+	#staticMessageDisplayHorizontal { 
+		position: absolute;
+		right: 1%;
+		bottom: 1.9%;
+		width: 98%;
+		height: auto;
+		line-height: 1.6em;
+		display: inline;
+		font-family: var(--csvar_azkarFONT),var(--csvar_fontSECONDARY);
+		text-align: center;
+		overflow: hidden;
+		font-size: calc( 3.4vw - var(--NowSULTAN) ) ;
+		color: var(--esCLOCK);
+		text-shadow: var(--TXT_SHDW);
+		visibility: hidden;
+	}
+
+
+
+	#unusedImageId {
+		position: absolute;
+		left: 0.1%;
+		bottom: 0.1%;
+		width: 5.2%;
+	}
+
+
+
+
+
+	#tawkitNameDisplayHorizontal { 
+		position: absolute;
+		left: 1.1%;
+		text-align: left;
+		bottom: 0.7%;
+		width: 11%;
+		letter-spacing: 0.10em;
+		line-height: 1em;
+		font-size: 0.9vw;
+		color: var(--esLOWER);
+		opacity: 0.5;
+		z-index: 500;
+		font-family: 'FreeSans';
+	}
+
+	#cityCodeDisplayHorizontal {
+		position: absolute;
+		right: 1.6%;
+		text-align: left;
+		bottom: 0.7%;
+		width: auto;
+		letter-spacing: 0.10em;
+		line-height: 1em;
+		font-size: 0.9vw;
+		color: var(--esLOWER);
+		opacity: 0.5;
+		text-transform: uppercase;
+		font-family: 'FreeSans';
+	}
+
+
+
+	select {
+		width: 100%;
+		padding: 0.5%;
+		text-align: right;
+		font-size: 2.1vw;
+	}
+
+	select optgroup {
+		padding: 1.5%;
+		color: #913E23;
+	}
+
+	select option {
+		padding: 1.5%;
+		direction: ltr;
+		text-align: left;
+		color: #252525;
+	}
+
+button {margin-top:5%; width:60%; font-size:2vw; padding:2%;}
+
+	#debugStatusDivId {
+		position: absolute;
+		bottom: 0%;
+		z-index: 3000;
+		margin-top: 5%;
+		width: 33%;
+		font-size: 1.7vw;
+		padding: 1%;
+		visibility: hidden;
+	}
+
+	#mainMenuContainer {
+		width: 55%;
+		font-size: 1.6vw;
+	}
+
+	.menuHeaderClass {
+		position: absolute;
+		text-align: center;
+		display: table;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		height: 8%;
+		background-color: #282828;
+	}
+
+	#menuContentContainer {
+		font-size: 2.3vw;
+		top: 10%;
+	}
+
+	#inputDialogContainer {  
+		font-family: var(--csvar_backFONT),var(--csvar_fontSECONDARY);
+		position: fixed;
+		border:1px solid #786E5F;
+		padding:2%;
+		text-align:center;
+		width: 50%;
+		min-height: 40%;
+		left: 22.5%;
+		top: 15%;
+		visibility: hidden;
+		z-index: 9999444;
+		background: #000000;
+		box-shadow: var(--BIG_SHDW);
+	}
+	#inputDialogContainer input[type=text]{
+		font-family: var(--csvar_backFONT),var(--csvar_fontSECONDARY);
+		direction: var(--csvar_nowDIR);
+		margin: 5% 0;
+		padding:0.7%;
+		width: 93%;
+		font-size: 2.1vw;
+		text-align:right;
+	}
+
+	#inputDialogTitle{
+	    margin: 1.0%;
+	    font-family: var(--csvar_backFONT),var(--csvar_fontSECONDARY);
+	    width: 95%;
+	    height:auto;
+	    line-height: 1.45em;
+	    font-size: 2.1vw;
+	    padding: 1.0%;
+	    text-align:center;
+	    color:#DFCDB1;
+	}
+	
+	.inputDialogButtonClass {
+	    margin: 1.2% 3%;
+	    font-family: var(--csvar_backFONT),var(--csvar_fontSECONDARY);
+	    width: 30%;
+	    font-size: 2.1vw;
+	    border:1px solid #786E5F;
+	    padding: 1.9%;
+	    text-align:center;
+	    cursor: pointer;
+	    color:#DFCDB1;
+	    background-color:#313131;
+	}
+
+	.fixedIqamaButtonClass {
+	    font-family: var(--csvar_backFONT);
+	    width: 40%;
+	    font-size: 2.3vw;
+	    border:1px solid #786E5F;
+	    padding: 1.5%;
+	    text-align:center;
+	    cursor: pointer;
+	    color:#DFCDB1;
+	    background-color:#313131;
+	    border-bottom:5px solid #786E5F;
+	}
+
+	.fixedTimeButtonClass {width:27%; margin: 0 0 2% 0;}
+	
+	.modalPopupClass {
+		position: absolute;
+		width: 60%;
+		height: 100%;
+		left: 20%;
+		top: 0%;
+		visibility: hidden;
+		z-index: 99993;
+		background: #151515;
+		font-size: 2.3vw;
+	}
+
+
+
+	.modalHeaderClass {
+		height: 10%;
+	}
+
+	.modalContentClass {
+    position: absolute;
+    left: 0%;
+    width: 94%;
+    padding: 3%;
+    line-height: 1.65em;
+    overflow-y: auto;
+    direction: var(--csvar_nowDIR);
+	top: 10%;
+	height: 84%;
+	}
+
+
+	.locationListContentClass {
+	    position: absolute;
+			top: 10%;
+			height: 80%;
+	    left: 0%;
+	    width: 94%;
+	    padding: 3%;
+	    overflow-y: auto;
+	    direction: ltr;
+	}
+
+	.locationSelectButtonClass {
+	    margin: 1.0% 0%;
+	    font-family: var(--csvar_backFONT);
+	    width: 48%;
+	    font-size: 2.0vw;
+	    border:1px solid #786E5F;
+	    padding: 1.7% 1%;
+	    text-align: left;
+	    cursor: pointer;
+	    color:#DFCDB1;
+	    direction: ltr;
+	    background-color:#313131;
+	     margin-right:1%;
+	}
+	
+	.settingsActionButtonClass {font-size: 2.0vw;}
+
+	#countryListContent button, #cityListContent button{
+	    margin: 0.9% 3%;
+	    font-family: var(--csvar_backFONT),var(--csvar_fontSECONDARY);
+	    width: 85%;
+	    font-size: 2.3vw;
+	    border:1px solid #3C3C3C;
+	    padding: 1.5%;
+	    text-align: left;
+	    direction: ltr;
+	    cursor: pointer;
+	    color:#DFCDB1;
+	    background-color:#313131;
+	}
+
+
+	#noMobileImageHorizontal {
+		position: absolute;
+		left: 40%;
+		top: 50%;
+		width: 20%;
+		height: auto;
+		visibility: hidden;
+	}
+
+	input[type='checkbox'] {
+		height: 3.5vw;
+		width: 2.1vw;
+	}
+   
+	.adjustButtonClass {
+		font-size: 2vw;
+		height: 3vw;
+		width: 3.5vw;
+	}
+
+
+	#languageSelectionContainer span {
+		font-size: 1.7vw;
+		cursor: pointer;
+	}
+
+	input[type='radio'] {
+		vertical-align: middle;
+		width: 2.1vw;
+		height: 2.1vw;
+	}
+
+
+	#fullScreenCounterContainerHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		height: 100%;
+		width: 100%;
+		z-index: 999;
+	}
+	
+	#fullScreenCounterBackgroundHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		height: 100%;
+		width: 100%;
+	}
+
+
+	#fullScreenCounterTimeDisplayHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 27%;
+		height: auto;
+		width: 100%;
+		line-height: 1em;
+		letter-spacing: 0.12em;
+		text-align: center;
+		font-family: var(--fnCLOKEN);
+		font-size: 23vw;
+		color: var(--esSALATS);
+		-webkit-text-stroke: 5px var(--esSALATS);
+		text-shadow: var(--BIG_SHDW);
+	}
+
+	#fullScreenCounterMiniClockHorizontal {
+		position: absolute;
+		left: 30%;
+		top: 2%;
+		height: auto;
+		width: 40%;
+		line-height: 1em;
+		text-align: center;
+		font-family: var(--fnCLOKEN);
+		letter-spacing: 0.12em;
+		font-size: 5.3vw;
+		color: var(--esCLOCK);
+		text-shadow: var(--TXT_SHDW);
+	}
+
+	#fullScreenCounterLabelHorizontal {
+		position: absolute;
+		left: 0%;
+		top: 65%;
+		text-align: center;
+		height: auto;
+		width: 100%;
+		line-height: 1em;
+		letter-spacing: 0.0em;
+		font-family: var(--csvar_mainFONT);
+		font-size: 3.6vw;
+		color: var(--esLOWER);
+		text-shadow: var(--BIG_SHDW);
+	}
+
+	#noMobileImageContainerHorizontal {
+		position: absolute;
+		left: 2%;
+		top: 29%;
+		width: 20%;
+		z-index: 505;
+		height: auto;
+		visibility: hidden;
+	}
+
+	#noMobileImageContainerHorizontal img {
+		width: 100%;
+	}
+
+	#tvPointerImage {
+		position: absolute;
+		left: 7%;
+		top: 9%;
+		width: 4vw;
+		height: 4vw;
+		z-index: 99999999;
+		visibility: hidden;
+	}
+
+}
+
+
+/*  VERTICAL -natural-------------------------------------------------------- */
+
+@media only screen and (orientation:portrait) {
+
+	:root {
+		--vTXT_SHDW: 0.4vw 0.4vw 0.3vw rgba(0, 0, 0, 0.2);
+		--vCLK_SHDW: 0.5vw 0.5vw 0.5vw rgba(0, 0, 0, 0.3);
+		--vBIG_SHDW: 0.9vw 0.9vw 0.9vw rgba(0, 0, 0, 0.3);
+		--vAyatSHDW: 0.4vw 0.4vw 0.4vw rgba(0, 0, 0, 0.3);
+	}
+
+
+	#mainVerticalContainer {
+		position: absolute;
+		left: 0;
+		top: 0;
+		display: block;
+		width: 100%;
+		height: 100%;
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		
+	}
+
+	#mainHorizontalContainer {
+		position: absolute;
+		left: 0;
+		top: 0;
+		display: none;
+		width: 100%;
+		height: 100%;
+	}
+
+	#verticalBackgroundLayer {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+	}
+
+	#menuToggleButton {
+		position: absolute;
+		z-index: 9999333;
+		padding:0.5% 1.3% 0.9% 0.5%;
+		left: 0%;
+		top: 0%;
+		font-size: 5vw;
+		cursor: pointer;
+	}
+
+
+	#mosqueNameDisplayVertical { 
+		position: absolute;
+		left: 3%;
+		top: 0.6%;
+		width: 94%;
+		height: 10%;
+		z-index: 300;
+		font-family: var(--csvar_mainFONT),var(--csvar_fontSECONDARY);
+		font-size: 6.8vw;
+		text-align: center;
+		line-height: 1.30em;
+		color: var(--vrDYNc1);
+		text-shadow: var(--vTXT_SHDW);
+	}
+
+
+
+	#verticalExtraInfoId {
+		font-size: 80%;
+		color: var(--esLOWER);
+	}
+
+	#secondCounterContainerVertical {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		text-align: center;
+		font-family: var(--fnCLOKEN);
+		font-size: 88vw;
+		background-color: black;
+		color: var(--esSALATS);
+		z-index: 1000;
+	}
+
+
+
+
+
+
+	#dateDisplayVertical {
+		position: absolute;
+		left: 4%;
+		top: 7.1%;
+		width: 92%;
+		font-size: 5.7vw;
+		z-index: var(--BsDate500);
+		line-height: 1.40em;
+		direction: ltr;
+		text-align: center;
+		font-family: var(--csvar_mainFONT);
+		color: var(--esLOWER);
+		text-shadow: var(--vTXT_SHDW);
+	}
+	#dateDisplayVertical:lang(AR),
+	#dateDisplayVertical:lang(UR),
+	#dateDisplayVertical:lang(KU),
+	#dateDisplayVertical:lang(AF),
+	#dateDisplayVertical:lang(PA),
+	#dateDisplayVertical:lang(PS),
+	#dateDisplayVertical:lang(FA),
+	#dateDisplayVertical:lang(UG){
+		line-height: 1.6em;
+		font-size: 6.6vw;
+		direction: rtl;
+	}
+
+	#tawkitVersionDisplay {
+		position: absolute;
+		width: 40%;
+		left: 69.4%;
+		top: 21.75%;
+		text-align: left;
+		font-size: 4.8vw;
+		line-height: 1;
+		letter-spacing: 0.065em;
+		text-shadow: var(--vTXT_SHDW);
+		font-family: var(--csvar_mainFONT);
+		color: var(--esLOWER);
+	}
+
+
+	#eidMessageContainerVertical {
+		position: absolute;
+		z-index: 500;
+		left: -5%;
+		top: 0%;
+		width: 110%;
+		height: 8.0%;
+		background-image: url(./images/eid.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		font-family: var(--csvar_azkarFONT);
+		text-align: center;
+		font-size: calc( 5.5vw - var(--NowSULTAN) ) ;
+		color: #FFF;
+		text-shadow: var(--TXT_SHDW);
+		opacity:1;
+		visibility: hidden;
+	}
+
+	#appLogoImage {
+		position: absolute;
+		left: 36%;
+		top: 13.5%;
+		width: 28%;
+		z-index: 600;
+		opacity: 1;
+		transition: all .5s ease-out;
+	}
+
+#alertToastDiv {
+    font-size: 4.5vw;
+}
+
+
+	#bottomInfoBarId {
+		position: absolute;
+		font-size: 2.2vw;
+		text-align: center;
+		visibility: visible;
+		left: 0%;
+		bottom: 0.7%;
+		width: 100%;
+		z-index: 990300;
+		letter-spacing: 0.075em;
+		opacity: .7;
+		color:var(--esLOWER);
+	}
+
+#decodedStringDisplayId {
+    position: absolute;
+    left: 3%;
+    top: 40%;
+    font-size: 80%;
+    font-family: var(--csvar_backFONT),var(--csvar_fontSECONDARY);
+    line-height: 1.40em;
+    opacity:0.5;
+    text-align: center;
+}
+
+	#weatherWidgetVertical {
+		position: absolute;
+		left: 72.5%;
+		top: 15.1%;
+		width: 20%;
+		height: 7%;
+		visibility: var(--METEO);
+		text-shadow: var(--vTXT_SHDW);
+	}
+
+	#weatherIconVertical {
+		position: absolute;
+		left: 55%;
+		top: 3%;
+		width: 33%;
+		height: auto;
+		text-align: right;
+	}
+
+	#weatherIconVertical img {
+		width: 100%;
+	}
+
+	#weatherTempVertical {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width: 50%;
+		text-align: left;
+		direction: ltr;
+		font-family: var(--fnDIGITS);
+		font-size: 7.4vw;
+		color: var(--esSALATS);
+		text-shadow: var(--vTXT_SHDW);
+	}
+
+	#weatherMinMaxVertical {
+		position: absolute;
+		left: 0%;
+		top: 60%;
+		width: 100%;
+		text-align: left;
+		opacity: 0.7;
+		visibility: hidden;
+		font-size: 3.0vw;
+		color: var(--esLOWER);
+	}
+
+	#weatherMinMaxVertical span{font-family: var(--fnDIGITS);}
+
+	#fullClockContainerVertical {
+		position: absolute;
+		left: 0%;
+		top: 28.9%;
+		width: 100%;
+		height: 12%;
+		text-shadow: var(--vCLK_SHDW);
+		color: var(--esCLOCK);
+		z-index: var(--BsCLock500);
+	}
+
+	#fullClockTimeDisplayVertical {
+		position: absolute;
+		line-height: 1em;
+		letter-spacing: 0.085em;
+		font-family: var(--fnCLOKEN);
+		font-size: 19.3vw;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		text-align: center;
+	}
+
+	#fullClockSecondsDisplayVertical {
+		position: absolute;
+		line-height: 1em;
+		letter-spacing: 0.085em;
+		font-family: var(--fnCLOKEN);
+		font-size: 8.9vw;
+		text-align: right;
+		right: 10.5%;
+		top: 6%;
+		width: 12%;
+	}
+
+	#fullClockAmPmDisplayVertical {
+		position: absolute;
+		line-height: 1em;
+		font-size: 5.2vw;
+		text-align: right;
+		right: 10.5%;
+		top: 50%;
+		width: 12%;
+		text-shadow: var(--vTXT_SHDW);
+	}
+
+	#miniClockContainerVertical {
+		position: absolute; 
+		line-height: 1em;
+		font-size: 19.3vw;
+		left: 0%;
+		top: 28.9%;
+		text-align: center;
+		letter-spacing: 0.085em;
+		width: 100%;
+		height: 12%;
+		text-shadow: var(--vCLK_SHDW);
+		font-family: var(--fnCLOKEN);
+		z-index: var(--BsCLock500);
+		color: var(--esCLOCK);
+	}
+
+	#miniClockContainerVertical span{
+		font-family: var(--fnCLOKEN);
+	}
+	
+	#nextPrayerCounterVertical {
+		position: absolute;
+		top:15.5%;
+		right:70.1%;
+		width: 35%;
+		text-align: right;
+		z-index: 500;
+		color: var(--esSALATS);
+		font-family: var(--fnDIGITS);
+	}
+
+	#nextPrayerTimeDisplayVertical {
+		font-size: 8.3vw;
+		line-height: 1;
+		letter-spacing: 0.065em;
+		text-shadow: var(--vTXT_SHDW);
+		font-family: var(--fnDIGITS);
+	}
+
+	#bigNextPrayCounterToggleDiv {
+		font-size: 4.5vw;
+		letter-spacing: 0em;
+		line-height: 2.30em;
+		font-family: var(--csvar_mainFONT);
+		color: var(--esLOWER);
+		margin-right: 3%;
+	}
+	#bigNextPrayCounterToggleDiv:lang(AR),
+	#bigNextPrayCounterToggleDiv:lang(UR),
+	#bigNextPrayCounterToggleDiv:lang(KU),
+	#bigNextPrayCounterToggleDiv:lang(AF),
+	#bigNextPrayCounterToggleDiv:lang(PA),
+	#bigNextPrayCounterToggleDiv:lang(PS),
+	#bigNextPrayCounterToggleDiv:lang(FA),
+	#bigNextPrayCounterToggleDiv:lang(UG) {
+		font-size: 4.3vw; 
+		line-height:2.10em;
+		}
+
+
+
+
+
+	#ayaDisplayContainerVertical {
+		position: absolute;
+		text-align: center;
+		left:0.5%;
+		top: 40.5%;
+		z-index: 300;
+		height: 8%;
+		width: 99%;
+		font-size: 6.3vw;
+		text-shadow: var(--vAyatSHDW);
+	}
+
+	#ayaTextDisplayVertical {
+		font-family: var(--ayatsFont);
+		font-size: var(--ayatsSize);
+		direction: var(--ayatsLtrRtl);
+		line-height: var(--ayatsFHeight);
+		}
+
+
+
+	#ayaTextDisplayVertical span{
+		position: absolute;
+		left:45%;
+		top:-12%;
+		line-height:1em;
+		font-family: monospace;
+		font-size: 2.3vw;
+		opacity:0.33;
+		color: var(--esLOWER);
+		}
+	#ayaTextDisplayVertical span:before{ content: 'Surat ';}
+
+
+
+
+	#messageDisplayContainerVertical {
+		position: absolute;
+		font-family: var(--csvar_mainFONT),var(--csvar_fontSECONDARY);
+		font-size: 7.0vw;
+		visibility: hidden;
+		left:0.5%;
+		top: 40.7%;
+		height: 8%;
+		width: 99%;
+		text-align: center;
+		color: var(--esCLOCK);
+	}
+	#messageDisplayContainerVertical div{font-family: var(--csvar_mainFONT),var(--csvar_fontSECONDARY);}
+
+
+	#dohaTimeDisplayVertical {
+		position: absolute;
+		top:40.5%; 
+		right:3.0%;
+		font-family: var(--csvar_mainFONT);
+		width: 30%;
+		height: 10%;
+		text-align: left;
+		z-index: 100;
+		font-size: 4.4vw;
+		line-height: 1.90em;
+		color: var(--esLOWER);
+		text-shadow: var(--TXT_SHDW);
+		visibility:hidden;
+	}
+
+	.classicVrClass #fullClockContainerVertical {top: 35.0%;}
+	.classicVrClass #miniClockContainerVertical {top: 35.0%;}
+
+	.specialVrClass #fullClockContainerVertical {top: 19.0%;}
+	.specialVrClass #miniClockContainerVertical {top: 19.0%;}
+
+		
+	.classicVrClass #appLogoImage {top: 20.0%;}
+	.specialVrClass #appLogoImage {top: 38.8%; left:38%; width:24%; opacity: var(--izBigCNTR);}
+
+	.classicVrClass #dateDisplayVertical {top: 12.7%;}
+	
+	.classicVrClass #dateDisplayVertical:lang(AR),
+	.classicVrClass #dateDisplayVertical:lang(UR),
+	.classicVrClass #dateDisplayVertical:lang(KU),
+	.classicVrClass #dateDisplayVertical:lang(AF),
+	.classicVrClass #dateDisplayVertical:lang(PA),
+	.classicVrClass #dateDisplayVertical:lang(PS),
+	.classicVrClass #dateDisplayVertical:lang(FA),
+	.classicVrClass #dateDisplayVertical:lang(UG){
+	top:10.1%; 
+	font-size:6.0vw;
+	}
+
+	
+
+
+
+
+	.classicVrClass #weatherWidgetVertical {top:24.0%; left:67.5%;}
+	.specialVrClass #weatherWidgetVertical {top:13.7%; left:23.1%; width:15%;}
+	.specialVrClass #weatherTempVertical {font-size:5.4vw; color:var(--esLOWER);}	
+	
+
+	.classicVrClass #tawkitVersionDisplay {top: 30.51%; left:64.4%;}
+	.specialVrClass #tawkitVersionDisplay {top:14.1%; left:40%; font-size:5.6vw;}
+
+	
+
+	.classicVrClass #nextPrayerCounterVertical {top:24.3%; right:65.1%;}
+	.specialVrClass #nextPrayerCounterVertical {top:41.7%; right:66.1%; opacity: var(--izBigCNTR);}
+	.specialVrClass #nextPrayerTimeDisplayVertical {font-size:6.3vw;}
+	
+
+
+
+	
+	.specialVrClass #eidMessageContainerVertical {opacity:0;}
+
+	.specialVrClass #dohaTimeDisplayVertical {visibility:visible; opacity: var(--izBigCNTR);}
+
+
+
+	.classicVrClass #ayaDisplayContainerVertical {top: 45.8%;}
+	.classicVrClass #messageDisplayContainerVertical {top: 45.8%;}
+
+	.specialVrClass #ayaDisplayContainerVertical {top: 30.5%;}
+	.specialVrClass #messageDisplayContainerVertical {top: 30.5%;}
+
+
+	#hadithDisplayVertical {
+		position: absolute;
+		z-index: 300;
+		left: 1%;
+		bottom: 2.2%;
+		width: 98%;
+		height: 5%;
+		padding: .3% 0;
+		font-family: var(--csvar_azkarFONT),var(--csvar_fontSECONDARY);
+		text-align: center;
+		overflow: hidden;
+		font-size: calc( 5.0vw - var(--NowSULTAN) ) ;
+		color: var(--esCLOCK);
+		text-shadow: var(--vTXT_SHDW);
+		visibility: visible;
+	}
+
+	#marqueeContainerVertical {
+		position: absolute;
+		z-index: 300;
+		left: 1%;
+		bottom: 2.2%;
+		width: 98%;
+		height: 5%;
+		white-space: nowrap;
+    	overflow: hidden;
+	}
+
+	#marqueeTextVertical {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width:auto;
+		display: inline-block;
+		white-space: nowrap;
+		text-align: left;
+		color: var(--esCLOCK);
+		font-family: var(--csvar_azkarFONT),var(--csvar_fontSECONDARY);
+		font-size: calc( 5.0vw - var(--NowSULTAN) ) ;
+	}
+
+	#staticMessageDisplayVertical { 
+		position: absolute;
+		z-index: 299;
+		left: 1%;
+		bottom: 2.2%;
+		width: 98%;
+		height: 5%;
+		padding: .3% 0;
+		font-family: var(--csvar_azkarFONT),var(--csvar_fontSECONDARY);
+		text-align: center;
+		overflow: hidden;
+		font-size: calc( 5.0vw - var(--NowSULTAN) ) ;
+		color: var(--esCLOCK);
+		text-shadow: var(--vTXT_SHDW);
+	}
+
+	.specialVrClass #hadithDisplayVertical {bottom:3.2%;}
+	.specialVrClass #marqueeContainerVertical {bottom:3.2%;}
+	.specialVrClass #staticMessageDisplayVertical {bottom:3.2%;}
+
+	#versionDisplayId {
+		position: absolute;
+		font-size: 2.0vw;
+		text-align: center;
+		left: 0%;
+		bottom: 0.7%;
+		text-transform: uppercase;
+		width: 100%;
+		z-index: 300;
+		letter-spacing: 0.075em;
+		visibility: visible;
+		opacity: .7;
+		color:var(--esLOWER);
+	}
+
+
+
+
+
+	#iqamaCounterContainerVertical {
+		position: absolute;
+		left: 32.5%;
+		top: 8.1%;
+		width: 35.0vw;
+		height: 35.0vw;
+		z-index:1000;
+		background-color: rgba(0,0,0, 0.90); 
+		border-radius: 50%;
+		box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.75);
+	}
+
+	#iqamaCounterSvgVertical {
+		position:absolute; 
+		left:-5%; 
+		top:-5%; 
+		width:110%; 
+		height:110%;
+		opacity:1;
+	}
+
+	#iqamaCounterCircleVertical {
+		stroke:var(--esSALATS); 
+		fill:none;  
+		stroke-width:3; 
+	}
+
+	#iqamaCounterTimeDisplayVertical {
+		position: absolute;
+		left: 5%;
+		top: 33%;
+		width: 90%;
+		height: 40%;
+		line-height: 1em;
+		font-size: 11.0vw;
+		color: var(--esSALATS);
+		font-family: var(--fnDIGITS);
+		text-align: center;
+	}
+
+	#iqamaCounterLabelVertical {
+		position: absolute;
+		left: 5%;
+		bottom:0%;
+		line-height: 1em;
+		width: 90%;
+		height: 30%;
+		font-size: 3.9vw;
+		color: var(--esLOWER);
+		font-family: var(--csvar_mainFONT);
+		direction: var(--csvar_nowDIR);
+		text-align: center;
+	}
+
+
+
+
+	#azanPopupVertical {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		height: 100%;
+		z-index: 99991;
+		font-size: 14vw;
+	}
+
+	#azanPopupBackgroundVertical {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		height: 100%;
+		width: 100%;
+		opacity: var(--BgsTranspa);
+	}
+
+
+	#azanPopupTitleVertical {
+		position: absolute;
+		left: 30%;
+		top: 40%;
+		width: 40%;
+		text-align: center;
+		font-family: var(--csvar_mainFONT);
+		color: var(--esSALATS);
+		text-shadow: var(--vCLK_SHDW);
+	}
+
+	#azanPopupPrayerNameVertical {
+		position: absolute;
+		left: 10%;
+		top: 50%;
+		width: 80%;
+		text-align: center;
+		font-family: var(--csvar_mainFONT);
+		font-size: 160%;
+		color: var(--esCLOCK);
+		text-shadow: var(--BIG_SHDW);
+	}
+
+
+
+	#azanPopupTimeVertical {
+		position: absolute;
+		left: 30%;
+		top: 18%;
+		width: 40%;
+		text-align: center;
+		font-family: var(--fnDIGITS);
+		letter-spacing: 0.085em;
+		line-height: 1em;
+		font-size: 7vw;
+		color: var(--esCLOCK);
+	}
+
+
+
+	#iqamaPopupVertical {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		height: 100%;
+		z-index: 99991;
+		font-size: 21vw;
+	}
+
+	#iqamaPopupBackgroundVertical {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		height: 100%;
+		width: 100%;
+		opacity: var(--BgsTranspa);
+	}
+
+	#iqamaPopupTextVertical {
+		position: absolute;
+		left: 10%;
+		top: 30%;
+		width: 80%;
+		line-height: 1.3em;
+		text-align: center;
+		font-family: var(--csvar_mainFONT);
+		color: var(--esCLOCK);
+		text-shadow: var(--BIG_SHDW);
+	}
+
+
+
+
+
+	#dohaPopupVertical {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		height: 100%;
+		z-index: 99991;
+		font-size: 14vw;
+	}
+
+	#dohaPopupBackgroundVertical {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		height: 100%;
+		width: 100%;
+		opacity: var(--BgsTranspa);
+	}
+
+	#dohaPopupTextVertical {
+		position: absolute;
+		left: 10%;
+		top: 40%;
+		width: 80%;
+		line-height: 1.3em;
+		text-align: center;
+		font-family: var(--csvar_mainFONT);
+		color: var(--esSALATS);
+		text-shadow: var(--BIG_SHDW);
+	}
+
+
+
+
+
+
+
+	#azkarContainerVertical {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		height: 100%;
+		z-index: 999;
+		background-color:#121212;
+		background-image: url(./azkar/vr.jpg); 
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+	}
+
+	#azkarContentWrapperVertical { 
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		height: 78%;
+	}
+
+
+	#azkarTextWrapperVertical {
+		position: absolute;
+		left: 1%;
+		top: 0;
+		width: 98%;
+		height: 100%;
+		display: table;
+	}
+
+	#azkarTextDisplayVertical {
+		display: table-cell;
+		vertical-align: middle;
+		text-align: center;
+		letter-spacing:0em;
+		direction: rtl;
+		font-family: var(--csvar_azkarFONT);
+		font-size: calc( 3.6vw - var(--NowSULTAN) ) ;
+		text-shadow: var(--vCLK_SHDW);
+		line-height: 1.90em;
+		color: white;
+	}
+
+	#azkarTextDisplayVertical span {
+		font-size: 55%;
+		color: gray;
+	}
+
+
+	#azkar5minPictureContainerVertical {
+		position: absolute;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		height: 100%;
+		z-index: 9999444;
+		background-image: url();
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		
+	}
+
+
+
+	#slidesTextWrapperVertical {
+		position: absolute;
+		left: 2%;
+		top: 3.0%;
+		width: 96%;
+		height: 93%;
+		display: table;
+	}
+
+	#slidesTextDisplayVertical {
+		display: table-cell;
+		vertical-align: middle;
+		text-align: center;
+		direction: rtl;
+		font-family: var(--csvar_azkarFONT);
+		font-size: calc( 3.8vw - var(--NowSULTAN) ) ;
+		text-shadow: var(--vCLK_SHDW);
+		line-height: 1.90em;
+		color: #EDDDC1;
+	}
+
+	#slidesTextDisplayVertical span {
+		font-size: 55%;
+		color: gray;
+	}
+
+
+	#prayerTimesContainerVertical {
+		position: absolute;
+		left: 8%;
+		top: 49.0%;
+		height: 45%;
+		width: 84%;
+		font-family: var(--fnDIGITS);
+		text-shadow: var(--vTXT_SHDW);
+		opacity: var(--izBigCNTR);
+	}
+
+	.classicVrClass #prayerTimesContainerVertical {top: 51.0%;}
+	.specialVrClass #prayerTimesContainerVertical {top: 49.0%;}
+	
+	.classicVrClass #iqamaCounterContainerVertical {top:var(--vrCounterTOP); left:var(--vrCounterLEFT); }
+	.specialVrClass #iqamaCounterContainerVertical {top:39.5%;}
+	
+
+	#highlightBarVertical {
+		position: absolute;
+		left: 5%;
+		top: 70%;
+		width: 90%;
+		height: 6.6%;
+		border-radius:75px; 
+		background-color:rgba(0,0,0, 0.35);
+		visibility: hidden;
+		opacity: var(--izBigCNTR);
+	}
+
+
+
+	.prayerRowClass {
+		position: relative;
+		display: block;
+		margin:1.4% 0;
+		height: 13.3%;
+		border-radius:75px; 
+		background-size: 100% 100%;
+		background-image:var(--VRBgOnOff);
+		width: 100%;
+		opacity: 1;
+	}
+
+	.prayerRowSecondaryClass {
+		position: relative;
+		display: block;
+		margin:1.4% 0;
+		height: 13.3%;
+		border-radius:75px; 
+		background-size: 100% 100%;
+		background-image:var(--VRBgOnOff);
+		width: 100%;
+		opacity: 1;
+	}
+
+	.classicVrClass .prayerRowClass {margin:0.7% 0;}
+	.specialVrClass .prayerRowClass {margin:3.0% 0;}
+
+
+	.classicVrClass .prayerRowSecondaryClass {display: block; margin:0.7% 0;}
+	.specialVrClass .prayerRowSecondaryClass {display: none;}
+
+
+
+
+	#forcedVerticalOption {display:none;} 
+
+
+
+	.prayerRowWrapperClass {
+		position: relative;
+		height: 13.3%;
+		margin-bottom: 1.5%;
+	}
+
+	.classicVrClass .prayerRowClass {
+		margin-bottom: 0.7%;
+		background-size: 100% 100%;
+		background-image:var(--VRBgOnOff);
+	}
+
+	.classicVrClass .prayerRowWrapperClass {
+		margin-bottom: 0.7%;
+	}
+
+
+	#prayerTimesHeaderVertical {
+		position: relative;
+		left: 0%;
+		top: 1.5%;
+		direction: ltr;
+		height: 7.0%;
+		width: 100%;
+		opacity: 1;
+	}
+
+
+	#prayerTimesHeaderVertical div{
+		text-transform: uppercase;
+		text-shadow: none;
+		font-size: 3.1vw;
+		font-family: var(--csvar_mainFONT);
+		line-height: 1em;
+	}
+	#prayerTimesHeaderVertical:lang(AR),
+	#prayerTimesHeaderVertical:lang(UR),
+	#prayerTimesHeaderVertical:lang(KU),
+	#prayerTimesHeaderVertical:lang(AF),
+	#prayerTimesHeaderVertical:lang(PA),
+	#prayerTimesHeaderVertical:lang(PS),
+	#prayerTimesHeaderVertical:lang(FA),
+	#prayerTimesHeaderVertical:lang(UG){	
+		font-size: 3.3vw;
+		top: 1.4%;
+		direction: rtl;
+	}
+
+	.classicVrClass #prayerTimesHeaderVertical { opacity: 0; }
+	.specialVrClass #prayerTimesHeaderVertical { opacity: 0; }
+
+
+	#headerAzanTimeVertical {
+		position: absolute;
+		top: 0%;
+		right: 43.0%;
+		width: 30%;
+		text-align: right;
+	}
+
+	#headerPrayerNameVertical {
+		position: absolute;
+		top: 0%;
+		left: 6.5%;
+		right: unset;
+		width: 30%;
+		text-align: left;
+	}
+
+	#headerIqamaTimeVertical {
+		position: absolute;
+		top: 0%;
+		left: unset;
+		right: 6.5%;
+		width: 26.5%;
+		text-align: right;
+		visibility: var(--IQAMAT);
+	}
+	#headerPrayerNameVertical:lang(AR),
+	#headerPrayerNameVertical:lang(UR),
+	#headerPrayerNameVertical:lang(KU),
+	#headerPrayerNameVertical:lang(AF),
+	#headerPrayerNameVertical:lang(PA),
+	#headerPrayerNameVertical:lang(PS),
+	#headerPrayerNameVertical:lang(FA),
+	#headerPrayerNameVertical:lang(UG){
+		position: absolute;
+		top: 0%;
+		right: 4.5%;
+		left: unset;
+		width: 30%;
+		text-align: right;
+	}
+	#headerIqamaTimeVertical:lang(AR),
+	#headerIqamaTimeVertical:lang(UR),
+	#headerIqamaTimeVertical:lang(KU),
+	#headerIqamaTimeVertical:lang(AF),
+	#headerIqamaTimeVertical:lang(PA),
+	#headerIqamaTimeVertical:lang(PS),
+	#headerIqamaTimeVertical:lang(FA),
+	#headerIqamaTimeVertical:lang(UG){
+		position: absolute;
+		top: 0%;
+		left: 0%;
+		right: unset;
+		width: 26.0%;
+		text-align: right;
+	}
+
+
+	.middleNamesVrClass #headerAzanTimeVertical {
+		position: absolute;
+		top: 0%;
+		left: 15.0%;
+		right: unset;
+		width: 30%;
+		text-align: left;
+	}
+
+	.middleNamesVrClass #headerPrayerNameVertical {
+		position: absolute;
+		top: 0%;
+		left: 45%;
+		right: unset;
+		width: 30%;
+		text-align: left;
+	}
+
+	.middleNamesVrClass #headerIqamaTimeVertical {
+		position: absolute;
+		top: 0%;
+		left: unset;
+		right: 10%;
+		width: 26.5%;
+		text-align: right;
+		visibility: var(--IQAMAT);
+	}
+
+	.middleNamesVrClass #headerAzanTimeVertical:lang(AR),
+	.middleNamesVrClass #headerAzanTimeVertical:lang(UR),
+	.middleNamesVrClass #headerAzanTimeVertical:lang(KU),
+	.middleNamesVrClass #headerAzanTimeVertical:lang(AF),
+	.middleNamesVrClass #headerAzanTimeVertical:lang(PA),
+	.middleNamesVrClass #headerAzanTimeVertical:lang(PS),
+	.middleNamesVrClass #headerAzanTimeVertical:lang(FA),
+	.middleNamesVrClass #headerAzanTimeVertical:lang(UG){
+		position: absolute;
+		top: 0%;
+		right: 4.0%;
+		width: 30%;
+		text-align: right;
+	}
+
+	.middleNamesVrClass #headerPrayerNameVertical:lang(AR),
+	.middleNamesVrClass #headerPrayerNameVertical:lang(UR),
+	.middleNamesVrClass #headerPrayerNameVertical:lang(KU),
+	.middleNamesVrClass #headerPrayerNameVertical:lang(AF),
+	.middleNamesVrClass #headerPrayerNameVertical:lang(PA),
+	.middleNamesVrClass #headerPrayerNameVertical:lang(PS),
+	.middleNamesVrClass #headerPrayerNameVertical:lang(FA),
+	.middleNamesVrClass #headerPrayerNameVertical:lang(UG){
+		position: absolute;
+		top: 0%;
+		right: 42%;
+		left: unset;
+		width: 30%;
+		text-align: right;
+	}
+	.middleNamesVrClass #headerIqamaTimeVertical:lang(AR),
+	.middleNamesVrClass #headerIqamaTimeVertical:lang(UR),
+	.middleNamesVrClass #headerIqamaTimeVertical:lang(KU),
+	.middleNamesVrClass #headerIqamaTimeVertical:lang(AF),
+	.middleNamesVrClass #headerIqamaTimeVertical:lang(PA),
+	.middleNamesVrClass #headerIqamaTimeVertical:lang(PS),
+	.middleNamesVrClass #headerIqamaTimeVertical:lang(FA),
+	.middleNamesVrClass #headerIqamaTimeVertical:lang(UG){
+		position: absolute;
+		top: 0%;
+		left: 0%;
+		right: unset;
+		width: 28.0%;
+		text-align: right;
+	}
+
+
+
+
+
+
+
+	#miniPrayerTimesVertical {
+		position: absolute;
+		left: 10%;
+		bottom: var(--eBtmMiniTIMES);
+		width: 80%;
+		z-index: 1001;
+		direction: var(--csvar_nowDIR);
+	}
+
+	#miniPrayerTimesTableVertical    {width:100%; border-spacing: 1.1vw;}
+	#miniPrayerTimesTableVertical td {position:relative; width:16.6%; text-shadow:var(--TXT_SHDW);}
+	#spacerCell,#spacerCell2   {font-size: 9.2vw;}
+
+
+
+
+.prayerNameClass {
+		position: absolute; 
+		font-family: var(--csvar_mainFONT);
+		font-size: 4.4vw;
+		text-align: center;
+		top: 0;
+		width: 100%;
+		line-height: 1.0em;
+		color: var(--esLOWER);
+		}
+
+.prayerTimeClass {
+		position: absolute;
+		left: 0%;
+		bottom: 0%;
+		font-family: var(--fnDIGITS);
+		letter-spacing: 0.070em;
+		width: 100%;
+		font-size: 4.9vw;
+		text-align: center;
+		color: var(--esCLOCK);
+		}
+
+
+	.prayerNameLargeClass {
+		font-family: var(--csvar_mainFONT);
+		position: absolute;
+		left: 5.5%;
+		font-size: 6.6vw; 
+		bottom: 16.0%;
+		line-height: 1em;
+		color: var(--esSALATS);
+	}
+	.prayerNameLargeClass:lang(AR),
+	.prayerNameLargeClass:lang(UR),
+	.prayerNameLargeClass:lang(KU),
+	.prayerNameLargeClass:lang(AF),
+	.prayerNameLargeClass:lang(PA),
+	.prayerNameLargeClass:lang(PS),
+	.prayerNameLargeClass:lang(FA),
+	.prayerNameLargeClass:lang(UG){
+		right: 5.0%;
+		left: unset;
+		font-size: 7.6vw;
+		bottom: 13.7%;
+		text-align: right;
+	}
+
+	.prayerNameLargeClass:lang(KO) {font-size: 5.9vw;}
+	.prayerNameLargeClass:lang(UZ) {font-size: 6.3vw;}
+	.prayerNameLargeClass:lang(JA) {font-size: 5.2vw;}
+
+
+	.azanTimeClass {
+		position: absolute;
+		text-align: right;
+		width: 31%;
+		right: 35.2%;
+		bottom: 13%;
+		font-family: var(--fnDIGITS);
+		font-size: 7.6vw;
+		letter-spacing: 0.10em;
+		line-height: 1em;
+		color: var(--esCLOCK);
+	}
+
+	.iqamaTimeClass {
+		position: absolute;
+		right: 5.0%;
+		bottom: 13%;
+		text-align: right;
+		width: 27%;
+		font-family: var(--fnDIGITS);
+		font-size: 7.6vw;
+		letter-spacing: 0.10em;
+		line-height: 1em;
+		visibility: var(--IQAMAT);
+		color: var(--esSALATS);
+	}
+
+	.iqamaTimeClass:lang(AR),
+	.iqamaTimeClass:lang(UR),
+	.iqamaTimeClass:lang(KU),
+	.iqamaTimeClass:lang(AF),
+	.iqamaTimeClass:lang(PA),
+	.iqamaTimeClass:lang(PS),
+	.iqamaTimeClass:lang(FA),
+	.iqamaTimeClass:lang(UG) {
+		left: 3.5%;
+		right: unset;
+	}
+
+
+	.middleNamesVrClass .prayerNameLargeClass {
+		position: absolute;
+		left: 30%;
+		bottom: 16.0%;
+		width: 40%;
+		text-align: center;
+		line-height: 1em;
+		color: var(--esCLOCK);
+		font-family: var(--csvar_mainFONT);
+		font-size: 6.7vw;
+	}
+
+	.middleNamesVrClass .prayerNameLargeClass:lang(AR),
+	.middleNamesVrClass .prayerNameLargeClass:lang(UR),
+	.middleNamesVrClass .prayerNameLargeClass:lang(KU),
+	.middleNamesVrClass .prayerNameLargeClass:lang(AF),
+	.middleNamesVrClass .prayerNameLargeClass:lang(PA),
+	.middleNamesVrClass .prayerNameLargeClass:lang(PS),
+	.middleNamesVrClass .prayerNameLargeClass:lang(FA){
+		right: 30%;
+		left: unset;
+		font-size: 7.6vw;
+		bottom: 13.7%;
+	}
+
+	.middleNamesVrClass .azanTimeClass {
+		position: absolute;
+		text-align: right;
+		width: 30%;
+		left: 0.5%;
+		bottom: 13%;
+		font-family: var(--fnDIGITS);
+		font-size: 7.6vw;
+		letter-spacing: 0.065em;
+		line-height: 1em;
+		color: var(--esSALATS);
+	}
+	.middleNamesVrClass .azanTimeClass:lang(AR),
+	.middleNamesVrClass .azanTimeClass:lang(UR),
+	.middleNamesVrClass .azanTimeClass:lang(KU),
+	.middleNamesVrClass .azanTimeClass:lang(AF),
+	.middleNamesVrClass .azanTimeClass:lang(PA),
+	.middleNamesVrClass .azanTimeClass:lang(PS),
+	.middleNamesVrClass .azanTimeClass:lang(FA),
+	.middleNamesVrClass .azanTimeClass:lang(UG){
+		text-align: right;
+		right: 5.0%;
+		left: unset;
+	}
+
+	.middleNamesVrClass .iqamaTimeClass {
+		position: absolute;
+		right: 5.0%;
+		bottom: 13%;
+		text-align: right;
+		width: 27%;
+		font-family: var(--fnDIGITS);
+		font-size: 7.6vw;
+		letter-spacing: 0.065em;
+		line-height: 1em;
+		visibility: var(--IQAMAT);
+		color: var(--esSALATS);
+	}
+	.middleNamesVrClass .iqamaTimeClass:lang(AR),
+	.middleNamesVrClass .iqamaTimeClass:lang(UR),
+	.middleNamesVrClass .iqamaTimeClass:lang(KU),
+	.middleNamesVrClass .iqamaTimeClass:lang(AF),
+	.middleNamesVrClass .iqamaTimeClass:lang(PA),
+	.middleNamesVrClass .iqamaTimeClass:lang(PS),
+	.middleNamesVrClass .iqamaTimeClass:lang(FA),
+	.middleNamesVrClass .iqamaTimeClass:lang(UG){
+		left: 3.5%;
+		right: unset;
+	}
+
+
+	.weatherIconClass {
+		position: absolute;
+		right: -6%;
+		top: 15%;
+		width: 8%;
+		height: 69.0%;
+		font-size: 2.3vw;
+		direction: ltr;
+		visibility: var(--MTOSLWTS);
+	}
+	.weatherIconClass:lang(AR),
+	.weatherIconClass:lang(UR),
+	.weatherIconClass:lang(KU),
+	.weatherIconClass:lang(AF),
+	.weatherIconClass:lang(PA),
+	.weatherIconClass:lang(PS),
+	.weatherIconClass:lang(FA),
+	.weatherIconClass:lang(UG){
+		right: -6%;
+	}
+
+#ayatsLangListContainer {
+		top: 14%;
+	}
+
+	#nightPrayersContainerVertical {
+		position: absolute;
+		font-family: 'FONTO';
+		direction :ltr;
+		width:12%;
+		line-height: 1em;
+		left: -7%;
+		top: 12%;
+		font-size: 2.6vw;
+		color: var(--esSALATS);
+		text-shadow: none;
+		z-index: 200;
+		opacity: .25;
+	}
+	#nightPrayersContainerVertical:lang(AR),
+	#nightPrayersContainerVertical:lang(UR),
+	#nightPrayersContainerVertical:lang(KU),
+	#nightPrayersContainerVertical:lang(AF),
+	#nightPrayersContainerVertical:lang(PA),
+	#nightPrayersContainerVertical:lang(PS),
+	#nightPrayersContainerVertical:lang(FA),
+	#nightPrayersContainerVertical:lang(UG){
+		right: -8.0%;
+		left: unset;
+		direction :rtl;
+	}
+
+
+
+
+	select {
+		width: 100%;
+		padding: 0.5%;
+		text-align: right;
+		font-size: 2.1vw;
+	}
+
+	select optgroup {
+		padding: 1.5%;
+		color: #913E23;
+	}
+
+	select option {
+		padding: 1.1%;
+		direction: ltr;
+		text-align: left;
+		color: #252525;
+	}
+
+button {margin-top:5%; width:60%; font-size:3.5vw; padding:2%;}
+
+	#debugStatusDivId {
+		position: absolute;
+		bottom: 0%;
+		z-index: 3000;
+		margin-top: 5%;
+		width: 60%;
+		font-size: 3.5vw;
+		padding: 2%;
+		visibility: hidden;
+	}
+
+
+	#mainMenuContainer {
+		width: 100%;
+		font-size: 3.0vw;
+	}
+
+	.menuHeaderClass {
+		position: absolute;
+		text-align: center;
+		display: table;
+		left: 0%;
+		top: 0%;
+		width: 100%;
+		height: 5%;
+		background-color: #282828;
+	}
+
+	#menuContentContainer {
+		font-size: 4.2vw;
+		top: 6%;
+	}
+
+	#inputDialogContainer {
+		font-family: var(--csvar_backFONT),var(--csvar_fontSECONDARY);
+		position: fixed;
+		border:1px solid #786E5F;
+		padding:0;
+		text-align:center;
+		width: 91%;
+		min-height: 20%;
+		left: 1%;
+		top: 15%;
+		visibility: hidden;
+		z-index: 9999444;
+		background: #000000;
+		box-shadow: var(--BIG_SHDW);
+	}
+	#inputDialogContainer input[type=text]{
+		font-family: var(--csvar_backFONT),var(--csvar_fontSECONDARY);
+		direction: var(--csvar_nowDIR);
+		margin: 3% 0;
+		padding:0.5% 1%;
+		width: 90%;
+		font-size: 4.3vw;
+		text-align:right;
+	}
+
+	#inputDialogTitle{
+	    margin: 1.0%;
+	    font-family: var(--csvar_backFONT),var(--csvar_fontSECONDARY);
+	    width: 90%;
+	    height:auto;
+	    line-height: 1.45em;
+	    font-size: 3.7vw;
+	    padding: 1.0%;
+	    text-align:center;
+	    color:#DFCDB1;
+	}
+	
+	.inputDialogButtonClass {
+	    margin: 4.5% 3%;
+	    font-family: var(--csvar_backFONT),var(--csvar_fontSECONDARY);
+	    width: 30%;
+	    font-size: 4.5vw;
+	    border:1px solid #786E5F;
+	    padding: 1.9%;
+	    text-align:center;
+	    cursor: pointer;
+	    color:#DFCDB1;
+	    background-color:#313131;
+	}
+
+
+	.fixedIqamaButtonClass {
+	    font-family: var(--csvar_backFONT);
+	    width: 40%;
+	    font-size: 3.3vw;
+	    border:1px solid #786E5F;
+	    padding: 1.9%;
+	    text-align:center;
+	    cursor: pointer;
+	    color:#DFCDB1;
+	    background-color:#313131;
+	    border-bottom:5px solid #786E5F;
+	}
+
+	.fixedTimeButtonClass {width:27%; margin: 0 0 2% 0;}
+
+	.modalPopupClass {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		left: 0%;
+		top: 0%;
+		visibility: hidden;
+		z-index: 99993;
+		background: #151515;
+		font-size: 3.6vw;
+	}
+
+
+	.modalHeaderClass {
+		height: 6%;
+	}
+
+	.modalContentClass {
+    position: absolute;
+    font-family: var(--csvar_backFONT);
+    left: 0%;
+    width: 94%;
+    padding: 3%;
+    line-height: 1.65em;
+    overflow-y: auto;
+    direction: var(--csvar_nowDIR);
+	top: 6%;
+	height: 88%;
+	}
+
+
+
+	.locationListContentClass {/* vr */
+	    position: absolute;
+			top: 6%;
+			height: 80%;
+	    left: 0%;
+	    width: 94%;
+	    padding: 3%;
+	    overflow-y: auto;
+	    direction: ltr;
+	}
+
+
+	.locationSelectButtonClass {
+	    margin: 1.0% 0%;
+	    font-family: var(--csvar_backFONT);
+	    width: 47%;
+	    font-size: 3.5vw;
+	    border:1px solid #786E5F;
+	    padding: 1.7% 1%;
+	    text-align: left;
+	    cursor: pointer;
+	    color:#DFCDB1;
+	    direction: ltr;
+	    background-color:#313131;
+	     margin-right:1%;
+	}
+
+
+	.settingsActionButtonClass {font-size: 4.0vw;}
+
+
+
+	#countryListContent button, #cityListContent button{
+	    margin: 0.9% 1%;
+	    font-family: var(--csvar_backFONT),var(--csvar_fontSECONDARY);
+	    width: 94%;
+	    font-size: 5.1vw;
+	    border:1px solid #3C3C3C;
+	    padding: 1.7%;
+	    text-align: left;
+	    direction: ltr;
+	    cursor: pointer;
+	    color:#DFCDB1;
+	    background-color:#313131;
+	}
+
+
+
+
+	#noMobileImageVertical {
+		position: absolute;
+		left: 25%;
+		top: 55%;
+		width: 50%;
+		height: auto;
+		visibility: hidden;
+	}
+
+	input[type='checkbox'] {
+		height: 4vw;
+		width: 5vw;
+	}
+
+	.adjustButtonClass {
+		font-size: 3vw;
+		height: 5vw;
+		width: 6vw;
+	}
+
+	#languageSelectionContainer span {
+		font-size: 3.0vw;
+		cursor: pointer;
+	}
+
+	input[type='radio'] {
+		vertical-align: middle;
+		width: 3.5vw;
+		height: 3.5vw;
+	}
+
+
+	#fullScreenCounterContainerVertical {
+		position: absolute;
+		left: 0%;
+		top: 49%;
+		height: 25%;
+		width: 100%;
+		z-index: 999;
+	}
+
+	.classicVrClass #fullScreenCounterContainerVertical {top: 53%;}
+	.specialVrClass #fullScreenCounterContainerVertical {top: 40%;}
+
+
+	#fullScreenCounterTimeDisplayVertical { 
+		position: absolute;
+		left: 0%;
+		top: 4%;
+		text-align: center;
+		height: auto;
+		width: 100%;
+		line-height: 1em;
+		letter-spacing: 0.085em;
+		font-family: var(--fnCLOKEN);
+		font-size: 30vw;
+		color: var(--esSALATS);
+		-webkit-text-stroke: 5px var(--esSALATS);
+		text-shadow: var(--BIG_SHDW);
+	}
+
+
+	#fullScreenCounterLabelVertical {
+		position: absolute;
+		left: 0%;
+		top: 70%;
+		text-align: center;
+		height: auto;
+		width: 100%;
+		line-height: 1em;
+		letter-spacing: 0.0em;
+		font-family: var(--csvar_mainFONT);
+		font-size: 6.1vw;
+		color: var(--esLOWER);
+		text-shadow: var(--BIG_SHDW);
+	}
+
+	#internetStatusIndicatorVertical {
+	    position: absolute;
+	    z-index: 555;
+	    left: 9.0%;
+	    bottom: 0.10%;
+	    color: silver;
+	    font-family: 'Amiri';
+	    line-height: 0.95em;
+	    font-size: 5.3vw;
+	    height: auto;
+	    width: auto;
+	}
+
+	#tvPointerImage {
+		position: absolute;
+		left: 10%;
+		top: 10%;
+		width: 8vw;
+		height: 8vw;
+		z-index: 99999999;
+		visibility: hidden;
+	}
+
+
+}

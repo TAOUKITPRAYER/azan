@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:overScrollMode="never" />
+
+    <!-- Ecran de chargement natif : masque le WebView pendant l'analyse des
+         gros fichiers JS (m1prime.js/m2body.js/langues) et le premier rendu,
+         dont la duree varie selon l'appareil. Cliquable pour bloquer tout
+         toucher vers le WebView tant qu'il est visible. Masque par
+         MainActivity.hideSplash() une fois onPageFinished declenche. -->
+    <LinearLayout
+        android:id="@+id/splashOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:id="@+id/splashLogo"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:src="@drawable/splash_logo"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:id="@+id/splashBasmala"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="@string/splash_basmala"
+            android:textColor="#DFCDB1"
+            android:textSize="20sp" />
+
+        <ProgressBar
+            android:id="@+id/splashProgress"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="28dp"
+            android:indeterminateTint="#DFCDB1" />
+
+    </LinearLayout>
+
+</FrameLayout>

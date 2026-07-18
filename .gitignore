@@ -1,0 +1,32 @@
+# Build outputs
+build/
+app/build/
+app/release/
+hijri-admin/build/
+*.apk
+*.apk.idsig
+*.aab
+
+# Gradle
+.gradle/
+gradle-app.setting
+
+# Local config (machine-specific, never portable — never commit)
+local.properties
+app/local.properties
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+.kotlin/
+captures/
+.cxx/
+
+# Signing (secret — never commit)
+tawkit.jks
+*.jks
+*.keystore
+
+# OS cruft
+.DS_Store
+Thumbs.db

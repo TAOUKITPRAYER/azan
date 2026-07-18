@@ -1,0 +1,1917 @@
+OBJET,CORRESPONDANCE,DESCRIPTION
+v9450763,logMessage,Paramètre message pour la fonction de log
+v9450863,logOptionalParam,Paramètre optionnel pour la fonction de log
+v9464763,appVersionNumber,Numéro de version de l'application (963)
+v9464863,storedJsData,Récupération des données depuis localStorage
+v9450963,parsedStoredData,Données parsées depuis le localStorage
+v9451063,selectedStyleSheet,Feuille de style choisie (style1.css ou style2.css)
+v9504363,bodyElementId,ID de l'élément body
+v9394263,audioElementsContainer,Conteneur des éléments audio
+v9421363,audioAzanElement,Élément audio pour l'adhan
+v9421463,audioFajrElement,Élément audio spécifique pour Fajr
+v9435863,audioShortAzanElement,Élément audio pour adhan court
+v9421563,audioShortIqamaElement,Élément audio pour iqama court
+v9478363,audioBeepElement,Élément audio pour bip
+v9504463,audioTeetElement,Élément audio pour teet
+v9464963,audioAlert1Element,Élément audio pour alerte 1
+v9478463,audioDrop1Element,Élément audio pour drop 1
+v9478563,audioDrop3Element,Élément audio pour drop 3
+v9451163,audioAlertsElement,Élément audio pour alertes multiples
+v9465063,mainVerticalContainer,Conteneur principal pour l'orientation portrait/verticale forcée
+v9465163,verticalBackgroundLayer,Calque d'arrière-plan pour le mode vertical
+v9465263,menuToggleButton,Bouton pour ouvrir/fermer le menu (icône hamburger)
+v9356963,toggleMenuFunction,Fonction pour afficher/masquer le menu
+v9435963,mosqueNameDisplayVertical,Affichage du nom de la mosquée en mode vertical
+v9421663,appLogoImage,Image du logo de l'application
+v9332363,activateBlackScreenFunction,Fonction pour activer l'écran noir
+v9436063,dateDisplayVertical,Affichage de la date en mode vertical
+v9406563,adjustHijriDateFunction,Fonction pour ajuster la date hijri
+v9436163,tawkitVersionDisplay,Affichage de la version de Tawkit
+v9421763,weatherWidgetVertical,Widget météo en mode vertical
+v9368363,resetAppOnMultipleClicks,Fonction pour réinitialiser l'application après 7 clics
+v9436263,weatherIconVertical,Conteneur de l'icône météo vertical
+v9421863,weatherIconImageVertical,Image de l'icône météo vertical
+v9436363,weatherTempVertical,Affichage de la température météo vertical
+v9436463,weatherMinMaxVertical,Affichage des températures min/max vertical
+v9451263,weatherMinMaxSpanVertical,Span pour les températures min/max vertical
+v9421963,nextPrayerCounterVertical,Compteur de la prochaine prière en vertical
+v9379463,nextPrayerTimeDisplayVertical,Affichage de l'heure de la prochaine prière vertical
+v9342963,toggleVrNamesMiddleFunction,Fonction pour basculer les noms des prières au milieu en VR
+v9329263,toggleBigNextPrayCounterFunction,Fonction pour basculer le grand compteur de prochaine prière
+v9394363,dohaTimeDisplayVertical,Affichage de l'heure de Doha en vertical
+v9379663,fullClockContainerVertical,Conteneur de l'horloge complète en vertical
+v9337763,toggleClockFullFunction,Fonction pour basculer entre horloge complète et mini
+v9406663,fullClockTimeDisplayVertical,Affichage de l'heure de l'horloge complète vertical
+v9379763,fullClockSecondsDisplayVertical,Affichage des secondes de l'horloge complète vertical
+v9422063,fullClockAmPmDisplayVertical,Affichage AM/PM de l'horloge complète vertical
+v9379863,miniClockContainerVertical,Conteneur de la mini horloge en vertical
+v9406763,miniClockTimeDisplayVertical,Affichage de l'heure de la mini horloge vertical
+v9368463,miniClockSecondsDisplayVertical,Affichage des secondes de la mini horloge vertical
+v9406863,azanPopupVertical,Fenêtre popup de l'adhan en vertical
+v9491863,hiddenClass,Classe CSS pour cacher un élément avec transition
+v9394463,hideElementFunction,Fonction pour cacher un élément avec transition
+v9368563,azanPopupBackgroundVertical,Arrière-plan de la popup adhan vertical
+v9394563,azanPopupTitleVertical,Titre de la popup adhan vertical
+v9394663,azanPopupPrayerNameVertical,Nom de la prière dans la popup adhan vertical
+v9406963,azanPopupTimeVertical,Heure dans la popup adhan vertical
+v9407063,iqamaPopupVertical,Fenêtre popup de l'iqama en vertical
+v9368663,iqamaPopupBackgroundVertical,Arrière-plan de la popup iqama vertical
+v9407163,iqamaPopupTextVertical,Texte de la popup iqama vertical
+v9422163,dohaPopupVertical,Fenêtre popup de Doha en vertical
+v9379963,dohaPopupBackgroundVertical,Arrière-plan de la popup Doha vertical
+v9368763,dohaPopupTextVertical,Texte de la popup Doha vertical
+v9407263,ayaDisplayContainerVertical,Conteneur d'affichage des versets en vertical
+v9451363,displayTableClass,Classe pour affichage en table
+v9407363,ayaTextDisplayVertical,Texte du verset affiché en vertical
+v9451463,tableCellMiddleClass,Classe pour cellule de table avec alignement milieu
+v9436563,goldenColorClass,Classe pour couleur dorée
+v9349163,displayRandomAyaFunction,Fonction pour afficher un verset aléatoire
+v9407463,messageDisplayContainerVertical,Conteneur d'affichage de messages en vertical
+v9407563,messageTextDisplayVertical,Texte du message affiché en vertical
+v9451563,miniPrayerTimesVertical,Tableau des horaires de prières mini en vertical
+v9422263,miniPrayerTimesTableVertical,Table des horaires mini en vertical
+v9407663,spacerCell,Cellule d'espacement
+v9478663,prayerNameFajrMiniVertical,Nom de Fajr dans le tableau mini vertical
+v9422363,prayerNameClass,Classe pour le nom de la prière
+v9478763,prayerTimeFajrMiniVertical,Heure de Fajr dans le tableau mini vertical
+v9422463,prayerTimeClass,Classe pour l'heure de la prière
+v9478863,prayerNameShrqMiniVertical,Nom de Shuruq dans le tableau mini vertical
+v9478963,prayerTimeShrqMiniVertical,Heure de Shuruq dans le tableau mini vertical
+v9479063,prayerNameDohrMiniVertical,Nom de Dohr dans le tableau mini vertical
+v9479163,prayerTimeDohrMiniVertical,Heure de Dohr dans le tableau mini vertical
+v9407763,spacerCell2,Deuxième cellule d'espacement
+v9479263,prayerNameAsrMiniVertical,Nom de Asr dans le tableau mini vertical
+v9479363,prayerTimeAsrMiniVertical,Heure de Asr dans le tableau mini vertical
+v9479463,prayerNameMgrbMiniVertical,Nom de Maghrib dans le tableau mini vertical
+v9479563,prayerTimeMgrbMiniVertical,Heure de Maghrib dans le tableau mini vertical
+v9479663,prayerNameIshaMiniVertical,Nom de Isha dans le tableau mini vertical
+v9479763,prayerTimeIshaMiniVertical,Heure de Isha dans le tableau mini vertical
+v9465363,highlightBarVertical,Barre de surbrillance en vertical
+v9380063,prayerTimesContainerVertical,Conteneur principal des horaires de prières en vertical
+v9436663,prayerTimesHeaderVertical,En-tête du tableau des horaires en vertical
+v9357063,headerRowVertical,Ligne d'en-tête en vertical
+v9465463,headerPrayerNameVertical,En-tête "Prière" en vertical
+v9479863,headerAzanTimeVertical,En-tête "Adhan" en vertical
+v9465563,headerIqamaTimeVertical,En-tête "Iqama" en vertical
+v9491963,prayerRowFajrVertical,Ligne de Fajr en vertical
+v9465663,prayerRowClass,Classe pour une ligne de prière
+v9511963,prayerNameFajrVertical,Nom de Fajr en vertical
+v9451663,prayerNameLargeClass,Classe pour nom de prière en grand
+v9357163,incrementThemeFunction,Fonction pour passer au thème suivant
+v9512063,azanTimeFajrVertical,Heure d'adhan de Fajr en vertical
+v9451763,azanTimeClass,Classe pour l'heure d'adhan
+v9357263,decrementThemeFunction,Fonction pour passer au thème précédent
+v9509963,iqamaTimeFajrVertical,Heure d'iqama de Fajr en vertical
+v9436763,iqamaTimeClass,Classe pour l'heure d'iqama
+v9337863,toggleIqamaFullTimesFunction,Fonction pour basculer l'affichage des heures d'iqama complètes
+v9479963,weatherIconClass,Classe pour l'icône météo dans les lignes de prière
+v9451863,nightPrayersContainerVertical,Conteneur des prières de nuit en vertical
+v9436863,toggleNightPrayersDisplayFunction,Fonction pour basculer l'affichage des prières de nuit
+v9407863,midnightTimeDisplayVertical,Affichage de l'heure de minuit en vertical
+v9407963,lastThirdTimeDisplayVertical,Affichage de l'heure du dernier tiers en vertical
+v9422563,tomorrowFajrTimeDisplayVertical,Affichage de l'heure de Fajr de demain en vertical
+v9492063,prayerRowShrqVertical,Ligne de Shuruq en vertical
+v9408063,prayerRowSecondaryClass,Classe pour ligne de prière secondaire
+v9512163,prayerNameShrqVertical,Nom de Shuruq en vertical
+v9512263,azanTimeShrqVertical,Heure de Shuruq en vertical
+v9510063,iqamaTimeShrqVertical,Heure d'iqama de Shuruq en vertical
+v9492163,prayerRowDohrVertical,Ligne de Dohr en vertical
+v9512363,prayerNameDohrVertical,Nom de Dohr en vertical
+v9343063,triggerSlidesFunction,Fonction pour déclencher les slides (après 3 clics)
+v9512463,azanTimeDohrVertical,Heure d'adhan de Dohr en vertical
+v9337963,triggerAzkarMainFunction,Fonction pour déclencher les adhkar principaux
+v9510163,iqamaTimeDohrVertical,Heure d'iqama de Dohr en vertical
+v9492263,prayerRowAsrVertical,Ligne de Asr en vertical
+v9512563,prayerNameAsrVertical,Nom de Asr en vertical
+v9512663,azanTimeAsrVertical,Heure d'adhan de Asr en vertical
+v9394763,triggerAzkarSabahFunction,Fonction pour déclencher les adhkar du matin
+v9510263,iqamaTimeAsrVertical,Heure d'iqama de Asr en vertical
+v9394863,triggerAzkarMasaaFunction,Fonction pour déclencher les adhkar du soir
+v9492363,prayerRowMgrbVertical,Ligne de Maghrib en vertical
+v9512763,prayerNameMgrbVertical,Nom de Maghrib en vertical
+v9394963,triggerIqamaTestFunction,Fonction pour tester l'iqama (double-clic)
+v9512863,azanTimeMgrbVertical,Heure d'adhan de Maghrib en vertical
+v9510363,iqamaTimeMgrbVertical,Heure d'iqama de Maghrib en vertical
+v9380163,checkInternetConnectionFunction,Fonction pour vérifier la connexion Internet
+v9492463,prayerRowIshaVertical,Ligne de Isha en vertical
+v9512963,prayerNameIshaVertical,Nom de Isha en vertical
+v9513063,azanTimeIshaVertical,Heure d'adhan de Isha en vertical
+v9510463,iqamaTimeIshaVertical,Heure d'iqama de Isha en vertical
+v9332463,displayRandomHadithFunction,Fonction pour afficher un hadith aléatoire
+v9465763,blackScreenVertical,Écran noir en vertical
+v9436963,noMobileImageVertical,Image "no-mobile" en vertical
+v9422663,hadithDisplayVertical,Affichage du hadith en vertical (statique)
+v9329363,toggleMarqueeFunction,Fonction pour basculer le défilement des messages
+v9422763,marqueeContainerVertical,Conteneur du texte défilant en vertical
+v9480063,marqueeTextVertical,Texte défilant en vertical
+v9437063,marqueeTextClass,Classe pour le texte défilant
+v9422863,staticMessageDisplayVertical,Affichage de message statique en vertical
+v9480163,internetStatusIndicatorVertical,Indicateur de statut Internet en vertical
+v9465863,azkarContainerVertical,Conteneur principal des adhkar en vertical
+v9451963,azkarContentWrapperVertical,Wraper du contenu des adhkar en vertical
+v9380263,stopAzkarDisplayFunction,Fonction pour arrêter l'affichage des adhkar
+v9504563,azkarClockDisplayVertical,Affichage de l'horloge dans les adhkar vertical
+v9465963,azkarClockClass,Classe pour l'horloge dans adhkar
+v9408163,azkarTextWrapperVertical,Wraper du texte des adhkar en vertical
+v9408263,azkarTextDisplayVertical,Texte des adhkar affiché en vertical
+v9452063,slidesContainerVertical,Conteneur des diapositives en vertical
+v9368863,stopSlidesDisplayFunction,Fonction pour arrêter l'affichage des slides
+v9492563,slidesClockDisplayVertical,Affichage de l'horloge dans les slides vertical
+v9408363,slidesTextWrapperVertical,Wraper du texte des slides en vertical
+v9408463,slidesTextDisplayVertical,Texte des slides affiché en vertical
+v9480263,azkar5minPictureContainerVertical,Conteneur de l'image 5min adhkar en vertical
+v9380363,hideAzkar5minPictureFunction,Fonction pour cacher l'image 5min adhkar
+v9492663,picture5minClockDisplayVertical,Affichage de l'horloge sur l'image 5min vertical
+v9380463,iqamaCounterContainerVertical,Conteneur du compteur d'iqama en vertical
+v9492763,iqamaCounterSvgVertical,Élément SVG du compteur d'iqama vertical
+v9480363,iqamaCounterCircleVertical,Cercle de progression du compteur d'iqama vertical
+v9480463,iqamaCounterTimeDisplayVertical,Affichage du temps restant iqama vertical
+v9480563,iqamaCounterLabelVertical,Label du compteur d'iqama vertical
+v9437163,secondCounterContainerVertical,Conteneur du compteur des secondes (dernière minute) en vertical
+v9437263,eidMessageContainerVertical,Conteneur du message de l'Aïd en vertical
+v9395063,fullScreenCounterContainerVertical,Conteneur du compteur plein écran en vertical
+v9357363,closeFullScreenCounterFunction,Fonction pour fermer le compteur plein écran
+v9408563,fullScreenCounterTimeDisplayVertical,Affichage de l'heure du compteur plein écran vertical
+v9437363,fullScreenCounterLabelVertical,Label du compteur plein écran vertical
+v9492863,psFlagImageVertical,Image du drapeau PS en vertical
+v9395163,restartApplicationFunction,Fonction pour redémarrer l'application
+v9466063,mainHorizontalContainer,Conteneur principal pour l'orientation paysage/horizontale
+v9466163,horizontalBackgroundLayer,Calque d'arrière-plan pour le mode horizontal
+v9466263,menuToggleButtonHorizontal,Bouton pour ouvrir/fermer le menu en horizontal
+v9422963,appLogoImageHorizontal,Image du logo de l'application en horizontal
+v9380563,dateDisplayHorizontal,Affichage de la date en mode horizontal
+v9437463,dateDisplayClass,Classe pour l'affichage de la date
+v9343163,dateTextSpanHorizontal,Span du texte de la date en horizontal
+v9437563,mosqueNameDisplayHorizontal,Affichage du nom de la mosquée en horizontal
+v9452163,mosqueNameClassHorizontal,Classe pour le nom de la mosquée en horizontal
+v9357463,toggleDatePositionFunction,Fonction pour basculer la position de la date
+v9423063,weatherWidgetHorizontal,Widget météo en mode horizontal
+v9437663,weatherWidgetClass,Classe pour le widget météo
+v9437763,weatherIconHorizontal,Conteneur de l'icône météo horizontal
+v9423163,weatherIconImageHorizontal,Image de l'icône météo horizontal
+v9437863,weatherTempHorizontal,Affichage de la température météo horizontal
+v9437963,weatherMinMaxHorizontal,Affichage des températures min/max horizontal
+v9452263,weatherMinMaxSpanHorizontal,Span pour les températures min/max horizontal
+v9395263,dohaTimeDisplayHorizontal,Affichage de l'heure de Doha en horizontal
+v9380663,fullClockContainerHorizontal,Conteneur de l'horloge complète en horizontal
+v9408663,fullClockTimeDisplayHorizontal,Affichage de l'heure de l'horloge complète horizontal
+v9380763,fullClockSecondsDisplayHorizontal,Affichage des secondes de l'horloge complète horizontal
+v9423263,fullClockAmPmDisplayHorizontal,Affichage AM/PM de l'horloge complète horizontal
+v9380863,miniClockContainerHorizontal,Conteneur de la mini horloge en horizontal
+v9408763,miniClockTimeDisplayHorizontal,Affichage de l'heure de la mini horloge horizontal
+v9368963,miniClockSecondsDisplayHorizontal,Affichage des secondes de la mini horloge horizontal
+v9408863,ayaDisplayContainerHorizontal,Conteneur d'affichage des versets en horizontal
+v9452363,ayaTextDisplayHorizontal,Texte du verset affiché en horizontal
+v9408963,messageDisplayContainerHorizontal,Conteneur d'affichage de messages en horizontal
+v9452463,messageTextDisplayHorizontal,Texte du message affiché en horizontal
+v9423363,nextPrayerCounterHorizontal,Compteur de la prochaine prière en horizontal
+v9380963,nextPrayerTimeDisplayHorizontal,Affichage de l'heure de la prochaine prière horizontal
+v9343263,toggleHrNamesMiddleFunction,Fonction pour basculer les noms des prières au milieu en HR
+v9381063,nextPrayerLabelHorizontal,Label de la prochaine prière en horizontal
+v9423463,jomoaCounterHorizontal,Compteur pour Jomoaa en horizontal
+v9369063,jomoaTimeDisplayHorizontal,Affichage de l'heure de Jomoaa horizontal
+v9395363,jomoaLabelHorizontal,Label Jomoaa en horizontal
+v9381163,secondJomoaTimeDisplayHorizontal,Affichage de la deuxième Jomoaa en horizontal
+v9409063,azanPopupHorizontal,Fenêtre popup de l'adhan en horizontal
+v9369163,azanPopupBackgroundHorizontal,Arrière-plan de la popup adhan horizontal
+v9395463,azanPopupTitleHorizontal,Titre de la popup adhan horizontal
+v9395563,azanPopupPrayerNameHorizontal,Nom de la prière dans la popup adhan horizontal
+v9409163,azanPopupTimeHorizontal,Heure dans la popup adhan horizontal
+v9409263,iqamaPopupHorizontal,Fenêtre popup de l'iqama en horizontal
+v9369263,iqamaPopupBackgroundHorizontal,Arrière-plan de la popup iqama horizontal
+v9409363,iqamaPopupTextHorizontal,Texte de la popup iqama horizontal
+v9423563,dohaPopupHorizontal,Fenêtre popup de Doha en horizontal
+v9381263,dohaPopupBackgroundHorizontal,Arrière-plan de la popup Doha horizontal
+v9369363,dohaPopupTextHorizontal,Texte de la popup Doha horizontal
+v9452563,miniPrayerTimesHorizontal,Tableau des horaires de prières mini en horizontal
+v9423663,miniPrayerTimesTableHorizontal,Table des horaires mini en horizontal
+v9423763,spacerCellHorizontal,Cellule d'espacement horizontal
+v9480663,prayerNameFajrMiniHorizontal,Nom de Fajr dans le tableau mini horizontal
+v9423863,prayerNameClassHorizontal,Classe pour le nom de la prière horizontal
+v9480763,prayerTimeFajrMiniHorizontal,Heure de Fajr dans le tableau mini horizontal
+v9423963,prayerTimeClassHorizontal,Classe pour l'heure de la prière horizontal
+v9480863,prayerNameShrqMiniHorizontal,Nom de Shuruq horizontal
+v9480963,prayerTimeShrqMiniHorizontal,Heure de Shuruq horizontal
+v9481063,prayerNameDohrMiniHorizontal,Nom de Dohr horizontal
+v9481163,prayerTimeDohrMiniHorizontal,Heure de Dohr horizontal
+v9481263,prayerNameAsrMiniHorizontal,Nom de Asr horizontal
+v9481363,prayerTimeAsrMiniHorizontal,Heure de Asr horizontal
+v9481463,prayerNameMgrbMiniHorizontal,Nom de Maghrib horizontal
+v9481563,prayerTimeMgrbMiniHorizontal,Heure de Maghrib horizontal
+v9481663,prayerNameIshaMiniHorizontal,Nom de Isha horizontal
+v9481763,prayerTimeIshaMiniHorizontal,Heure de Isha horizontal
+v9438063,highlightBarHorizontal,Barre de surbrillance en horizontal
+v9395663,prayerTimesContainerHorizontal,Conteneur principal des horaires de prières en horizontal
+v9409463,prayerTimesTableHorizontal,Tableau des horaires en horizontal
+v9504663,sixPrayersTableClass,Classe pour tableau à 6 prières
+v9452663,prayerCellFajrHorizontal,Cellule de Fajr en horizontal
+v9409563,prayerCellClass,Classe pour cellule de prière
+v9452763,spacerCellFajrHorizontal,Cellule d'espacement pour Fajr horizontal
+v9504763,prayerNameFajrHorizontal,Nom de Fajr en horizontal
+v9452863,prayerNameHorizontalClass,Classe pour nom de prière horizontal
+v9504863,azanTimeFajrHorizontal,Heure d'adhan de Fajr en horizontal
+v9452963,azanTimeHorizontalClass,Classe pour heure d'adhan horizontal
+v9504963,iqamaTimeFajrHorizontal,Heure d'iqama de Fajr en horizontal
+v9438163,iqamaTimeHorizontalClass,Classe pour heure d'iqama horizontal
+v9481863,weatherIconHorizontalClass,Classe pour icône météo horizontal
+v9453063,nightPrayersContainerHorizontal,Conteneur des prières de nuit en horizontal
+v9409663,midnightTimeDisplayHorizontal,Affichage de l'heure de minuit en horizontal
+v9409763,lastThirdTimeDisplayHorizontal,Affichage de l'heure du dernier tiers horizontal
+v9424063,tomorrowFajrTimeDisplayHorizontal,Affichage de Fajr demain horizontal
+v9453163,prayerCellShrqHorizontal,Cellule de Shuruq horizontal
+v9505063,prayerNameShrqHorizontal,Nom de Shuruq horizontal
+v9505163,azanTimeShrqHorizontal,Heure de Shuruq horizontal
+v9505263,iqamaTimeShrqHorizontal,Heure d'iqama de Shuruq horizontal
+v9453263,prayerCellDohrHorizontal,Cellule de Dohr horizontal
+v9505363,prayerNameDohrHorizontal,Nom de Dohr horizontal
+v9505463,azanTimeDohrHorizontal,Heure d'adhan de Dohr horizontal
+v9505563,iqamaTimeDohrHorizontal,Heure d'iqama de Dohr horizontal
+v9453363,prayerCellAsrHorizontal,Cellule de Asr horizontal
+v9505663,prayerNameAsrHorizontal,Nom de Asr horizontal
+v9505763,azanTimeAsrHorizontal,Heure d'adhan de Asr horizontal
+v9505863,iqamaTimeAsrHorizontal,Heure d'iqama de Asr horizontal
+v9453463,prayerCellMgrbHorizontal,Cellule de Maghrib horizontal
+v9505963,prayerNameMgrbHorizontal,Nom de Maghrib horizontal
+v9506063,azanTimeMgrbHorizontal,Heure d'adhan de Maghrib horizontal
+v9506163,iqamaTimeMgrbHorizontal,Heure d'iqama de Maghrib horizontal
+v9453563,prayerCellIshaHorizontal,Cellule de Isha horizontal
+v9506263,prayerNameIshaHorizontal,Nom de Isha horizontal
+v9506363,azanTimeIshaHorizontal,Heure d'adhan de Isha horizontal
+v9369463,toggleJomoaOnHrScreenFunction,Fonction pour basculer l'affichage Jomoaa sur écran HR
+v9506463,iqamaTimeIshaHorizontal,Heure d'iqama de Isha horizontal
+v9466363,tawkitNameDisplayHorizontal,Affichage du nom Tawkit en horizontal
+v9369563,toggleHr5BoxesFunction,Fonction pour basculer l'affichage 5/6 cases en HR
+v9424163,hadithDisplayHorizontal,Affichage du hadith en horizontal (statique)
+v9424263,marqueeContainerHorizontal,Conteneur du texte défilant en horizontal
+v9481963,marqueeTextHorizontal,Texte défilant en horizontal
+v9424363,staticMessageDisplayHorizontal,Affichage de message statique en horizontal
+v9466463,cityCodeDisplayHorizontal,Affichage du code ville en horizontal
+v9482063,internetStatusIndicatorHorizontal,Indicateur de statut Internet en horizontal
+v9466563,blackScreenHorizontal,Écran noir en horizontal
+v9438263,noMobileImageHorizontal,Image "no-mobile" en horizontal
+v9466663,azkarContainerHorizontal,Conteneur principal des adhkar en horizontal
+v9453663,azkarContentWrapperHorizontal,Wraper du contenu des adhkar en horizontal
+v9506563,azkarClockDisplayHorizontal,Affichage de l'horloge dans les adhkar horizontal
+v9409863,azkarTextWrapperHorizontal,Wraper du texte des adhkar en horizontal
+v9409963,azkarTextDisplayHorizontal,Texte des adhkar affiché en horizontal
+v9453763,slidesContainerHorizontal,Conteneur des diapositives en horizontal
+v9492963,slidesClockDisplayHorizontal,Affichage de l'horloge dans les slides horizontal
+v9410063,slidesTextWrapperHorizontal,Wraper du texte des slides en horizontal
+v9410163,slidesTextDisplayHorizontal,Texte des slides affiché en horizontal
+v9482163,azkar5minPictureContainerHorizontal,Conteneur de l'image 5min adhkar en horizontal
+v9493063,picture5minClockDisplayHorizontal,Affichage de l'horloge sur l'image 5min horizontal
+v9381363,iqamaCounterContainerHorizontal,Conteneur du compteur d'iqama en horizontal
+v9493163,iqamaCounterSvgHorizontal,Élément SVG du compteur d'iqama horizontal
+v9482263,iqamaCounterCircleHorizontal,Cercle de progression du compteur d'iqama horizontal
+v9482363,iqamaCounterTimeDisplayHorizontal,Affichage du temps restant iqama horizontal
+v9482463,iqamaCounterLabelHorizontal,Label du compteur d'iqama horizontal
+v9438363,secondCounterContainerHorizontal,Conteneur du compteur des secondes en horizontal
+v9438463,eidMessageContainerHorizontal,Conteneur du message de l'Aïd en horizontal
+v9395763,fullScreenCounterContainerHorizontal,Conteneur du compteur plein écran en horizontal
+v9357563,fullScreenCounterBackgroundHorizontal,Arrière-plan du compteur plein écran horizontal
+v9410263,fullScreenCounterTimeDisplayHorizontal,Affichage de l'heure du compteur plein écran horizontal
+v9410363,fullScreenCounterMiniClockHorizontal,Mini horloge dans le compteur plein écran horizontal
+v9438563,fullScreenCounterLabelHorizontal,Label du compteur plein écran horizontal
+v9453863,noMobileImageContainerHorizontal,Conteneur de l'image no-mobile dans compteur horizontal
+v9493263,psFlagImageHorizontal,Image du drapeau PS en horizontal
+v9493363,mainMenuContainer,Conteneur du menu principal
+v9493463,menuHeaderClass,Classe pour l'en-tête du menu
+v9482563,menuVersionDisplay,Affichage de la version dans le menu
+v9482663,menuScrollButtons,Conteneur des boutons de défilement du menu
+v9424463,scrollMenuFunction,Fonction pour faire défiler le contenu du menu
+v9453963,menuContentContainer,Conteneur du contenu du menu
+v9454063,languageSelectionContainer,Conteneur de sélection de la langue
+v9454163,changeLanguageFunction,Fonction pour changer la langue
+v9438663,menuFooterLinks,Liens du pied de menu (Doc, MàJ, Licence)
+v9466763,autoStartContainer,Conteneur de l'option Auto-Start
+v9438763,autoStartCheckbox,Checkbox pour l'Auto-Start
+v9343363,toggleAutoStartFunction,Fonction pour basculer l'Auto-Start
+v9438863,autoStartLabel,Label pour l'Auto-Start
+v9493563,menuSectionsContainer,Conteneur des sections du menu
+v9369663,fullScreenButton,Bouton Plein écran
+v9424563,closeMenuFunction,Fonction pour fermer le menu
+v9381463,enterFullScreenFunction,Fonction pour passer en plein écran
+v9349263,locationSettingsButton,Bouton Paramètres de localisation
+v9410463,showElementFunction,Fonction pour afficher un élément
+v9369763,locationSectionId,ID de la section Localisation
+v9381563,optionsSettingsButton,Bouton Paramètres des options
+v9438963,optionsSectionId,ID de la section Options
+v9381663,bottomMessagesButton,Bouton Messages du bas
+v9410563,bottomMessagesSectionId,ID de la section Messages du bas
+v9369863,personalFilesButton,Bouton Fichiers personnels
+v9395863,personalFilesSectionId,ID de la section Fichiers personnels
+v9343463,importExportButton,Bouton Importer/Exporter
+v9381763,importExportSectionId,ID de la section Importer/Exporter
+v9357663,soundRemindersButton,Bouton Rappels sonores
+v9410663,soundRemindersSectionId,ID de la section Rappels sonores
+v9424663,themesButton,Bouton Thèmes
+v9454263,themesSectionId,ID de la section Thèmes
+v9395963,forcedVerticalOption,Option d'orientation verticale forcée
+v9357763,adjustmentsButton,Bouton Ajustements
+v9381863,adjustmentsSectionId,ID de la section Ajustements
+v9357863,blackScreenSettingsButton,Bouton Paramètres écran noir
+v9381963,blackScreenSectionId,ID de la section Écran noir
+v9439063,azkarSettingsButton,Bouton Paramètres Adhkar
+v9466863,azkarSectionId,ID de la section Adhkar
+v9424763,slidesSettingsButton,Bouton Paramètres Slides
+v9454363,slidesSectionId,ID de la section Slides
+v9382063,shortcutsInfoButton,Bouton Infos Raccourcis
+v9424863,shortcutsSectionId,ID de la section Raccourcis
+v9439163,meteoApiButton,Bouton API Météo
+v9466963,meteoSectionId,ID de la section Météo
+v9439263,menuFooterCredits,Pied de menu avec crédits
+v9369963,creditsContent,Contenu des crédits
+v9454463,aboutPopupId,ID de la popup À propos
+v9343563,modalPopupClass,Classe pour les popups modales
+v9493663,modalHeaderClass,Classe pour l'en-tête des modales
+v9493763,modalTitleClass,Classe pour le titre des modales
+v9493863,modalCloseButtonClass,Classe pour le bouton de fermeture des modales
+v9424963,closeModalFunction,Fonction pour fermer une modale
+v9493963,aboutContentClass,Classe pour le contenu À propos
+v9467063,modalContentClass,Classe pour le contenu des modales
+v9482763,textAlignCenterClass,Classe pour alignement centre
+v9454563,aboutAppTitle,Titre de l'application dans À propos
+v9410763,aboutDescription,Description dans À propos
+v9370063,aboutExtraInfo,Info supplémentaire dans À propos
+v9410863,optionsContentContainer,Conteneur du contenu des options
+v9482863,cursorPointerClass,Classe pour curseur pointer
+v9370163,mosqueNameOptionLabel,Label pour l'option Nom de la mosquée
+v9357963,editMosqueNameFunction,Fonction pour éditer le nom de la mosquée
+v9396063,clockAdjustLabel,Label pour ajustement horloge
+v9494063,clickableWhiteClass,Classe pour texte blanc cliquable
+v9410963,clockAdjustValueSpanElement,Span pour la valeur d'ajustement horloge
+v9358063,editClockAdjustFunction,Fonction pour éditer l'ajustement horloge
+v9482963,ayatsLanguageSelector,Sélecteur de langue des versets
+v9332563,toggleAyatsLangListFunction,Fonction pour afficher/masquer la liste des langues
+v9396163,ayatsLangLabel,Label pour langue des versets
+v9483063,ayatsLangListContainer,Conteneur de la liste des langues de versets
+v9382163,changeAyatsLanguageFunction,Fonction pour changer la langue des versets
+v9396263,psFlagCheckbox,Checkbox pour afficher le drapeau PS
+v9425063,togglePsFlagFunction,Fonction pour basculer le drapeau PS
+v9454663,use24HoursCheckbox,Checkbox pour format 24h
+v9411063,toggle24HoursFunction,Fonction pour basculer le format 24h
+v9439363,use24HoursLabel,Label pour format 24h
+v9425163,addZeroAmPmCheckbox,Checkbox pour ajouter un zéro devant AM/PM
+v9382263,toggleAddZeroAmPmFunction,Fonction pour basculer l'ajout de zéro
+v9411163,addZeroAmPmLabel,Label pour ajout de zéro
+v9358163,fullClockCheckbox,Checkbox pour horloge complète
+v9439463,fullClockLabel,Label pour horloge complète
+v9382363,showNightPrayersCheckbox,Checkbox pour afficher les prières de nuit
+v9349363,toggleNightPrayersFunction,Fonction pour basculer l'affichage des prières de nuit
+v9334663,showNightPrayersLabel,Label pour afficher prières de nuit
+v9358263,dimPastPrayersCheckbox,Checkbox pour griser les prières passées
+v9338163,toggleDimPastPrayersFunction,Fonction pour basculer le grisage
+v9439563,dimPastPrayersLabel,Label pour griser les prières passées
+v9358363,middleSalatNamesCheckbox,Checkbox pour noms des prières au milieu
+v9370263,middleSalatNamesLabel,Label pour noms au milieu
+v9411263,fiveBoxesOnlyCheckbox,Checkbox pour 5 cases seulement (HR)
+v9396363,fiveBoxesOnlyLabel,Label pour 5 cases seulement
+v9396463,fullIqamaTimesCheckbox,Checkbox pour heures d'iqama complètes
+v9396563,fullIqamaTimesLabel,Label pour heures d'iqama complètes
+v9358463,iqamaCounterCheckbox,Checkbox pour compteur d'iqama
+v9349463,toggleIqamaCounterFunction,Fonction pour basculer le compteur d'iqama
+v9349563,iqamaCounterLabel,Label pour compteur d'iqama
+v9358563,fullScreenCounterCheckbox,Checkbox pour compteur plein écran
+v9338263,toggleFullScreenCounterFunction,Fonction pour basculer le compteur plein écran
+v9454763,fullScreenCounterLabel,Label pour compteur plein écran
+v9396663,lastMinuteCounterCheckbox,Checkbox pour compteur dernière minute
+v9358663,toggleLastMinuteCounterFunction,Fonction pour basculer le compteur dernière minute
+v9382463,lastMinuteCounterLabel,Label pour compteur dernière minute
+v9382563,arabicDigitsCheckbox,Checkbox pour chiffres arabes
+v9338363,toggleArabicDigitsFunction,Fonction pour basculer les chiffres arabes
+v9358763,arabicDigitsLabel,Label pour chiffres arabes
+v9467163,hideIqamatCheckbox,Checkbox pour cacher les iqamas (mode maison)
+v9370363,toggleHomeModeFunction,Fonction pour basculer le mode maison
+v9396763,hideIqamatLabel,Label pour cacher iqamas
+v9370463,middleVrNamesCheckbox,Checkbox pour noms VR au milieu
+v9358863,middleVrNamesLabel,Label pour noms VR au milieu
+v9454863,showAzanScreenCheckbox,Checkbox pour afficher l'écran d'adhan
+v9370563,toggleAzanScreenFunction,Fonction pour basculer l'écran d'adhan
+v9358963,showAzanScreenLabel,Label pour afficher écran d'adhan
+v9439663,showIqamaScreenCheckbox,Checkbox pour afficher l'écran d'iqama
+v9359063,toggleIqamaScreenFunction,Fonction pour basculer l'écran d'iqama
+v9396863,showIqamaScreenLabel,Label pour afficher écran d'iqama
+v9396963,dateUpRightHrCheckbox,Checkbox pour date en haut à droite (HR)
+v9382663,dateUpRightHrLabel,Label pour date en haut à droite
+v9439763,verifyInternetCheckbox,Checkbox pour vérifier la connexion Internet
+v9349663,toggleVerifyInternetFunction,Fonction pour basculer la vérification Internet
+v9439863,verifyInternetLabel,Label pour vérifier Internet
+v9359163,timesBgShadowsCheckbox,Checkbox pour ombres des arrière-plans des horaires
+v9338463,toggleTimesBgShadowsFunction,Fonction pour basculer les ombres
+v9359263,timesBgShadowsLabel,Label pour ombres des arrière-plans
+v9397063,semiTransparentBgsCheckbox,Checkbox pour arrière-plans semi-transparents
+v9359363,toggleSemiTransparentBgsFunction,Fonction pour basculer la semi-transparence
+v9349763,semiTransparentBgsLabel,Label pour arrière-plans semi-transparents
+v9397163,counterColorAlertCheckbox,Checkbox pour alerte couleur du compteur
+v9349863,toggleCounterColorAlertFunction,Fonction pour basculer l'alerte couleur
+v9343663,counterColorAlertLabel,Label pour alerte couleur compteur
+v9411363,bigNextPrayCounterCheckbox,Checkbox pour grand compteur prochaine prière
+v9370663,bigNextPrayCounterLabel,Label pour grand compteur
+v9411463,alertLastMinuteCheckbox,Checkbox pour alerte dernière minute
+v9334763,toggleAlertLastMinuteFunction,Fonction pour basculer l'alerte dernière minute
+v9338563,alertLastMinuteLabel,Label pour alerte dernière minute
+v9397263,closeMobileAlertButton,Bouton pour éditer le message d'alerte mobile
+v9382763,editMobileAlertFunction,Fonction pour éditer le message d'alerte mobile
+v9397363,iqamaHadithCheckbox,Checkbox pour hadith pendant iqama
+v9359463,toggleIqamaHadithFunction,Fonction pour basculer le hadith iqama
+v9397463,iqamaHadithLabel,Label pour hadith iqama
+v9467263,eidFitrCheckbox,Checkbox pour activer l'Aïd al-Fitr
+v9359563,toggleEidFitrFunction,Fonction pour basculer l'Aïd al-Fitr
+v9382863,eidFitrLabel,Label pour Aïd al-Fitr
+v9454963,eidFitrTimeButton,Bouton pour éditer l'heure de l'Aïd al-Fitr
+v9397563,editEidFitrTimeFunction,Fonction pour éditer l'heure de l'Aïd al-Fitr
+v9467363,eidAdhaCheckbox,Checkbox pour activer l'Aïd al-Adha
+v9359663,toggleEidAdhaFunction,Fonction pour basculer l'Aïd al-Adha
+v9382963,eidAdhaLabel,Label pour Aïd al-Adha
+v9455063,eidAdhaTimeButton,Bouton pour éditer l'heure de l'Aïd al-Adha
+v9397663,editEidAdhaTimeFunction,Fonction pour éditer l'heure de l'Aïd al-Adha
+v9411563,azanIqamaByVoiceCheckbox,Checkbox pour adhan/iqama par voix
+v9334863,toggleAzanVoiceFunction,Fonction pour basculer adhan/iqama vocal
+v9439963,azanIqamaByVoiceLabel,Label pour adhan/iqama vocal
+v9425363,shortAzanCheckbox,Checkbox pour adhan court
+v9338663,toggleShortAzanFunction,Fonction pour basculer l'adhan court
+v9411663,shortAzanLabel,Label pour adhan court
+v9411763,shortIqamaCheckbox,Checkbox pour iqama court
+v9334963,toggleShortIqamaFunction,Fonction pour basculer l'iqama court
+v9397763,shortIqamaLabel,Label pour iqama court
+v9467463,fontsSettingsTitle,Titre de la section Polices
+v9467563,fontsTable,Tableau des polices
+v9349963,hiddenFontColumnClass,Classe pour colonne cachée (polices)
+v9411863,changeScreenFontFunction,Fonction pour changer la police d'écran
+v9397863,changeTimesFontFunction,Fonction pour changer la police des horaires
+v9383063,changeClockFontFunction,Fonction pour changer la police de l'horloge
+v9397963,changeAzkarFontFunction,Fonction pour changer la police des adhkar
+v9411963,importExportContent,Conteneur du contenu Importer/Exporter
+v9412063,exportInfoText,Texte d'info pour l'export
+v9425463,exportSettingsButton,Bouton Exporter les paramètres
+v9343763,exportSettingsFunction,Fonction pour exporter les paramètres
+v9412163,exportStatusDiv,Div de statut de l'export
+v9510563,textRightClass,Classe pour texte aligné à droite
+v9494263,textLeftClass,Classe pour texte aligné à gauche
+v9359763,importByIdInfo,Texte d'info pour l'import par ID
+v9330363,importByIdFunction,Fonction pour importer par ID
+v9338763,importByIdStatusDiv,Div de statut de l'import par ID
+v9359863,importLocalFileInfo,Texte d'info pour l'import de fichier local
+v9425563,importFileInput,Input pour sélectionner un fichier à importer
+v9329463,importLocalFileFunction,Fonction pour importer un fichier local
+v9327963,importLocalStatusDiv,Div de statut de l'import local
+v9370763,themesSectionTitle,Titre de la section Thèmes
+v9467663,themesInfoText,Texte d'information sur les thèmes
+v9455163,currentThemeDisplay,Affichage du thème actuel
+v9350063,themeTypeNoChangeLabel,Label pour type de thème "Aucun changement"
+v9412263,setThemeTypeFunction,Fonction pour définir le type de thème
+v9338863,themeTypeBySalatLabel,Label pour thème par prière
+v9350263,themeTypeByDayLabel,Label pour thème par jour
+v9335063,themeTypeRandomDailyLabel,Label pour thème aléatoire quotidien
+v9383163,themeRandomListSpanElement,Span pour la liste des thèmes aléatoires
+v9370863,editThemeRandomListFunction,Fonction pour éditer la liste des thèmes aléatoires
+v9467763,themesBySalatTable,Tableau des thèmes par prière
+v9350163,editThemeForSalatFunction,Fonction pour éditer le thème d'une prière
+v9467863,themesByDayTable,Tableau des thèmes par jour
+v9425663,editThemeForDayFunction,Fonction pour éditer le thème d'un jour
+v9440063,azkarSettingsContent,Conteneur du contenu des paramètres Adhkar
+v9412363,azkarActiveCheckbox,Checkbox pour activer les adhkar
+v9343863,toggleAzkarActiveFunction,Fonction pour basculer l'activation des adhkar
+v9455263,azkarActiveLabel,Label pour activer les adhkar
+v9343963,repeatAzkarOnceCheckbox,Checkbox pour répéter les adhkar une fois
+v9328063,toggleRepeatAzkarFunction,Fonction pour basculer la répétition des adhkar
+v9440163,repeatAzkarLabel,Label pour répéter les adhkar
+v9359963,azkar5minPictureCheckbox,Checkbox pour image 5min adhkar
+v9328163,toggleAzkar5minPictureFunction,Fonction pour basculer l'image 5min adhkar
+v9455363,azkar5minPictureLabel,Label pour image 5min adhkar
+v9383263,azkarBgWhiteCheckbox,Checkbox pour fond blanc adhkar
+v9350363,toggleAzkarBgWhiteFunction,Fonction pour basculer le fond blanc adhkar
+v9383363,azkarBgWhiteLabel,Label pour fond blanc adhkar
+v9370963,azkarSabahCheckbox,Checkbox pour adhkar du matin
+v9371063,toggleAzkarSabahFunction,Fonction pour basculer les adhkar du matin
+v9398063,azkarSabahLabel,Label pour adhkar du matin
+v9371163,azkarAsrCheckbox,Checkbox pour adhkar de Asr
+v9371263,toggleAzkarAsrFunction,Fonction pour basculer les adhkar de Asr
+v9425763,azkarAsrLabel,Label pour adhkar de Asr
+v9371363,azkarMaghribCheckbox,Checkbox pour adhkar de Maghrib
+v9371463,toggleAzkarMaghribFunction,Fonction pour basculer les adhkar de Maghrib
+v9383463,azkarMaghribLabel,Label pour adhkar de Maghrib
+v9371563,azkarIshaCheckbox,Checkbox pour adhkar de Isha
+v9371663,toggleAzkarIshaFunction,Fonction pour basculer les adhkar de Isha
+v9412463,azkarIshaLabel,Label pour adhkar de Isha
+v9425863,slidesContentContainer,Conteneur du contenu des slides
+v9398163,slidesActiveCheckbox,Checkbox pour activer les slides
+v9338963,toggleSlidesActiveFunction,Fonction pour basculer l'activation des slides
+v9440263,slidesActiveLabel,Label pour activer les slides
+v9383563,slidesRandomCheckbox,Checkbox pour slides aléatoires
+v9350463,toggleSlidesRandomFunction,Fonction pour basculer l'ordre aléatoire des slides
+v9371763,slidesRandomLabel,Label pour slides aléatoires
+v9344063,editSlidesViewTimeFunction,Fonction pour éditer le temps d'affichage des slides
+v9360063,slidesViewTimeLabel,Label pour temps d'affichage slides
+v9467963,whiteTextClass,Classe pour texte blanc
+v9371863,slidesViewTimeValue,Affichage de la valeur du temps d'affichage slides
+v9344163,editTawkitViewTimeFunction,Fonction pour éditer le temps d'affichage Tawkit
+v9360163,tawkitViewTimeLabel,Label pour temps d'affichage Tawkit
+v9371963,tawkitViewTimeValue,Affichage de la valeur du temps d'affichage Tawkit
+v9468063,addSlideButtonClass,Classe pour le bouton Ajouter Slide
+v9440363,addSlideFunction,Fonction pour ajouter une slide
+v9425963,slidesTable,Tableau des slides
+v9383663,remindersContentContainer,Conteneur du contenu des rappels
+v9383763,remindersActiveCheckbox,Checkbox pour activer les rappels
+v9339063,toggleRemindersActiveFunction,Fonction pour basculer l'activation des rappels
+v9426063,remindersActiveLabel,Label pour activer les rappels
+v9372063,testReminderSoundFunction,Fonction pour tester le son des rappels
+v9398263,addReminderFunction,Fonction pour ajouter un rappel
+v9383863,remindersTable,Tableau des rappels
+v9360263,adjustmentsContentContainer,Conteneur du contenu des ajustements
+v9360363,ramadanIsha30minCheckbox,Checkbox pour retarder Isha de 30min pendant Ramadan
+v9330463,toggleRamadanIshaFunction,Fonction pour basculer le retard d'Isha
+v9440463,ramadanIshaLabel,Label pour retard Isha Ramadan
+v9398363,summerTimeCheckbox,Checkbox pour heure d'été
+v9360463,toggleSummerTimeFunction,Fonction pour basculer l'heure d'été
+v9412563,summerTimeLabel,Label pour heure d'été
+v9372163,forceOneHourMoreCheckbox,Checkbox pour forcer +1h
+v9383963,toggleForceOneHourMoreFunction,Fonction pour basculer le forçage +1h
+v9426163,forceOneHourMoreLabel,Label forcer +1h
+v9372263,forceOneHourLessCheckbox,Checkbox pour forcer -1h
+v9384063,toggleForceOneHourLessFunction,Fonction pour basculer le forçage -1h
+v9426263,forceOneHourLessLabel,Label forcer -1h
+v9330563,prayersAdjustmentsTitle,Titre de la section Ajustements des prières
+jcD8AAD8B7D8A8D,prayerNameFajrAdjust,Nom de Fajr dans ajustements
+jc98AD98220D985,prayerNameShrqAdjust,Nom de Shuruq dans ajustements
+jcD8ACD8A7D986D,prayerNameDohrAdjust,Nom de Dohr dans ajustements
+jc98A3C62723E77,prayerNameAsrAdjust,Nom de Asr dans ajustements
+jc77772E7461776,prayerNameMgrbAdjust,Nom de Maghrib dans ajustements
+jcB69742E6E6574,prayerNameIshaAdjust,Nom de Isha dans ajustements
+v9440563,athanMinutesFajrValue,Affichage des minutes d'athan pour Fajr
+v9440663,athanMinutesShrqValue,Affichage des minutes d'athan pour Shuruq
+v9440763,athanMinutesDohrValue,Affichage des minutes d'athan pour Dohr
+v9455463,athanMinutesAsrValue,Affichage des minutes d'athan pour Asr
+v9398463,athanMinutesMgrbValue,Affichage des minutes d'athan pour Maghrib
+v9440863,athanMinutesIshaValue,Affichage des minutes d'athan pour Isha
+v9412663,adjustButtonClass,Classe pour les boutons d'ajustement
+v9426363,decrementAthanMinutesFunction,Fonction pour diminuer les minutes d'athan
+v9426463,incrementAthanMinutesFunction,Fonction pour augmenter les minutes d'athan
+v9335163,iqamaAdjustmentsTitle,Titre de la section Ajustements des iqamas
+v9398563,iqamaAdjustmentsTable,Tableau des ajustements d'iqama
+v9455563,iqamaFajrLabel,Label iqama Fajr
+v9426563,iqamaFajrValue,Affichage de la valeur iqama Fajr
+v9412763,decrementIqamaMinutesFunction,Fonction pour diminuer les minutes d'iqama
+v9412863,incrementIqamaMinutesFunction,Fonction pour augmenter les minutes d'iqama
+v9494463,fixedIqamaFajrButton,Bouton pour iqama fixe Fajr
+v9426663,fixedIqamaButtonClass,Classe pour bouton iqama fixe
+v9426763,editFixedIqamaFajrFunction,Fonction pour éditer l'iqama fixe de Fajr
+v9455663,iqamaDohaLabel,Label iqama Doha
+v9426863,iqamaDohaValue,Affichage de la valeur iqama Doha
+v9455763,iqamaDohrLabel,Label iqama Dohr
+v9426963,iqamaDohrValue,Affichage de la valeur iqama Dohr
+v9494563,fixedIqamaDohrButton,Bouton pour iqama fixe Dohr
+v9427063,editFixedIqamaDohrFunction,Fonction pour éditer l'iqama fixe de Dohr
+v9455863,iqamaAsrLabel,Label iqama Asr
+v9440963,iqamaAsrValue,Affichage de la valeur iqama Asr
+v9506663,fixedIqamaAsrButton,Bouton pour iqama fixe Asr
+v9441063,editFixedIqamaAsrFunction,Fonction pour éditer l'iqama fixe de Asr
+v9455963,iqamaMgrbLabel,Label iqama Maghrib
+v9384163,iqamaMgrbValue,Affichage de la valeur iqama Maghrib
+v9456063,iqamaIshaLabel,Label iqama Isha
+v9427163,iqamaIshaValue,Affichage de la valeur iqama Isha
+v9494663,fixedIqamaIshaButton,Bouton pour iqama fixe Isha
+v9427263,editFixedIqamaIshaFunction,Fonction pour éditer l'iqama fixe de Isha
+v9412963,jomoaSettingsTitle,Titre de la section Paramètres Jomoaa
+v9483163,jomoaFixedTimeButton,Bouton pour l'heure fixe de Jomoaa
+v9494763,fixedTimeButtonClass,Classe pour bouton d'heure fixe
+v9413063,editJomoaFixedTimeFunction,Fonction pour éditer l'heure fixe de Jomoaa
+v9384263,jomoaOnHrCheckbox,Checkbox pour afficher Jomoaa sur écran HR
+v9413163,jomoaOnHrLabel,Label pour afficher Jomoaa sur écran HR
+v9427363,jomoaAzanCheckbox,Checkbox pour activer l'adhan de Jomoaa
+v9339163,toggleJomoaAzanFunction,Fonction pour basculer l'adhan de Jomoaa
+v9350563,jomoaAzanLabel,Label pour adhan de Jomoaa
+v9372363,primaryAzanSettingsTitle,Titre paramètres Adhan principal
+v9413263,primaryAzanLabel,Label pour l'adhan principal
+v9339263,primaryAzanValue,Affichage de la valeur de l'adhan principal
+v9372463,editPrimaryAzanFunction,Fonction pour éditer l'adhan principal
+v9384463,dohrXminAsrLabel,Label pour Dohr X minutes avant Asr
+v9344263,dohrXminAsrValue,Affichage de la valeur Dohr Xmin Asr
+v9384363,editDohrXminAsrFunction,Fonction pour éditer Dohr Xmin Asr
+v9427463,blackScreenContentContainer,Conteneur du contenu Écran noir
+v9427563,blackScreenInPrayingCheckbox,Checkbox pour activer l'écran noir pendant la prière
+v9384563,toggleBlackScreenInPrayingFunction,Fonction pour basculer l'écran noir
+v9494863,blackScreenInPrayingLabel,Label pour écran noir pendant la prière
+v9350663,blackScreenShowClockCheckbox,Checkbox pour afficher l'horloge sur écran noir
+v9327363,toggleBlackScreenClockFunction,Fonction pour basculer l'horloge écran noir
+v9372563,blackScreenShowClockLabel,Label pour horloge sur écran noir
+v9360563,blackScreenShowDateCheckbox,Checkbox pour afficher la date sur écran noir
+v9328263,toggleBlackScreenDateFunction,Fonction pour basculer la date écran noir
+v9384663,blackScreenShowDateLabel,Label pour date sur écran noir
+v9350763,dohaScreenSaverCheckbox,Checkbox pour économiseur d'écran Doha
+v9360663,toggleDohaScreenSaverFunction,Fonction pour basculer l'économiseur Doha
+v9494963,dohaScreenSaverLabel,Label pour économiseur Doha
+v9350863,ishaScreenSaverCheckbox,Checkbox pour économiseur d'écran Isha
+v9360763,toggleIshaScreenSaverFunction,Fonction pour basculer l'économiseur Isha
+v9495063,ishaScreenSaverLabel,Label pour économiseur Isha
+v9495163,jomoaDimmerTable,Tableau du dimmer Jomoaa
+v9483263,jomoaLabel,Label Jomoaa
+v9495263,dimmerBeforeLabel,Label Dimmer avant
+v9332663,dimmerBeforeValue,Affichage de la valeur dimmer avant
+v9344363,decrementDimmerBeforeFunction,Fonction pour diminuer le dimmer avant
+v9350963,incrementDimmerBeforeFunction,Fonction pour augmenter le dimmer avant
+v9495363,dimmerAfterLabel,Label Dimmer après
+v9335263,dimmerAfterValue,Affichage de la valeur dimmer après
+v9351063,decrementDimmerAfterFunction,Fonction pour diminuer le dimmer après
+v9360863,incrementDimmerAfterFunction,Fonction pour augmenter le dimmer après
+v9495463,prayerDurationsTitle,Titre Durées des prières
+v9495563,prayerDurationTableClass,Classe pour tableau des durées de prière
+v9483363,durationFajrLabel,Label durée Fajr
+v9384763,durationFajrValue,Affichage de la valeur durée Fajr
+v9372663,decrementPrayerDurationFunction,Fonction pour diminuer la durée de prière
+v9372763,incrementPrayerDurationFunction,Fonction pour augmenter la durée de prière
+v9483463,durationDohrLabel,Label durée Dohr
+v9384863,durationDohrValue,Affichage de la valeur durée Dohr
+v9495663,durationAsrLabel,Label durée Asr
+v9398663,durationAsrValue,Affichage de la valeur durée Asr
+v9441163,durationMgrbLabel,Label durée Maghrib
+v9351163,durationMgrbValue,Affichage de la valeur durée Maghrib
+v9483563,durationIshaLabel,Label durée Isha
+v9384963,durationIshaValue,Affichage de la valeur durée Isha
+v9506763,locationSectionTitle,Titre de la section Localisation
+v9398763,locationContentContainer,Conteneur du contenu Localisation
+v9495763,useWcsvCheckbox,Checkbox pour utiliser le fichier WCSV
+v9385063,toggleUseWcsvFunction,Fonction pour basculer l'utilisation de WCSV
+v9385163,useWcsvLabel,Label pour utiliser WCSV
+v9441263,locationSettingsClass,Classe pour les paramètres de localisation
+v9456163,citySelectionTitle,Titre de la sélection de ville
+v9385263,selectCountryButton,Bouton pour sélectionner le pays
+v9344463,openCountryListFunction,Fonction pour ouvrir la liste des pays
+v9427663,selectCityButton,Bouton pour sélectionner la ville
+v9372863,openCityListFunction,Fonction pour ouvrir la liste des villes
+v9344563,useImportedTimesCheckbox,Checkbox pour utiliser les horaires importés
+v9332763,toggleUseImportedTimesFunction,Fonction pour basculer l'utilisation des horaires importés
+v9344663,useImportedTimesLabel,Label pour utiliser les horaires importés
+v9456263,importedTimesInfoTitle,Titre info horaires importés
+v9456363,importedTimesInfoText,Texte info horaires importés
+v9372963,personalFilesContentContainer,Conteneur du contenu Fichiers personnels
+v9385363,userFilesActiveCheckbox,Checkbox pour activer les fichiers utilisateur
+v9351263,toggleUserFilesFunction,Fonction pour basculer l'activation des fichiers utilisateur
+v9344763,userFilesActiveLabel,Label pour activer les fichiers utilisateur
+v9373063,userFilesInfoText,Texte d'information fichiers utilisateur
+v9344863,userFilesUploadSection,Section d'upload des fichiers utilisateur
+v9385463,fileInputElement,Input pour sélectionner un fichier
+v9385563,uploadInfoText,Texte d'info upload
+v9398863,storageInfoDisplay,Affichage des infos de stockage
+v9441363,uploadTableClass,Classe pour table d'upload
+v9441463,uploadButtonClass,Classe pour bouton upload
+v9360963,uploadImageFunction,Fonction pour uploader une image
+v9373163,bottomMessagesContent,Conteneur du contenu Messages du bas
+v9398963,bottomMessagesTitle,Titre de la section Messages du bas
+v9344963,bottomMessagesInfoText,Texte d'information messages du bas
+v9373263,marqueeActiveCheckbox,Checkbox pour activer le défilement
+v9361163,marqueeActiveLabel,Label pour activer le défilement
+v9351363,addMessageFunction,Fonction pour ajouter un message
+v9456463,addMessageButtonText,Texte du bouton Ajouter message
+v9361263,messagesHelpText,Texte d'aide pour les messages
+v9361363,ramadanDaysLeftCheckbox,Checkbox pour afficher les jours restants du Ramadan
+v9345063,toggleRamadanDaysLeftFunction,Fonction pour basculer l'affichage jours Ramadan
+v9361463,ramadanDaysLeftLabel,Label pour afficher jours Ramadan
+v9483663,bottomMessagesTable,Tableau des messages du bas
+v9456563,shortcutsContentContainer,Conteneur du contenu Raccourcis
+v9373363,shortcutsTitle,Titre de la section Raccourcis
+v9385663,shortcutsListContainer,Conteneur de la liste des raccourcis
+v9441563,meteoContentContainer,Conteneur du contenu Météo
+v9427763,meteoActiveCheckbox,Checkbox pour activer la météo
+v9373463,toggleMeteoActiveFunction,Fonction pour basculer l'activation météo
+v9483763,meteoActiveLabel,Label pour activer la météo
+v9441663,meteoWithPrayersCheckbox,Checkbox pour afficher météo avec les prières
+v9329563,toggleMeteoWithPrayersFunction,Fonction pour basculer météo avec prières
+v9427863,meteoWithPrayersLabel,Label pour météo avec prières
+v9361563,getGpsPositionFunction,Fonction pour obtenir la position GPS
+v9399063,setGpsManuallyFunction,Fonction pour définir la position GPS manuellement
+v9483863,gpsPositionDisplay,Affichage de la position GPS
+v9427963,tvPointerImage,Image du pointeur TV
+v9468163,inputDialogContainer,Conteneur de la boîte de dialogue de saisie
+v9441763,inputDialogTitle,Titre de la boîte de dialogue de saisie
+v9441863,inputDialogTextField,Champ de saisie de la boîte de dialogue
+v9456663,inputDialogButtonClass,Classe pour les boutons de la boîte de dialogue
+v9373563,cancelInputDialogFunction,Fonction pour annuler la boîte de dialogue
+v9428063,confirmInputDialogFunction,Fonction pour confirmer la boîte de dialogue
+v9413363,countryListModalId,ID de la modale de liste des pays
+v9385763,countryListContent,Conteneur du contenu de la liste des pays
+v9456763,cityListModalId,ID de la modale de liste des villes
+v9428163,cityListContent,Conteneur du contenu de la liste des villes
+v9373663,alertToastDiv,Div pour les alertes toast
+v9483963,sleepFunction,Fonction utilitaire pour pause (sleep)
+v9330663,useAltFontFlag,Drapeau pour utiliser une police alternative
+v9329663,currentLanguageCode,Code de la langue courante
+v9441963,altFontName,Nom de la police alternative
+v9484063,rootElement,Élément racine (:root)
+v9332863,setupAyatsFontFunction,Fonction pour configurer la police des versets
+v9373763,startClockIntervalFunction,Fonction pour démarrer l'intervalle de l'horloge
+v9442063,clockTickFunction,Fonction exécutée à chaque tick de l'horloge
+v9399163,tvPointerElement,Élément du pointeur TV
+v9442163,verticalMainContainer,Conteneur principal vertical (ID)
+v9442263,horizontalMainContainer,Conteneur principal horizontal (ID)
+v9442363,horizontalBackground,Arrière-plan horizontal (ID)
+v9442463,verticalBackground,Arrière-plan vertical (ID)
+v9428263,menuSections,Conteneur des sections du menu (ID)
+v9385863,ayaDisplayVerticalElement,Élément d'affichage des versets vertical
+v9428363,ayaDisplayHorizontalElement,Élément d'affichage des versets horizontal
+v9413463,mosqueNameVerticalElement,Élément nom de mosquée vertical
+v9413563,mosqueNameHorizontalElement,Élément nom de mosquée horizontal
+v9361663,dateDisplayHorizontalElement,Élément affichage date horizontal
+v9399263,hadithDisplayVerticalElement,Élément affichage hadith vertical
+v9399363,marqueeContainerVerticalElement,Conteneur marquee vertical
+v9399463,staticMessageVerticalElement,Message statique vertical
+v9399563,hadithDisplayHorizontalElement,Élément affichage hadith horizontal
+v9399663,marqueeContainerHorizontalElement,Conteneur marquee horizontal
+v9399763,staticMessageHorizontalElement,Message statique horizontal
+v9442563,blackScreenVerticalElement,Écran noir vertical
+v9442663,blackScreenHorizontalElement,Écran noir horizontal
+v9373863,fullScreenCounterVerticalElement,Compteur plein écran vertical
+v9373963,fullScreenCounterHorizontalElement,Compteur plein écran horizontal
+v9345163,fullScreenBgHorizontal,Arrière-plan plein écran horizontal
+v9385963,fullScreenTimeVertical,Heure plein écran vertical
+v9413663,fullScreenLabelVertical,Label plein écran vertical
+v9413763,fullScreenLabelHorizontal,Label plein écran horizontal
+v9386063,fullScreenTimeHorizontal,Heure plein écran horizontal
+v9386163,fullScreenMiniClockHorizontal,Mini horloge plein écran horizontal
+v9413863,secondCounterVerticalElement,Compteur secondes vertical
+v9413963,secondCounterHorizontalElement,Compteur secondes horizontal
+v9468363,prayerRowFajrVerticalElement,Ligne Fajr vertical (ID)
+v9468463,prayerRowShrqVerticalElement,Ligne Shuruq vertical (ID)
+v9468563,prayerRowDohrVerticalElement,Ligne Dohr vertical (ID)
+v9468663,prayerRowAsrVerticalElement,Ligne Asr vertical (ID)
+v9468763,prayerRowMgrbVerticalElement,Ligne Maghrib vertical (ID)
+v9468863,prayerRowIshaVerticalElement,Ligne Isha vertical (ID)
+v9428463,prayerCellFajrHorizontalElement,Cellule Fajr horizontal (ID)
+v9428563,prayerCellShrqHorizontalElement,Cellule Shuruq horizontal (ID)
+v9428663,prayerCellDohrHorizontalElement,Cellule Dohr horizontal (ID)
+v9428763,prayerCellAsrHorizontalElement,Cellule Asr horizontal (ID)
+v9428863,prayerCellMgrbHorizontalElement,Cellule Maghrib horizontal (ID)
+v9428963,prayerCellIshaHorizontalElement,Cellule Isha horizontal (ID)
+v9386263,azanPopupVerticalElement,Popup adhan vertical (ID)
+v9351463,azanPopupBgVertical,Arrière-plan popup adhan vertical
+v9386363,azanPopupHorizontalElement,Popup adhan horizontal (ID)
+v9351563,azanPopupBgHorizontal,Arrière-plan popup adhan horizontal
+v9386463,iqamaPopupVerticalElement,Popup iqama vertical (ID)
+v9386563,iqamaPopupHorizontalElement,Popup iqama horizontal (ID)
+v9351663,iqamaPopupBgVertical,Arrière-plan popup iqama vertical
+v9351763,iqamaPopupBgHorizontal,Arrière-plan popup iqama horizontal
+v9399863,dohaPopupVerticalElement,Popup Doha vertical (ID)
+v9399963,dohaPopupHorizontalElement,Popup Doha horizontal (ID)
+v9361763,dohaPopupBgVertical,Arrière-plan popup Doha vertical
+v9361863,dohaPopupBgHorizontal,Arrière-plan popup Doha horizontal
+v9442763,azkarContainerVerticalElement,Conteneur adhkar vertical (ID)
+v9442863,azkarContainerHorizontalElement,Conteneur adhkar horizontal (ID)
+v9429063,slidesContainerVerticalElement,Conteneur slides vertical (ID)
+v9429163,slidesContainerHorizontalElement,Conteneur slides horizontal (ID)
+v9414063,noMobileImageVerticalElement,Image no-mobile vertical (ID)
+v9414163,noMobileImageHorizontalElement,Image no-mobile horizontal (ID)
+v9374063,prayerTimesContainerHorizontalElement,Conteneur horaires horizontal (ID)
+v9386663,prayerTimesTableHorizontalElement,Tableau horaires horizontal (ID)
+v9456863,iqamaCounterCircleHorizontalElement,Cercle compteur iqama horizontal
+v9456963,iqamaCounterCircleVerticalElement,Cercle compteur iqama vertical
+v9386763,azanVoiceCheckboxElement,Checkbox adhan vocal (ID)
+v9400063,shortAzanCheckboxElement,Checkbox adhan court (ID)
+v9386863,shortIqamaCheckboxElement,Checkbox iqama court (ID)
+v9345263,ramadanIshaCheckboxElement,Checkbox Isha Ramadan (ID)
+v9386963,summerTimeCheckboxElement,Checkbox heure d'été (ID)
+v9351863,forceOneHourMoreCheckboxElement,Checkbox forcer +1h (ID)
+v9351963,forceOneHourLessCheckboxElement,Checkbox forcer -1h (ID)
+v9429263,use24HoursCheckboxElement,Checkbox format 24h (ID)
+v9400163,meteoActiveCheckboxElement,Checkbox météo active (ID)
+v9345363,fullClockCheckboxElement,Checkbox horloge complète (ID)
+v9400263,useWcsvCheckboxElement,Checkbox utiliser WCSV (ID)
+v9361963,arabicDigitsCheckboxElement,Checkbox chiffres arabes (ID)
+v9345463,fullIqamaTimesCheckboxElement,Checkbox heures iqama complètes (ID)
+v9345563,iqamaCounterCheckboxElement,Checkbox compteur iqama (ID)
+v9400363,blackScreenInPrayingCheckboxElement,Checkbox écran noir prière (ID)
+v9374163,slidesActiveCheckboxElement,Checkbox slides actifs (ID)
+v9362063,remindersActiveCheckboxElement,Checkbox rappels actifs (ID)
+v9335363,ramadanDaysLeftCheckboxElement,Checkbox jours Ramadan (ID)
+v9362163,slidesRandomCheckboxElement,Checkbox slides aléatoires (ID)
+v9387063,azkarActiveCheckboxElement,Checkbox adhkar actifs (ID)
+v9335463,repeatAzkarCheckboxElement,Checkbox répéter adhkar (ID)
+v9345663,azkar5minPictureCheckboxElement,Checkbox image 5min adhkar (ID)
+v9387163,messageDisplayVerticalElement,Élément message vertical
+v9429363,messageDisplayHorizontalElement,Élément message horizontal
+v9468963,mainMenuElement,Élément menu principal
+v9387263,ayaContainerVertical,Conteneur verset vertical
+v9387363,messageContainerVertical,Conteneur message vertical
+v9429463,menuContentElement,Élément contenu menu
+v9387463,ayaContainerHorizontal,Conteneur verset horizontal
+v9362263,prayerTimesContainerVerticalElement,Conteneur horaires vertical (ID)
+v9387563,fullClockTimeHorizontalElement,Heure horloge complète horizontal
+v9387663,fullClockTimeVerticalElement,Heure horloge complète vertical
+v9387763,miniClockTimeHorizontalElement,Heure mini horloge horizontal
+v9387863,miniClockTimeVerticalElement,Heure mini horloge vertical
+v9400463,weatherWidgetHorizontalElement,Widget météo horizontal
+v9400563,appLogoVerticalElement,Logo application vertical
+v9442963,azkarClockVerticalElement,Horloge adhkar vertical
+v9443063,azkarClockHorizontalElement,Horloge adhkar horizontal
+v9429563,slidesClockVerticalElement,Horloge slides vertical
+v9429663,slidesClockHorizontalElement,Horloge slides horizontal
+v9429763,picture5minClockVerticalElement,Horloge image 5min vertical
+v9429863,picture5minClockHorizontalElement,Horloge image 5min horizontal
+v9400663,inputDialogElement,Boîte de dialogue de saisie (ID)
+v9374263,inputDialogMessageElement,Message boîte de dialogue (ID)
+v9374363,inputDialogInputElement,Champ de saisie boîte de dialogue (ID)
+v9339363,countryListContainerElement,Conteneur liste des pays
+v9362363,cityListContainerElement,Conteneur liste des villes
+v9339463,countryButtonElement,Bouton pays
+v9362463,cityButtonElement,Bouton ville
+v9495963,prayerNameFajrVerticalSpanElement,Span nom Fajr vertical
+v9496063,prayerNameShrqVerticalSpanElement,Span nom Shuruq vertical
+v9496163,prayerNameDohrVerticalSpanElement,Span nom Dohr vertical
+v9496263,prayerNameAsrVerticalSpanElement,Span nom Asr vertical
+v9496363,prayerNameMgrbVerticalSpanElement,Span nom Maghrib vertical
+v9496463,prayerNameIshaVerticalSpanElement,Span nom Isha vertical
+v9496563,azanTimeFajrVerticalSpanElement,Span heure adhan Fajr vertical
+v9496663,azanTimeShrqVerticalSpanElement,Span heure Shuruq vertical
+v9496763,azanTimeDohrVerticalSpanElement,Span heure adhan Dohr vertical
+v9496863,azanTimeAsrVerticalSpanElement,Span heure adhan Asr vertical
+v9496963,azanTimeMgrbVerticalSpanElement,Span heure adhan Maghrib vertical
+v9497063,azanTimeIshaVerticalSpanElement,Span heure adhan Isha vertical
+v9469063,prayerNameFajrHorizontalSpanElement,Span nom Fajr horizontal
+v9469163,prayerNameShrqHorizontalSpanElement,Span nom Shuruq horizontal
+v9469263,prayerNameDohrHorizontalSpanElement,Span nom Dohr horizontal
+v9469363,prayerNameAsrHorizontalSpanElement,Span nom Asr horizontal
+v9469463,prayerNameMgrbHorizontalSpanElement,Span nom Maghrib horizontal
+v9469563,prayerNameIshaHorizontalSpanElement,Span nom Isha horizontal
+v9457063,azanTimeFajrHorizontalSpanElement,Span heure adhan Fajr horizontal
+v9457163,azanTimeShrqHorizontalSpanElement,Span heure Shuruq horizontal
+v9457263,azanTimeDohrHorizontalSpanElement,Span heure adhan Dohr horizontal
+v9457363,azanTimeAsrHorizontalSpanElement,Span heure adhan Asr horizontal
+v9457463,azanTimeMgrbHorizontalSpanElement,Span heure adhan Maghrib horizontal
+v9457563,azanTimeIshaHorizontalSpanElement,Span heure adhan Isha horizontal
+v9362563,fileInputElementHidden,Input fichier caché
+v9469663,prayerNameFajrMiniHorizontalElement,Span nom Fajr mini horizontal
+v9469663,prayerNameFajrMiniHorizontalElement,Span nom Fajr mini horizontal
+v9469663,prayerNameFajrMiniHorizontalElement,Span nom Fajr mini horizontal
+v9469763,prayerNameShrqMiniHorizontalElement,Span nom Shuruq mini horizontal
+v9469863,prayerNameDohrMiniHorizontalElement,Span nom Dohr mini horizontal
+v9469963,prayerNameAsrMiniHorizontalElement,Span nom Asr mini horizontal
+v9470063,prayerNameMgrbMiniHorizontalElement,Span nom Maghrib mini horizontal
+v9470163,prayerNameIshaMiniHorizontalElement,Span nom Isha mini horizontal
+v9470263,prayerTimeFajrMiniHorizontalSpanElement,Span heure Fajr mini horizontal
+v9470363,prayerTimeShrqMiniHorizontalSpanElement,Span heure Shuruq mini horizontal
+v9470463,prayerTimeDohrMiniHorizontalSpanElement,Span heure Dohr mini horizontal
+v9470563,prayerTimeAsrMiniHorizontalSpanElement,Span heure Asr mini horizontal
+v9470663,prayerTimeMgrbMiniHorizontalSpanElement,Span heure Maghrib mini horizontal
+v9470763,prayerTimeIshaMiniHorizontalSpanElement,Span heure Isha mini horizontal
+v9429963,audioAzanMainElement,Élément audio adhan principal
+v9430063,audioFajrAzanElement,Élément audio adhan Fajr
+v9362663,audioShortAzanElementVar,Variable élément audio adhan court
+v9352063,audioShortIqamaElementVar,Variable élément audio iqama court
+v9414263,audioBeepElementVar,Variable élément audio bip
+v9443163,audioTeetElementVar,Variable élément audio teet
+v9400763,audioAlert1ElementVar,Variable élément audio alerte 1
+v9400863,audioDrop1ElementVar,Variable élément audio drop 1
+v9400963,audioDrop3ElementVar,Variable élément audio drop 3
+v9387963,audioAlertsElementVar,Variable élément audio alertes multiples
+v9470863,prayerNameFajrMiniVerticalElement,Span nom Fajr mini vertical
+v9470963,prayerNameShrqMiniVerticalElement,Span nom Shuruq mini vertical
+v9471063,prayerNameDohrMiniVerticalElement,Span nom Dohr mini vertical
+v9471163,prayerNameAsrMiniVerticalElement,Span nom Asr mini vertical
+v9471263,prayerNameMgrbMiniVerticalElement,Span nom Maghrib mini vertical
+v9471363,prayerNameIshaMiniVerticalElement,Span nom Isha mini vertical
+v9471463,prayerTimeFajrMiniVerticalSpanElement,Span heure Fajr mini vertical
+v9471563,prayerTimeShrqMiniVerticalSpanElement,Span heure Shuruq mini vertical
+v9471663,prayerTimeDohrMiniVerticalSpanElement,Span heure Dohr mini vertical
+v9471763,prayerTimeAsrMiniVerticalSpanElement,Span heure Asr mini vertical
+v9471863,prayerTimeMgrbMiniVerticalSpanElement,Span heure Maghrib mini vertical
+v9471963,prayerTimeIshaMiniVerticalSpanElement,Span heure Isha mini vertical
+v9484163,bodyElement,Élément body (ID)
+v9497163,iqamaTimeFajrVerticalSpanElement,Span heure iqama Fajr vertical
+v9497263,iqamaTimeShrqVerticalSpanElement,Span heure iqama Shuruq vertical
+v9497363,iqamaTimeDohrVerticalSpanElement,Span heure iqama Dohr vertical
+v9497463,iqamaTimeAsrVerticalSpanElement,Span heure iqama Asr vertical
+v9497563,iqamaTimeMgrbVerticalSpanElement,Span heure iqama Maghrib vertical
+v9497663,iqamaTimeIshaVerticalSpanElement,Span heure iqama Isha vertical
+v9484263,iqamaTimeFajrHorizontalSpanElement,Span heure iqama Fajr horizontal
+v9484363,iqamaTimeShrqHorizontalSpanElement,Span heure iqama Shuruq horizontal
+v9484463,iqamaTimeDohrHorizontalSpanElement,Span heure iqama Dohr horizontal
+v9484563,iqamaTimeAsrHorizontalSpanElement,Span heure iqama Asr horizontal
+v9484663,iqamaTimeMgrbHorizontalSpanElement,Span heure iqama Maghrib horizontal
+v9484763,iqamaTimeIshaHorizontalSpanElement,Span heure iqama Isha horizontal
+v9443263,tawkitNameHorizontalElement,Élément nom Tawkit horizontal
+v9443363,cityCodeHorizontalElement,Élément code ville horizontal
+v9430163,aboutPopupElement,Popup À propos (ID)
+v9330763,aboutAppTitleElement,Titre application À propos
+v9414363,weatherTempVerticalElement,Température météo vertical
+v9401063,weatherIconVerticalElement,Icône météo vertical
+v9401163,weatherIconHorizontalElement,Icône météo horizontal
+v9414463,weatherTempHorizontalElement,Température météo horizontal
+v9430263,weatherMinMaxHorizontalElement,Températures min/max horizontal
+v9430363,weatherMinMaxVerticalElement,Températures min/max vertical
+v9374463,mobileAlertButtonElement,Bouton alerte mobile (ID)
+v9457663,internetStatusHorizontalElement,Statut Internet horizontal
+v9457763,internetStatusVerticalElement,Statut Internet vertical
+v9414563,dateDisplayVerticalElement,Élément date vertical
+v9414663,cityCodeVerticalElement,Élément code ville vertical
+v9388063,aboutDescriptionElement,Description À propos
+v9352163,aboutExtraInfoElement,Info supplémentaire À propos
+v9352263,creditsContentElement,Contenu crédits
+v9443463,locationLoadingIndicator,Indicateur de chargement localisation
+v9401263,slidesTableBody,Corps du tableau des slides
+v9457863,messagesTableBody,Corps du tableau des messages
+v9362763,remindersTableBody,Corps du tableau des rappels
+v9430463,currentThemeDisplayElement,Affichage thème actuel
+v9401363,appLogoHorizontalElement,Logo application horizontal
+v9401463,jomoaCounterHorizontalElement,Compteur Jomoaa horizontal
+v9401563,nextPrayerCounterHorizontalElement,Compteur prochaine prière horizontal
+v9457963,iqamaCounterTimeVerticalElement,Temps compteur iqama vertical
+v9458063,iqamaCounterTimeHorizontalElement,Temps compteur iqama horizontal
+v9388163,unusedElementVar,Variable élément non utilisé
+v9458163,gpsPositionDisplayElement,Affichage position GPS
+v9374563,dohaTimeHorizontalElement,Heure Doha horizontal
+v9374663,dohaTimeVerticalElement,Heure Doha vertical
+v9335563,dateTextSpanHorizontalElement,Span texte date horizontal
+v9362863,nextPrayerLabelHorizontalElement,Label prochaine prière horizontal
+v9362963,nextPrayerLabelVerticalElement,Label prochaine prière vertical
+v9374763,jomoaLabelHorizontalElement,Label Jomoaa horizontal
+v9363063,secondJomoaDisplayHorizontal,Affichage deuxième Jomoaa horizontal
+v9374863,azanPopupTitleVerticalElement,Titre popup adhan vertical
+v9374963,azanPopupTitleHorizontalElement,Titre popup adhan horizontal
+v9458263,iqamaCounterLabelVerticalElement,Label compteur iqama vertical
+v9458363,iqamaCounterLabelHorizontalElement,Label compteur iqama horizontal
+v9458463,prayerNameFajrAdjustElement,Élément nom Fajr ajustements
+v9458563,prayerNameShrqAdjustElement,Élément nom Shuruq ajustements
+v9458663,prayerNameDohrAdjustElement,Élément nom Dohr ajustements
+v9472063,prayerNameAsrAdjustElement,Élément nom Asr ajustements
+v9414863,prayerNameMgrbAdjustElement,Élément nom Maghrib ajustements
+v9458763,prayerNameIshaAdjustElement,Élément nom Isha ajustements
+v9497763,themeSaturdayCellElement,Cellule thème Samedi
+v9497863,themeFajrCellElement,Cellule thème Fajr
+v9497963,themeShrqCellElement,Cellule thème Shuruq
+v9498063,themeDohrCellElement,Cellule thème Dohr
+v9498163,themeAsrCellElement,Cellule thème Asr
+v9498263,themeMgrbCellElement,Cellule thème Maghrib
+v9498363,themeIshaCellElement,Cellule thème Isha
+v9498463,themeSundayCellElement,Cellule thème Dimanche
+v9498563,themeMondayCellElement,Cellule thème Lundi
+v9498663,themeTuesdayCellElement,Cellule thème Mardi
+v9498763,themeWednesdayCellElement,Cellule thème Mercredi
+v9498863,themeThursdayCellElement,Cellule thème Jeudi
+v9498963,themeFridayCellElement,Cellule thème Vendredi
+v9363163,fullScreenButtonElement,Bouton plein écran
+v9414963,menuVersionDisplayElement,Affichage version menu
+v9335663,durationFajrValueElement,Affichage durée Fajr
+v9335763,durationDohrValueElement,Affichage durée Dohr
+v9339563,durationAsrValueElement,Affichage durée Asr
+v9329763,durationMgrbValueElement,Affichage durée Maghrib
+v9335863,durationIshaValueElement,Affichage durée Isha
+v9345763,dimmerBeforeValueElement,Affichage valeur dimmer avant
+v9352363,dimmerAfterValueElement,Affichage valeur dimmer après
+v9352463,alertToastElement,Élément toast d'alerte
+v9443563,autoStartContainerElement,Conteneur Auto-Start
+v9415063,autoStartCheckboxElement,Checkbox Auto-Start
+v9415163,autoStartLabelElement,Label Auto-Start
+v9363263,athanFajrValueElement,Affichage valeur athan Fajr
+v9363363,athanShrqValueElement,Affichage valeur athan Shuruq
+v9363463,athanDohrValueElement,Affichage valeur athan Dohr
+v9375063,athanAsrValueElement,Affichage valeur athan Asr
+v9339663,athanMgrbValueElement,Affichage valeur athan Maghrib
+v9363563,athanIshaValueElement,Affichage valeur athan Isha
+v9430563,nightPrayersContainerVerticalElement,Conteneur prières de nuit vertical
+v9388263,midnightTimeVerticalElement,Heure minuit vertical
+v9388363,lastThirdTimeVerticalElement,Heure dernier tiers vertical
+v9401663,tomorrowFajrTimeVerticalElement,Heure Fajr demain vertical
+v9430663,nightPrayersContainerHorizontalElement,Conteneur prières de nuit horizontal
+v9388463,midnightTimeHorizontalElement,Heure minuit horizontal
+v9388563,lastThirdTimeHorizontalElement,Heure dernier tiers horizontal
+v9401763,tomorrowFajrTimeHorizontalElement,Heure Fajr demain horizontal
+v9324763,decodedStringVar,Chaîne décodée
+v9415263,setFontRadioButtonsFunction,Fonction pour cocher les radios des polices
+v9415363,applyThemeFunction,Fonction pour appliquer un thème
+v9352563,isThemeChangeWithTransition,Drapeau pour transition de thème
+v9443663,themeColorsString,Chaîne des couleurs du thème
+v9415463,isVrThemeSpecial,Drapeau pour thème VR spécial
+v9388663,isLightTheme,Drapeau pour thème clair
+v9388763,specialVrThemesList,Liste des thèmes VR spéciaux
+v9388863,specialThemeIndices,Indices des thèmes spéciaux
+v9388963,lightThemeIndices,Indices des thèmes clairs
+v9389063,otherSpecialThemes,Autres thèmes spéciaux
+v9329863,isHorizontalOrientation,Drapeau orientation horizontale
+v9389163,userUploadedImages,Tableau des images uploadées par l'utilisateur
+v9430763,currentBackgroundUrl,URL de l'arrière-plan actuel
+v9415563,currentThemeIndex,Index du thème actuel
+v9443763,azkarFolderPath,Chemin du dossier adhkar
+v9443863,slidesFolderPath,Chemin du dossier slides
+v9415663,applyHrLayoutFunction,Fonction pour appliquer la disposition HR
+v9430863,lineBreakOrSpace,Espace ou saut de ligne
+v9484863,classicVrClass,Classe pour VR classique
+v9484963,specialVrClass,Classe pour VR spécial
+v9458863,currentDayName,Nom du jour actuel
+v9401863,cityCodeDisplayString,Chaîne d'affichage du code ville
+v9345863,currentBackgroundImageUrl,URL de l'image d'arrière-plan actuelle
+v9443963,backgroundFadeInClass,Classe pour fondu entrant de l'arrière-plan
+v9363663,clearBackgroundTransitionFunction,Fonction pour nettoyer la transition d'arrière-plan
+v9444263,backgroundFadeOutClass,Classe pour fondu sortant
+v9375163,clockColor,Couleur de l'horloge
+v9339763,salatColor,Couleur des prières
+v9345963,lowerColor,Couleur inférieure
+v9363863,bgTubeColor,Couleur du tube d'arrière-plan
+v9332963,updateNextPrayerDisplayFunction,Fonction pour mettre à jour l'affichage de la prochaine prière
+v9363963,updateMosqueAndDateDisplayFunction,Fonction pour mettre à jour l'affichage mosquée/date
+v9327463,updateBigNextPrayCounterFunction,Fonction pour mettre à jour le grand compteur
+v9444163,setThemeFunction,Fonction pour définir le thème
+v9499063,themeIndexParam,Paramètre index du thème
+v9401963,withTransitionParam,Paramètre avec transition
+v9415763,saveSettingsToStorageFunction,Fonction pour sauvegarder les paramètres
+v9375263,addAboutMenuItemFunction,Fonction pour ajouter l'élément de menu À propos
+v9472163,showAboutPopupWrapper,Wraper pour afficher la popup À propos
+v9499163,decodeHexStringFunction,Fonction pour décoder une chaîne hexadécimale
+v9330863,encodedString1,Chaîne encodée 1
+v9506863,aboutMenuItemElement,Élément de menu À propos
+v9444363,divTagName,Chaîne 'div'
+v9458963,bulletPointSymbol,Symbole puce
+v9415863,versionDisplayElement,Élément d'affichage de la version
+v9346063,versionDisplayId,ID de l'affichage de la version
+v9444463,setUploadInfoMessageFunction,Fonction pour définir le message d'info upload
+v9472263,uploadMessage,Message d'upload
+v9389263,storageKeysArray,Tableau des clés de stockage
+v9375363,saveImageToStorageFunction,Fonction pour sauvegarder une image dans le stockage
+v9459063,imageFile,Fichier image
+v9389363,storageKey,Clé de stockage
+v9444563,imageIndex,Index de l'image
+v9459163,fileReader,Objet FileReader
+v9459263,imageDataUrl,URL de données de l'image
+v9364063,updateStorageInfoFunction,Fonction pour mettre à jour les infos de stockage
+v9430963,handleImageUploadFunction,Fonction pour gérer l'upload d'image
+v9431063,imageStorageKey,Clé de stockage de l'image
+v9402063,selectedFile,Fichier sélectionné
+v9361063,removeUploadedImageFunction,Fonction pour supprimer une image uploadée
+v9352663,updateFixedTimesDisplayFunction,Fonction pour mettre à jour l'affichage des heures fixes
+v9472363,jomoaFixedTimeButtonElement,Bouton heure fixe Jomoaa
+v9472463,fixedIqamaFajrButtonElement,Bouton iqama fixe Fajr
+v9472563,fixedIqamaDohrButtonElement,Bouton iqama fixe Dohr
+v9472663,fixedIqamaAsrButtonElement,Bouton iqama fixe Asr
+v9472763,fixedIqamaIshaButtonElement,Bouton iqama fixe Isha
+v9364163,showInitialMessagesFunction,Fonction pour afficher les messages initiaux
+v9472863,isTestModeActive,Drapeau mode test actif
+v9325863,showMessagePopupFunction,Fonction pour afficher un message popup
+v9330963,encodedString2,Chaîne encodée 2
+v9346163,isInputDialogOpen,Drapeau boîte de dialogue ouverte
+v9335963,inputDialogValue,Valeur de la boîte de dialogue
+v9375463,openInputDialogFunction,Fonction pour ouvrir la boîte de dialogue
+v9389463,jomoaFixedTime,Heure fixe de Jomoaa
+v9331063,updateAthanIqamaDisplayFunction,Fonction pour mettre à jour l'affichage athan/iqama
+v9336063,calculateAndDisplayTimesFunction,Fonction pour calculer et afficher les horaires
+v9364263,prayerNamesArray,Tableau des noms des prières
+v9339863,populateCountryListFunction,Fonction pour peupler la liste des pays
+v9415963,countryOptionsHtml,HTML des options de pays
+v9416063,cityCodeParts,Parties du code ville
+v9416163,capitalizeFirstLetterFunction,Fonction pour capitaliser la première lettre
+v9459363,countryDataParts,Parties des données du pays
+v9444663,countryCode,Code du pays
+v9444763,countryName,Nom du pays
+v9375563,loadCountryCitiesFunction,Fonction pour charger les villes d'un pays
+v9485063,selectedCountryCode,Code du pays sélectionné
+v9416263,hideElementByIdFunction,Fonction pour cacher un élément par ID
+v9459463,selectCityFunction,Fonction pour sélectionner une ville
+v9459563,cacheBustingTimestamp,Timestamp pour éviter le cache
+v9402163,countryDataScriptUrl,URL du script de données du pays
+v9431163,countryScriptElement,Élément script pour les données du pays
+v9389563,onCountryDataLoadSuccess,Callback succès chargement données pays
+v9389663,onCountryDataLoadError,Callback erreur chargement données pays
+v9485163,cityNamePart,Partie du nom de la ville
+v9459663,cityDataLowercase,Données de la ville en minuscules
+v9402263,cityCode,Code de la ville
+v9444863,cityDisplayName,Nom d'affichage de la ville
+v9485263,selectedCityCode,Code de la ville sélectionnée
+v9459763,timestampParam,Paramètre timestamp
+v9499263,cityCodePartsArray,Tableau des parties du code ville
+v9472963,prayerTimesScriptUrl,URL du script des horaires de prière
+v9444963,timesScriptElement,Élément script pour les horaires
+v9499363,selectedLanguageCode,Code de langue sélectionné
+v9352763,restartApplicationReload,Fonction pour redémarrer l'application (rechargement)
+v9499463,languageSpanElement,Élément span de la langue
+v9499563,forcedVerticalModeParam,Paramètre mode vertical forcé
+v9364363,blackScreenCountdown,Compte à rebours écran noir
+v9352863,animateBlackScreenCountdown,Fonction pour animer le compte à rebours écran noir
+v9416363,startIqamaSequenceFunction,Fonction pour démarrer la séquence iqama
+v9327563,prayerDurationMinutes,Durée de la prière en minutes
+v9402363,showElementWithTransitionFunction,Fonction pour afficher un élément avec transition
+v9324363,onIqamaEndFunction,Fonction exécutée à la fin de l'iqama
+v9324663,isAzkarMain,Drapeau pour adhkar principaux
+v9346263,decideNextAzkarOrSlideFunction,Fonction pour décider de l'action après adhkar
+v9352963,stopAzkarFlag,Drapeau pour arrêter les adhkar
+v9346363,stopSlidesFlag,Drapeau pour arrêter les slides
+v9364463,decodedStringDisplayElement,Élément d'affichage de la chaîne décodée
+v9459863,decodedStringDisplayId,ID de l'affichage de la chaîne décodée
+v9364563,showAzkarDisplayFunction,Fonction pour afficher les adhkar
+v9416463,prepareAzkarDisplayFunction,Fonction pour préparer l'affichage des adhkar
+v9402563,showFullScreenElementFunction,Fonction pour afficher un élément en plein écran
+v9353063,hideAzkarDisplayFunction,Fonction pour cacher l'affichage des adhkar
+v9402663,hideFullScreenElementFunction,Fonction pour cacher un élément plein écran
+v9416563,cleanupAzkarDisplayFunction,Fonction pour nettoyer l'affichage adhkar
+v9333063,isBigCounterActive,Drapeau grand compteur actif
+v9340063,showPrayerTimesOverlayFunction,Fonction pour afficher la surcouche des horaires
+v9346463,isFullScreenCounterActive,Drapeau compteur plein écran actif
+v9340163,hidePrayerTimesOverlayFunction,Fonction pour cacher la surcouche des horaires
+v9375763,showSlidesDisplayFunction,Fonction pour afficher les slides
+v9389763,hideSlidesDisplayFunction,Fonction pour cacher les slides
+v9340263,buildAzkarArraysFunction,Fonction pour construire les tableaux d'adhkar
+v9499763,azkarBlockString,Chaîne d'un bloc d'adhkar
+v9375863,sourceAzkarArray,Tableau source des adhkar
+v9499863,azkarLine,Ligne d'adhkar
+v9364663,mainAzkarArray,Tableau des adhkar principaux
+v9389863,sabahAzkarArray,Tableau des adhkar du matin
+v9389963,masaaAzkarArray,Tableau des adhkar du soir
+v9402763,startAzkarSequenceFunction,Fonction pour démarrer la séquence d'adhkar
+v9473063,azkarArrayToDisplay,Tableau d'adhkar à afficher
+v9333163,isMainAzkar,Drapeau pour adhkar principaux
+v9375963,isSabahAzkar,Drapeau pour adhkar du matin
+v9402863,currentAzkarIndex,Index actuel dans le tableau d'adhkar
+v9402963,azkarDisplayArray,Tableau d'adhkar en cours d'affichage
+v9331163,azkarDisplayInterval,Intervalle d'affichage des adhkar
+v9353163,isSabahFlag,Drapeau pour adhkar Sabah
+v9340363,displayNextAzkarFunction,Fonction pour afficher l'adhkar suivant
+v9431263,skipEmptyAzkar,Drapeau pour sauter les adhkar vides
+v9445163,currentAzkarText,Texte de l'adhkar actuel
+v9473363,azkarTextLength,Longueur du texte de l'adhkar
+v9326563,countArabicCharactersFunction,Fonction pour compter les caractères arabes
+v9390163,azkarFontSize,Taille de police pour adhkar
+v9331263,calculateFontSizeFunction,Fonction pour calculer la taille de police
+v9459963,textLength,Longueur du texte
+v9431363,maxTextLength,Longueur maximale du texte
+v9431463,minTextLength,Longueur minimale du texte
+v9473463,maxFontSize,Taille de police maximale
+v9473563,minFontSize,Taille de police minimale
+v9485363,azkarFontSizeVr,Taille police adhkar VR
+v9485463,azkarFontSizeHr,Taille police adhkar HR
+v9485563,fontSizeUnit,Unité de taille de police (vw/vh)
+v9403063,fadeInAzkarTextFunction,Fonction pour faire apparaître le texte adhkar
+v9390263,fadeOutAzkarTextFunction,Fonction pour faire disparaître le texte adhkar
+v9403263,fadeInElementFunction,Fonction pour faire apparaître un élément
+v9403363,fadeOutElementFunction,Fonction pour faire disparaître un élément
+v9416663,setElementAttributeFunction,Fonction pour définir un attribut d'élément
+v9460063,attributeName,Nom de l'attribut
+v9460163,attributeValue,Valeur de l'attribut
+v9353463,clampSlidesViewTimeFunction,Fonction pour limiter les temps d'affichage slides
+v9390763,slidesTextVerticalElement,Texte slides vertical
+v9390863,slidesTextHorizontalElement,Texte slides horizontal
+v9353263,slidesDisplayActive,Drapeau affichage slides actif
+v9340463,displayNextSlideFunction,Fonction pour afficher la slide suivante
+v9473663,currentSlideText,Texte de la slide actuelle
+v9431563,slideViewTimeMs,Temps d'affichage slide en ms
+v9431663,tawkitViewTimeMs,Temps d'affichage Tawkit en ms
+v9445263,isImageSlide,Drapeau pour slide image
+v9445363,isUrlSlide,Drapeau pour slide URL
+v9460263,slideBackgroundCss,CSS d'arrière-plan de la slide
+v9340563,slidesFontSize,Taille de police slides
+v9375663,startAzkarMainSequenceFunction,Fonction pour démarrer la séquence d'adhkar principaux
+v9333263,showAzkar5minPictureFunction,Fonction pour afficher l'image 5min adhkar
+v9390963,showSemiTransparentElementFunction,Fonction pour afficher un élément semi-transparent
+v9402463,startSlidesSequenceFunction,Fonction pour démarrer la séquence slides
+v9340663,isFullScreenCounterMode,Drapeau mode compteur plein écran
+v9346563,hideIqamaCounterFunction,Fonction pour cacher le compteur iqama
+v9325363,activateBlackScreenIfEnabled,Fonction pour activer l'écran noir si activé
+v9499963,nightPrayersClickCounter,Compteur de clics prières de nuit
+v9416763,setElementAttribute2Function,Fonction pour définir un attribut d'élément (2)
+v9506963,elementIdParam,Paramètre ID d'élément
+v9403463,showElementBlockFunction,Fonction pour afficher un élément en block
+v9416863,hideElementDisplayFunction,Fonction pour cacher un élément (display none)
+v9416963,circleProgressPercent,Pourcentage de progression du cercle
+v9376063,isLastMinuteCounter,Drapeau compteur dernière minute
+v9364863,fullClockSecondsVertical,Secondes horloge complète vertical
+v9364963,fullClockSecondsHorizontal,Secondes horloge complète horizontal
+v9353563,miniClockSecondsVertical,Secondes mini horloge vertical
+v9353663,miniClockSecondsHorizontal,Secondes mini horloge horizontal
+v9403563,fullClockAmPmVertical,AM/PM horloge complète vertical
+v9403663,fullClockAmPmHorizontal,AM/PM horloge complète horizontal
+v9346663,currentDateString,Chaîne de la date actuelle
+v9460363,specificSecondsTrigger,Secondes spécifiques pour déclenchement
+v9403763,numbersAsStringsArray,Tableau de nombres sous forme de chaînes
+v9417063,currentDateObject,Objet Date actuel
+v9328363,allowedHourAdjustments,Tableau des ajustements d'heures autorisés
+v9510663,currentSeconds,Secondes actuelles
+v9376163,isSpecialTriggerActive,Drapeau déclencheur spécial actif
+v9445463,formattedSeconds,Secondes formatées
+v9431763,convertToArabicDigitsFunction,Fonction pour convertir en chiffres arabes
+v9391063,isAzanPopupVisible,Drapeau popup adhan visible
+v9391163,azanPopupTimeVerticalElement,Heure popup adhan vertical
+v9391263,azanPopupTimeHorizontalElement,Heure popup adhan horizontal
+v9431863,currentTimeFormatted,Heure actuelle formatée
+v9340763,isIqamaCounterActive,Drapeau compteur iqama actif
+v9336163,remainingSeconds,Secondes restantes
+v9326663,totalCounterSeconds,Total des secondes du compteur
+v9473763,remainingMinutes,Minutes restantes
+v9473863,remainingSecondsPart,Partie secondes restantes
+v9376263,isDohaCounter,Drapeau compteur Doha
+v9326763,isCounterColorAlert,Drapeau alerte couleur compteur
+v9340863,resetPrayerRowsStyleFunction,Fonction pour réinitialiser le style des lignes de prière
+v9445563,amSymbolHtml,HTML du symbole AM
+v9445663,pmSymbolHtml,HTML du symbole PM
+v9325963,dohaMinutesAfterShrq,Minutes après Shuruq pour Doha
+v9326063,ishaScreenSaverOffset,Décalage économiseur Isha
+v9326163,blackScreenOffsetBeforeIsha,Décalage écran noir avant Isha
+v9326263,blackScreenOffsetBeforeDoha,Décalage écran noir avant Doha
+v9331363,midnightCounter,Compteur de minuit
+v9353763,isFriday,Drapeau jour vendredi
+v9346863,skipPrayerTimeChecks,Drapeau pour ignorer les vérifications d'heures de prière
+v9445763,nowDateObject,Objet Date maintenant
+v9510763,currentHours,Heures actuelles
+v9510863,currentMinutes,Minutes actuelles
+v9473963,hoursForAmPm,Heures pour format AM/PM
+v9474063,minutesFormatted,Minutes formatées
+v9474163,timeString24,Chaîne heure 24h
+v9431963,timeStringAmPm,Chaîne heure AM/PM
+v9445863,amPmSymbol,Symbole AM/PM
+v9391363,todayDateString,Chaîne date du jour
+v9444063,currentTimeInMinutes,Temps actuel en minutes
+v9327663,counterForDohaTimeDisplay,Compteur pour affichage heure Doha
+v9365063,checkForTawkitDisplayUpdate,Fonction pour vérifier la mise à jour de l'affichage Tawkit
+v9445963,currentDayIndex,Index du jour actuel (0-6)
+v9485763,shuruqTimeInMinutes,Heure de Shuruq en minutes
+v9485863,dohrTimeInMinutes,Heure de Dohr en minutes
+v9485963,ishaTimeInMinutes,Heure de Isha en minutes
+v9486063,fajrTimeInMinutes,Heure de Fajr en minutes
+v9486163,asrTimeInMinutes,Heure de Asr en minutes
+v9486263,maghribTimeInMinutes,Heure de Maghrib en minutes
+v9376363,startIqamaCounterFunction,Fonction pour démarrer le compteur iqama
+v9475063,iqamaMinutes,Minutes d'iqama
+v9475163,prayerDuration,Durée de la prière
+v9336963,forcedCounterSeconds,Secondes forcées pour le compteur
+v9404763,currentSecondsComp,Secondes actuelles pour compensation
+v9333663,iqamaMinutesParam,Paramètre minutes iqama
+v9392263,calculateNightPrayersFunction,Fonction pour calculer les prières de nuit
+v9501463,tomorrowDateObject,Objet Date pour demain
+v9461363,tomorrowDayIndex,Index du jour de demain
+v9447663,currentYear,Année actuelle
+v9507463,currentMonthPadded,Mois actuel avec zéro
+v9507363,currentDatePadded,Jour actuel avec zéro
+v9461463,fajrTimeString,Chaîne heure Fajr
+v9461563,maghribTimeString,Chaîne heure Maghrib
+v9333963,isSummerTimeAdjustment,Drapeau ajustement heure d'été
+v9392463,timesDataString,Chaîne de données des horaires
+v9392563,timesDataParts,Parties des données d'horaires
+v9341763,prayerTimesArray,Tableau des horaires de prière
+v9354863,tomorrowFajrTimeAdjusted,Heure Fajr demain ajustée
+v9354963,tomorrowMaghribTimeAdjusted,Heure Maghrib demain ajustée
+v9475263,tomorrowMonth,Mois de demain
+v9475363,tomorrowDate,Jour de demain
+v9330163,isSpecialSummerTimeCase,Cas spécial heure d'été
+v9418363,tomorrowFajrMinutes,Minutes de Fajr demain
+v9418463,midnightMinutesCalc,Calcul minutes minuit
+v9448163,lastThirdMinutesCalc,Calcul minutes dernier tiers
+v9403963,midnightTimeInMinutes,Heure de minuit en minutes
+v9404063,lastThirdTimeInMinutes,Heure du dernier tiers en minutes
+v9418563,midnightTimeFormatted,Heure de minuit formatée
+v9418663,lastThirdTimeFormatted,Heure du dernier tiers formatée
+v9448263,tomorrowFajrTimeFormatted,Heure Fajr demain formatée
+v9448363,midnightDisplayTime,Heure minuit pour affichage
+v9448463,lastThirdDisplayTime,Heure dernier tiers pour affichage
+v9418763,nightPrayerSymbols,Symboles pour prières de nuit
+v9331563,encodedString3,Chaîne encodée 3
+v9331463,encodedString4,Chaîne encodée 4
+v9417163,playAzanSoundFunction,Fonction pour jouer le son de l'adhan
+v9346763,redirectToAudioHandlerFunction,Fonction pour rediriger vers le gestionnaire audio
+v9391463,playIqamaSoundFunction,Fonction pour jouer le son de l'iqama
+v9403863,playDohaAlertSoundFunction,Fonction pour jouer le son d'alerte Doha
+v9475463,scrollableDivId,ID du div à faire défiler
+v9448563,currentScrollTop,Position actuelle de défilement
+v9347263,timeStringToMinutesFunction,Fonction pour convertir une chaîne heure en minutes
+v9501563,timeString,Chaîne heure
+v9501663,minutesPart,Partie minutes
+v9501763,hoursPart,Partie heures
+v9377763,detectOrientationFunction,Fonction pour détecter l'orientation
+v9327763,transformCoordsVrRightFunction,Fonction pour transformer les coordonnées VR droite
+v9328563,transformCoordsVrLeftFunction,Fonction pour transformer les coordonnées VR gauche
+v9461663,viewportWidth,Largeur de la fenêtre
+v9461763,viewportHeight,Hauteur de la fenêtre
+v9488863,handleResizeFunction,Fonction pour gérer le redimensionnement
+v9377863,screenWidth,Largeur de l'écran
+v9366263,screenHeight,Hauteur de l'écran
+v9377963,updateMarqueeDisplayFunction,Fonction pour mettre à jour l'affichage du marquee
+v9392663,setElementDisabledStateFunction,Fonction pour définir l'état désactivé d'un élément
+v9488963,disabledState,État désactivé
+v9489063,elementToDisable,Élément à désactiver
+v9347363,updateVoiceCheckboxDependentsFunction,Fonction pour mettre à jour les dépendances de la checkbox voix
+v9347463,isFullClock,Drapeau horloge complète
+v9355063,updateClockDisplayFunction,Fonction pour mettre à jour l'affichage de l'horloge
+v9404863,updateMeteoDisplay,Drapeau pour mettre à jour l'affichage météo
+v9366363,updateMeteoVisibilityFunction,Fonction pour mettre à jour la visibilité météo
+v9366463,updateMeteoWithPrayersVisibilityFunction,Fonction pour mettre à jour la visibilité météo avec prières
+v9448663,updateWcsvModeFunction,Fonction pour mettre à jour le mode WCSV
+v9489163,isWcsvActive,Drapeau WCSV actif
+v9433363,recalculateTimes,Drapeau pour recalculer les horaires
+v9448763,updatePsFlagVisibilityFunction,Fonction pour mettre à jour la visibilité du drapeau PS
+v9461863,psFlagVisibility,Visibilité du drapeau PS
+v9404963,updateDimPastPrayersCheckboxFunction,Fonction pour mettre à jour la checkbox griser prières
+v9366563,updateNightPrayersVisibilityFunction,Fonction pour mettre à jour la visibilité des prières de nuit
+v9366163,updateIqamaTimesDisplayFunction,Fonction pour mettre à jour l'affichage des heures d'iqama
+v9334563,updateHrNamesPositionFunction,Fonction pour mettre à jour la position des noms HR
+v9434363,refreshIqamaDisplay,Drapeau pour rafraîchir l'affichage iqama
+v9378263,storageInfoElement,Élément info stockage
+v9420063,totalStorageSize,Taille totale du stockage
+v9502663,storageKeyItem,Clé d'élément de stockage
+v9476463,storageItemValue,Valeur d'élément de stockage
+v9463163,storageSizeMB,Taille stockage en Mo
+v9449463,storageUsagePercent,Pourcentage d'utilisation du stockage
+v9342363,updateUserFilesSectionFunction,Fonction pour mettre à jour la section fichiers utilisateur
+v9449563,loadImagesFromStorage,Drapeau pour charger les images du stockage
+v9367863,updateMarqueeCheckboxFunction,Fonction pour mettre à jour la checkbox marquee
+v9342463,updateBlackScreenClockCheckboxFunction,Fonction pour mettre à jour la checkbox horloge écran noir
+v9348163,updateBlackScreenDateCheckboxFunction,Fonction pour mettre à jour la checkbox date écran noir
+v9348263,updateDohaScreenSaverCheckboxFunction,Fonction pour mettre à jour la checkbox économiseur Doha
+v9348363,updateIshaScreenSaverCheckboxFunction,Fonction pour mettre à jour la checkbox économiseur Isha
+v9356163,updateVrNamesPositionFunction,Fonction pour mettre à jour la position des noms VR
+v9378363,updateShowIqamaScreenCheckboxFunction,Fonction pour mettre à jour la checkbox afficher écran iqama
+v9393363,updateShowAzanScreenCheckboxFunction,Fonction pour mettre à jour la checkbox afficher écran adhan
+v9378463,hrDiffBottom,Variable CSS --HRdiffBtm
+v9356263,hrDiffRight,Variable CSS --HRdiffRight
+v9393463,nextPrayerFontSize,Taille police prochaine prière
+v9378563,nextPrayerContainerSize,Taille conteneur prochaine prière
+v9378663,updateDatePositionHrFunction,Fonction pour mettre à jour la position de la date HR
+v9420163,weatherClickCounter,Compteur de clics météo
+v9420263,dateSeparator,Séparateur de date
+v9449663,weatherWidgetHrDateRightClass,Classe widget météo quand date à droite
+v9449763,dateDisplayHrClass,Classe affichage date HR
+v9463263,mosqueNameHrClass,Classe nom mosquée HR
+v9405863,updateVerifyInternetCheckboxFunction,Fonction pour mettre à jour la checkbox vérifier Internet
+v9348463,updateTimesBgShadowsFunction,Fonction pour mettre à jour les ombres d'arrière-plan
+v9325463,updateSemiTransparentBgsFunction,Fonction pour mettre à jour la semi-transparence
+v9367963,updateCounterColorAlertCheckboxFunction,Fonction pour mettre à jour la checkbox alerte couleur compteur
+v9378763,updateIqamaHadithCheckboxFunction,Fonction pour mettre à jour la checkbox hadith iqama
+v9378863,updateAlertLastMinuteCheckboxFunction,Fonction pour mettre à jour la checkbox alerte dernière minute
+v9434463,updateEidFitrCheckboxFunction,Fonction pour mettre à jour la checkbox Aïd Fitr
+v9434563,updateEidAdhaCheckboxFunction,Fonction pour mettre à jour la checkbox Aïd Adha
+v9368063,updateAzkarOnSettingsFunction,Fonction pour mettre à jour les paramètres adhkar activés
+v9348563,updateFullScreenCounterCheckboxFunction,Fonction pour mettre à jour la checkbox compteur plein écran
+v9378963,updateLastMinuteCounterCheckboxFunction,Fonction pour mettre à jour la checkbox compteur dernière minute
+v9348663,updateJomoaAzanCheckboxFunction,Fonction pour mettre à jour la checkbox adhan Jomoaa
+v9393563,updateJomoaLogoDisplayFunction,Fonction pour mettre à jour l'affichage du logo Jomoaa
+v9509563,fivePrayersTableClass,Classe pour tableau 5 prières
+v9405963,updateAddZeroAmPmCheckboxFunction,Fonction pour mettre à jour la checkbox ajouter zéro AM/PM
+v9393663,updateHomeModeLayoutFunction,Fonction pour mettre à jour la disposition mode maison
+v9420363,useArabicDigits,Drapeau utiliser chiffres arabes
+v9434663,refreshClockDisplay,Drapeau rafraîchir affichage horloge
+v9434763,dohaTimeDisplayString,Chaîne affichage heure Doha
+v9463363,iqamaSymbol,Symbole iqama (’)
+v9434863,dohaDisplayText,Texte affichage Doha
+v9476563,hrCellBackgroundUrl,URL arrière-plan cellule HR
+v9356763,unusedConstant1,Constante non utilisée 1
+v9356863,unusedConstant2,Constante non utilisée 2
+v9450063,temperatureUnit,Unité de température
+v9450163,currentTemperature,Température actuelle
+v9477863,unusedNumberString1,Chaîne numérique non utilisée 1
+v9477263,unusedNumberString2,Chaîne numérique non utilisée 2
+v9406463,decryptionKeyBase,Base de la clé de décryptage
+v9376863,prayerTimesMinutesObject,Objet des horaires en minutes
+v9347063,fastingMondayMessage,Message jeûne du lundi
+v9336363,fastingThursdayMessage,Message jeûne du jeudi
+v9500963,hexString,Chaîne hexadécimale
+v9504063,decodedString,Chaîne décodée
+v9342763,initDecodeStringsFunction,Fonction pour initialiser le décodage des chaînes
+v9477963,regexPatternString,Chaîne de motif regex
+v9491463,regexVar,Variable regex
+v9491563,replacementChars,Caractères de remplacement
+v9332263,extraEncodedPart,Partie encodée supplémentaire
+v9348963,rtlAyatsLanguages,Liste des langues de versets RTL
+v9326963,cyrillicAyatsLanguages,Liste des langues de versets cyrilliques
+v9325263,otherAyatsLanguages,Autres langues de versets
+v9326463,upperAyatsLang,Langue des versets en majuscule
+v9329163,isSpecialAyatsFont,Drapeau pour police spéciale des versets
+v9325063,ayatsFontConfig,Configuration des polices pour versets
+v9504163,currentAyatsFontConfig,Configuration actuelle de police des versets
+v9337663,applySpecialAyatsFontFunction,Fonction pour appliquer la police spéciale des versets
+v9332063,importedTimesArray,Tableau des horaires importés
+v9325563,importedTimesInvalid,Drapeau horaires importés invalides
+v9324563,useImportedTimes,Drapeau utiliser horaires importés
+v9435763,wcsvScriptUrl,URL du script WCSV
+v9491663,wcsvScriptElement,Élément script WCSV
+v9478063,storedImportedTimes,Temps importés stockés
+v9478163,wtimesScriptUrl,URL du script wtimes
+v9490363,optionsMenuSymbol,Symbole menu Options
+v9379163,personalFilesMenuSymbol,Symbole menu Fichiers personnels
+v9435063,azkarMenuSymbol,Symbole menu Adhkar
+v9463563,syncMenuSymbol,Symbole menu Synchro
+v9324463,languagesWithNoArabicDigits,Liste des langues sans chiffres arabes
+v9330263,rtlLanguages,Liste des langues RTL
+v9337563,allLanguagesList,Liste complète des langues supportées
+v9324963,languagesWithAltFont,Liste des langues avec police alternative
+v9332163,versionNumberString,Chaîne du numéro de version
+v9327263,versionCheckUrl,URL de vérification de version
+v9379563,bigNextPrayCounterToggleDiv,Div déclencheur du basculement du grand compteur de prochaine prière
+v9338063,deactivateBlackScreenFunction,Fonction pour désactiver/fermer l'écran noir (vertical et horizontal)
+v9425263,infoTextClass,Classe CSS générale appliquée aux textes et blocs d'information
+v9494163,settingsActionButtonClass,Classe CSS pour les boutons d'action des paramètres (export/import)
+v9494363,settingsTableClass,Classe CSS pour les tableaux de la section paramètres/thèmes
+v9495863,locationSelectButtonClass,Classe CSS pour les boutons de sélection du pays et de la ville
+v9468263,locationListContentClass,Classe CSS pour les divs de contenu des listes pays/ville
+v9421263,userAgentString,Chaîne userAgent du navigateur (navigator.userAgent)
+v9324863,isTawkitAndroidApp,Booléen : l'app tourne dans l'application Android Chagdali Tawkit
+v9331963,encodedString5,Cinquième chaîne encodée décodée au runtime dans initDecodeStringsFunction
+v9341663,isRtlLanguage,Booléen indiquant si la langue courante est RTL (droite à gauche)
+v9406163,weatherApiData,Objet JSON reçu de l'API météo (timezone / hourly temperature / weathercode)
+v9363763,themeColorsArray,Tableau des couleurs du thème courant : [clockColor | salatColor | lowerColor | bgTubeColor]
+v9337263,ramadanDaysLeftText,Texte affiché pour le nombre de jours restants avant le Ramadan
+v9346963,isRamadanMonth,Booléen vrai si le mois hijri courant est le Ramadan (mois == 9)
+v9327063,isAppInitialized,Booléen activé après 3 secondes signalant la fin de l'initialisation de l'app
+v9390063,currentSlideIndex,Index du slide courant dans JS_SLIDES_DATA (incrémenté cycliquement)
+v9342863,hrHadithMaxSize,Taille maximale du hadith en mode horizontal (valeur: 37)
+v9419563,specialMessagesHtmlText,HTML accumulé des messages spéciaux séparés par des puces (injecté en innerHTML)
+v9325663,currentPrayerThemeIndex,Index 0-5 de la prière courante pour la sélection du thème (v9347163[index])
+v9337463,isHadithVisible,Booléen indiquant si le hadith est actuellement visible (visibility == visible)
+v9379363,isTvPointerActive,Booléen indiquant si le pointeur TV est actif/affiché
+v9435563,tvPointerStepPixels,Pas de déplacement en pixels du pointeur TV par touche directionnelle (9px)
+v9464463,tvPointerPositionX,Position horizontale courante du pointeur TV en pixels (offsetLeft)
+v9464563,tvPointerPositionY,Position verticale courante du pointeur TV en pixels (offsetTop)
+v9394163,tvPointerHideTimeoutId,ID du setTimeout pour masquer automatiquement le pointeur TV après 5 secondes
+v9376763,currentNextPrayerNamesString,Chaîne des prières courante et suivante séparées par | (ex: MGRB|ISHA)
+v9513163,menuSymbolSpanId,ID de span partagé pour les icônes symboles du menu (bullet / sync / azkar / options)
+v9348763,iqamaFajrKey,Clé localStorage pour l'iqama du Fajr (valeur: ucIqamaFAJR)
+v9394063,bottomMessageKeyPrefix,Préfixe des clés de messages du bas (valeur: MsgBTM_)
+v9406263,slideKeyPrefix,Préfixe des IDs de slides (valeur: Slide_)
+v9420663,yearEndDatePattern,Marqueur de fin d'année dans les données de slides (valeur: 12-31~~~~~)
+v9435663,binaryDigitsArray,Tableau ["0" et "1"] utilisé pour construire des chaînes numériques
+v9365863,weekDayNamesArray,Tableau des noms des jours de la semaine (depuis cx_NamesWeekDays)
+v9419963,hijriMonthNamesArray,Tableau des noms des mois hijri (depuis cx_MenuMonthsHijri)
+v9339963,currentPrayerAzkarIndex,Index 0-5 de la prière courante pour la logique d'azkar (0=Fajr...5=Isha)
+v9368263,lastTvClickTimestamp,Horodatage Date.now() du dernier clic TV pour détection double-clic (< 290ms)
+v9353863,currentPrayerName,Nom localisé de la prière courante (depuis prayerNamesArray) affiché en innerHTML
+v9420463,decodedHexAppName,Partie du nom de l'application décodée depuis la chaîne hexadécimale (extraEncodedPart)
+v9347163,salatThemesArray,Tableau des thèmes pour chaque salat (depuis ucThemes4eachSalat séparé par |)
+v9347663,dailyThemesArray,Tableau des thèmes journaliers (depuis ucThemes4EveryDays séparé par |)
+v9414763,unusedElement,Élément DOM non utilisé (probablement un vestige de développement)
+v9363763,themeColorsArray,Tableau des couleurs du thème après découpage de la chaîne
+v9499663,forcedVerticalModeParam,Paramètre pour forcer le mode vertical (0=off, 1=droite, 2=gauche)
+v9445063,delayBeforeBlackScreen,Délai en millisecondes avant d'activer l'écran noir
+v9339963,currentPrayerIndex,Index de la prière en cours (0=FAJR,1=SHRQ,2=DOHR,3=ASSR,4=MGRB,5=ISHA)
+v9338063,deactivateBlackScreen,Fonction qui désactive l'écran noir (remet l'échelle à 0)
+v9390063,currentSlideIndex,Index du slide en cours d'affichage
+v9473163,azkarTextDisplayVerticalElement,Élément DOM pour l'affichage du texte des azkar en mode vertical
+v9473263,azkarTextDisplayHorizontalElement,Élément DOM pour l'affichage du texte des azkar en mode horizontal
+v9390363,minTextLengthParam,Paramètre de longueur minimale de texte pour le calcul de la taille de police
+v9390463,textLengthRange,Plage de longueur de texte (max - min)
+v9390563,fontSizeRange,Plage de taille de police (max - min)
+v9403163,textLengthDelta,Différence entre la longueur actuelle et la longueur minimale
+v9390663,textLengthPercent,Pourcentage de la longueur du texte par rapport à la plage
+v9364763,fontSizeDelta,Réduction de taille de police calculée
+v9353363,calculatedFontSize,Taille de police calculée
+v9324863,isTawkitApp,Indique si l'application tourne dans l'environnement Tawkit Android (userAgent)
+v9325163,showStaticMessageFunction,Fonction qui affiche un message statique (remplace le hadith/marquee)
+v9485663,updateTimeAndPrayersFunction,Fonction principale de mise à jour de l'heure et des vérifications des prières
+v9460463,amSymbolHtml,Symbole HTML pour l'affichage "AM" (ou équivalent localisé)
+v9329963,isFridayAndDohr,Booléen indiquant si c'est vendredi et l'heure de Dohr
+v9376463,highlightCurrentPrayer,Fonction qui met en surbrillance la prière en cours
+v9346963,isRamadan,Booléen indiquant si on est en Ramadan (mois de jeûne)
+v9333363,isEidAlAdhaPeriod,Période de l'Aïd al-Adha (10-13 Dhou al-Hijja)
+v9336263,isLastDaysRamadan,Derniers jours du Ramadan (29-30 Chaabane)
+v9376563,updateBottomMessages,Fonction qui met à jour les messages du bandeau inférieur
+v9336463,changeThemeByDay,Fonction qui change le thème selon le jour de la semaine
+v9333463,changeThemeRandomly,Fonction qui change le thème aléatoirement
+v9417263,updateWeatherData,Fonction qui récupère et met à jour les données météo
+v9333563,applyDimPastPrayers,Fonction qui atténue les prières passées si l'option est activée
+v9376663,refreshWeatherDisplay,Fonction qui rafraîchit l'affichage météo
+v9327063,isThemeChangeBySalatActive,Booléen indiquant si le changement de thème par prière est actif
+v9324263,changeThemeByPrayer,Fonction qui change le thème en fonction de la prière en cours
+v9340963,checkReminders,Fonction qui vérifie et déclenche les rappels (reminders)
+v9391563,countOccurrences,Fonction qui compte le nombre d'occurrences d'un caractère dans une chaîne
+v9510963,charToCount,Caractère à compter
+v9460563,sourceString,Chaîne source dans laquelle compter
+v9446063,currentTimeMinutes,Minutes actuelles (pour la vérification des rappels)
+v9446163,reminderLine,Ligne de rappel en cours de traitement
+v9446263,reminderParts,Parties d'un rappel (minutes, BEFORE/AFTER, prière, message)
+v9486363,reminderMinutes,Nombre de minutes avant/après
+v9460663,reminderType,Type de rappel ("BEFORE" ou "AFTER")
+v9460763,reminderPrayer,Nom de la prière cible (FAJR, DOHR, etc.)
+v9432063,reminderMessage,Message du rappel
+v9376763,currentPrayerInterval,Intervalle de prière courant (ex: "FAJR|SHRQ")
+v9432163,prayerPair,Paire de prières séparées par "|"
+v9391663,nextPrayerName,Nom de la prochaine prière
+v9404163,nextPrayerMinutes,Minutes de la prochaine prière
+v9336563,extractedMessage,Message extrait des parenthèses dans le rappel
+v9365163,extractBetween,Fonction qui extrait le texte entre deux délimiteurs
+v9404263,currentPrayerName,Nom de la prière courante
+v9460863,setInternetStatus,Fonction qui définit la couleur du témoin de connexion internet
+v9446363,isInternetConnected,Booléen indiquant si internet est connecté
+v9432263,minutesToTimeString,Fonction convertissant des minutes en chaîne HH:MM
+v9446463,minutes,Minutes à convertir
+v9474263,hoursPart,Partie heures
+v9446563,minutesPart,Partie minutes
+v9446663,formatPrayerTimeDiff,Fonction formatant la différence de temps avant la prochaine prière
+v9391763,nextPrayerNameTemp,Nom temporaire de la prochaine prière
+v9417363,updateNextPrayerDisplay,Fonction mettant à jour l'affichage du temps restant avant la prochaine prière
+v9474363,remainingMinutes,Minutes restantes avant la prochaine prière
+v9365263,formattedRemainingTime,Temps restant formaté en chiffres arabes
+v9365363,nextPrayerTimeDisplayHorizontalElement,Élément DOM pour l'affichage du temps restant horizontal
+v9365463,nextPrayerTimeDisplayVerticalElement,Élément DOM pour l'affichage du temps restant vertical
+v9353963,jomoaTimeDisplayHorizontalElement,Élément DOM pour l'affichage de l'heure de Jomoa
+v9446763,jomoaLabel,Libellé "Jomoa" (prière du vendredi)
+v9328463,isTawkitInfoMissing,Booléen indiquant si les informations Tawkit (version, ville) sont manquantes
+v9474463,separator,Séparateur (espace + "|" + espace)
+v9376963,cityCodeDisplay,Code de la ville affiché (avec espace)
+v9486463,formattedJomoaTime,Heure de Jomoa formatée
+v9336663,appVersionString,Chaîne de version de l'application
+v9446863,currentTimeMinutesLocal,Minutes actuelles (variable locale pour la fonction)
+v9354163,midnightAdjusted,Minuit ajusté (1440 + midnight si nécessaire)
+v9417463,themeIndexForPrayer,Index du thème pour la prière détectée
+v9486563,themeIndexFromSettings,Index du thème lu depuis les paramètres
+v9347163,themesForEachSalat,Tableau des thèmes pour chaque prière
+v9325663,currentThemeIndexForPrayer,Index du thème actuel pour la prière en cours
+v9341063,highlightPrayerRow,Fonction qui surligne la rangée de prière correspondante
+v9474563,verticalRowElement,Élément DOM de la rangée verticale
+v9474663,horizontalCellElement,Élément DOM de la cellule horizontale
+v9507063,isShuruqPrayer,Booléen indiquant si c'est la prière Shuruq (Doha)
+v9341163,showAzanPopup,Fonction affichant la popup de l'appel à la prière
+v9341263,positionHighlightBar,Fonction positionnant la barre de surbrillance
+v9432463,verticalElement,Élément vertical
+v9432563,horizontalElement,Élément horizontal
+v9446963,highlightBarVerticalElement,Élément DOM de la barre de surbrillance verticale
+v9417563,highlightBarHorizontalElement,Élément DOM de la barre de surbrillance horizontale
+v9417663,highlightOffset,Décalage pour le positionnement de la barre
+v9486663,elementRect,Rectangle de l'élément (getBoundingClientRect)
+v9486763,elementLeft,Position gauche de l'élément
+v9486863,elementTop,Position haute de l'élément
+v9447063,cellWidthPart,Partie de la largeur de la cellule
+v9447163,cellWidthHalf,Demi-largeur de la cellule
+v9377063,highlightedCellClass,Classe CSS pour la cellule surlignée
+v9391863,prayerTimeMinutes,Minutes de l'heure de prière à vérifier
+v9377163,azanPopupPrayerNameVerticalElement,Élément DOM du nom de prière dans la popup Adhan verticale
+v9377263,azanPopupPrayerNameHorizontalElement,Élément DOM du nom de prière dans la popup Adhan horizontale
+v9460963,isDohaPrayer,Booléen indiquant si c'est la prière de Doha (Shuruq)
+v9447263,azanPopupDisplayDuration,Durée d'affichage de la popup Adhan en millisecondes
+v9432663,hideAzanPopupFunction,Fonction masquant la popup Adhan
+v9500063,elementId,Identifiant d'élément DOM générique
+v9507163,visibleTransitionClass,Classe CSS pour la transition d'apparition
+v9486963,semiTransparentClass,Classe CSS pour l'affichage semi-transparent
+v9500163,fullScreenVisibleClass,Classe CSS pour l'affichage plein écran visible
+v9487063,fullScreenHiddenClass,Classe CSS pour l'affichage plein écran masqué
+v9500263,fadeInClass,Classe CSS pour l'apparition progressive
+v9487163,fadeOutClass,Classe CSS pour la disparition progressive
+v9341363,showIqamaCounter,Fonction affichant le compteur d'Iqama
+v9354263,isFullScreenCounterForced,Booléen indiquant si le compteur plein écran est forcé
+v9377363,addOneHour,Fonction ajoutant une heure à une heure donnée
+v9487263,timeString,Chaîne d'heure au format HH:MM
+v9500363,timeParts,Parties de l'heure (heures, minutes)
+v9447363,adjustedHours,Heures ajustées (incrémentées/décrémentées)
+v9377463,subtractOneHour,Fonction soustrayant une heure à une heure donnée
+v9404363,findIndexInArray,Fonction cherchant l'index d'une chaîne dans un tableau
+v9487363,targetArray,Tableau cible pour la recherche
+v9365563,applyArabicDigits,Fonction appliquant ou non les chiffres arabes
+v9391963,adjustAzkarFontSize,Fonction ajustant la taille de police des azkar (SULTAN)
+v9474763,sultanFontOffset,Décalage de police pour la fonte SULTAN
+v9354063,convertTo12HourFormat,Fonction convertissant une heure 24h en format 12h
+v9461063,time24h,Heure au format 24h (HH:MM)
+v9333763,isSummerTimeActive,Booléen indiquant si l'heure d'été est active
+v9341463,hijriDateString,Chaîne de la date hégirienne (avec balises HTML)
+v9341563,hijriDateShort,Date hégirienne courte
+v9354363,hijriDateArray,Tableau [jour, mois, année] hégirien
+v9333863,isFirstTenDhulHijjah,Booléen indiquant si on est dans les 10 premiers jours de Dhou al-Hijja
+v9392063,isEidOrTashreeq,Booléen indiquant si c'est l'Aïd ou les jours de Tashreeq
+v9336763,isLastTenRamadan,Booléen indiquant si on est dans les 10 derniers jours du Ramadan
+v9330063,isWhiteDaysPeriod,Période des jours blancs (13-15 du mois lunaire)
+v9365663,isDhulHijjahFirstNine,Booléen pour les 9 premiers jours de Dhou al-Hijja
+v9354463,isEidFitrPeriod,Période de l'Aïd al-Fitr
+v9354563,isEidAdhaPeriod,Période de l'Aïd al-Adha
+v9417763,prayerHourPrefixes,Préfixes pour les heures de prière (ex: "T05:00")
+v9417863,prayerTimesMinutesArray,Tableau des heures de prière en minutes
+v9365763,weekDaysNamesEnglish,Noms des jours de la semaine en anglais
+v9354663,currentWeekDayName,Nom du jour courant en anglais
+v9354763,hijriMonthDay,Chaîne mois/jour hégirien (MM/DD)
+v9404463,specialEventLabel,Libellé d'événement spécial (ex: "10DLHJ")
+v9417963,gregorianDateHtml,Date grégorienne formatée en HTML
+v9404563,hijriDateDisplay,Date hégirienne affichée avec chiffres arabes
+v9447563,currentDateObject,Objet Date pour les calculs courants
+v9432863,currentDayIndex,Index du jour de la semaine (0-6)
+v9500563,currentMonth,Numéro du mois (0-11)
+v9507263,currentDay,Numéro du jour du mois
+v9507563,fajrTimeStr,Heure Fajr sous forme de chaîne
+v9507663,shuruqTimeStr,Heure Shuruq sous forme de chaîne
+v9507763,dohrTimeStr,Heure Dohr sous forme de chaîne
+v9507863,asrTimeStr,Heure Asr sous forme de chaîne
+v9507963,maghribTimeStr,Heure Maghrib sous forme de chaîne
+v9508063,ishaTimeStr,Heure Isha sous forme de chaîne
+v9432963,dateKey,Clé de date (MM-DD) pour la recherche WCSV
+v9500663,dateIndex,Index de la date dans le tableau JS_TIMES ou JS_WCSV_DATA
+v9474863,wcsvLine,Ligne de données WCSV pour la date
+v9447763,wcsvFields,Champs d'une ligne WCSV séparés par des virgules
+v9500763,firstJomoaTime,Heure de la première prière de Jomoa
+v9500863,secondJomoaTime,Heure de la deuxième prière de Jomoa
+v9433063,dateKeyForTimes,Clé de date pour chercher dans JS_TIMES
+v9433163,timesDataLine,Ligne de données des horaires de prière
+v9433263,timesDataParts,Parties de la ligne (séparateur "~~~~~")
+v9365963,prayerTimesArray,Tableau des heures de prière (Fajr, Shuruq, etc.)
+v9392163,adjustAthanTime,Fonction ajustant l'heure d'appel (Adhan) par un nombre de minutes
+v9474963,minutesOffset,Minutes à ajouter ou soustraire
+v9448063,totalMinutes,Total des minutes après ajustement
+v9488363,adjustedHours,Heures ajustées
+v9488463,adjustedMinutes,Minutes ajustées
+v9377663,getNextFridayPrayerTime,Fonction obtenant l'heure de la prière du vendredi suivant
+v9511163,prayerIndexForFriday,Index de la prière (0-5) pour récupérer l'heure du vendredi
+v9501063,tempDate,Date temporaire pour les calculs
+v9461163,tempMonth,Mois temporaire
+v9461263,tempDay,Jour temporaire
+v9488563,dayOfWeek,Jour de la semaine (0-6)
+v9392363,fridayPrayerTime,Heure de la prière du vendredi
+v9501163,paddedDay,Jour formaté à deux chiffres
+v9501263,paddedMonth,Mois formaté à deux chiffres
+v9418063,dateKeyForFriday,Clé de date (MM-DD) pour le vendredi
+v9501363,fridayDateIndex,Index de la date du vendredi
+v9418163,fridayDataLine,Ligne de données pour le vendredi
+v9404663,fridayDataFields,Champs de données pour le vendredi
+v9418263,timesDataPartsFriday,Parties des horaires pour le vendredi
+v9488663,currentDateObjectForIqama,Objet Date pour initialiser le compteur d'Iqama
+v9326363,duplicateMainAzkar,Fonction dupliquant les azkar principaux selon l'option de répétition
+v9366663,tempAzkarArray,Tableau temporaire pour la duplication des azkar
+v9461963,azkarBlock,Bloc d'azkar en cours de construction
+v9347563,sourceAzkarArray,Tableau source des azkar (selon orientation)
+v9462063,azkarLine,Ligne d'azkar individuelle
+v9392763,updateAzkar5minCheckboxes,Fonction mettant à jour les cases à cocher des azkar 5 min
+v9501863,ayatsLanguageSelectorElement,Élément DOM du sélecteur de langue des versets coraniques
+v9501963,ayatsLangListContainer,Conteneur de la liste des langues pour les versets
+v9462163,lastAyaIndex,Index du dernier verset affiché
+v9508563,randomAyaIndex,Index aléatoire pour le verset
+v9334063,recursionCounter,Compteur de récursion pour éviter les boucles infinies
+v9334163,ayaSpecialOffset,Décalage spécial pour la taille des versets contenant des balises <span>
+v9462263,ayaTextLength,Longueur du texte du verset en caractères
+v9448863,ayaCharacterCount,Compteur de caractères du verset
+v9448963,calculatedAyaFontSize,Taille de police calculée pour le verset
+v9489263,ayaFontSizeVertical,Taille de police pour le verset en mode vertical
+v9489363,ayaFontSizeHorizontal,Taille de police pour le verset en mode horizontal
+v9355163,isSpecialPeriod,Booléen indiquant une période spéciale (10 nuits/jours)
+v9405063,hasSpecialKeyword,Booléen indiquant si le verset contient un mot-clé spécial
+v9475563,specialAyaClass,Classe CSS pour les versets spéciaux
+v9327863,pendingCallback,Callback en attente pour la boîte de dialogue
+v9418863,dialogTitle,Titre de la boîte de dialogue
+v9433563,defaultValue,Valeur par défaut dans le champ de saisie
+v9418963,callbackFunction,Fonction callback à exécuter après validation
+v9433663,isLtrInput,Booléen indiquant si le champ de saisie est en LTR
+v9433763,setThemeTypeRadioButton,Fonction cochant le bouton radio du type de thème
+v9502063,parsedThemeNumber,Numéro de thème parsé
+v9366763,saveThemesForEachSalat,Fonction enregistrant les thèmes par prière
+v9502263,arrayIndex,Index dans un tableau (générique)
+v9366863,saveThemesForEachDay,Fonction enregistrant les thèmes par jour
+v9347763,randomThemesList,Liste des thèmes aléatoires (séparés par des virgules)
+v9392863,displayRandomThemesList,Fonction affichant la liste des thèmes aléatoires
+v9392963,clockAdjustSpan,Élément DOM affichant l'ajustement horaire
+v9489663,adjustedHoursValue,Valeur des heures d'ajustement
+v9341863,updateClockAdjustDisplay,Fonction mettant à jour l'affichage de l'ajustement horaire
+v9419063,eidMessageContainerHorizontal,Conteneur du message de l'Aïd en mode horizontal
+v9419163,eidMessageContainerVertical,Conteneur du message de l'Aïd en mode vertical
+v9366963,isEidActive,Booléen indiquant si un message d'Aïd est actif
+v9347863,updateDohrXminAsrDisplay,Fonction mettant à jour l'affichage de Dohr X minutes avant Asr
+v9341963,updatePrimaryAzanDisplay,Fonction mettant à jour l'affichage de l'Adhan primaire
+v9331663,updateSlidesViewTimeDisplay,Fonction mettant à jour l'affichage de la durée des slides
+v9331763,updateTawkitViewTimeDisplay,Fonction mettant à jour l'affichage de la durée de l'écran Tawkit
+v9489763,iqamaTestCounter,Compteur pour le test d'Iqama (3 clics)
+v9433863,azkarMainTestCounter,Compteur pour le test des azkar principaux
+v9419263,slidesTestCounter,Compteur pour le test des slides
+v9433963,azkarSabahTestCounter,Compteur pour le test des azkar du matin
+v9434063,azkarMasaaTestCounter,Compteur pour le test des azkar du soir
+v9337063,isMenuOpen,Booléen indiquant si le menu est ouvert
+v9449063,menuToggleButtonVertical,Bouton d'ouverture/fermeture du menu en mode vertical
+v9449163,menuToggleButtonHorizontal,Bouton d'ouverture/fermeture du menu en mode horizontal
+v9342063,refreshBottomMessages,Fonction rafraîchissant les messages du bas (stockage + affichage)
+v9355363,sanitizeInputString,Fonction nettoyant une chaîne de saisie (guillemets, caractères spéciaux)
+v9462663,inputString,Chaîne d'entrée à nettoyer
+v9475663,sanitizedString,Chaîne nettoyée
+v9328763,refreshReminders,Fonction rafraîchissant la liste des rappels
+v9367163,saveRemindersToStorage,Fonction enregistrant les rappels dans le localStorage
+v9355463,displayRemindersTable,Fonction affichant le tableau des rappels
+v9489863,reminderItem,Élément de rappel individuel
+v9502163,tableRow,Ligne de tableau
+v9508663,actionCell,Cellule d'action (éditer)
+v9508763,contentCell,Cellule de contenu
+v9508863,deleteCell,Cellule de suppression
+v9462763,reminderContentClass,Classe CSS pour le contenu des rappels
+v9367263,deleteReminder,Fonction supprimant un rappel
+v9393063,editReminder,Fonction éditANT un rappel
+v9334363,clearRemindersTable,Fonction vidant le tableau des rappels
+v9347963,clearSlidesTable,Fonction vidant le tableau des slides
+v9334263,refreshSlides,Fonction rafraîchissant les slides
+v9405263,saveSlidesToStorage,Fonction enregistrant les slides dans le localStorage
+v9393163,displaySlidesTable,Fonction affichant le tableau des slides
+v9405363,deleteSlide,Fonction supprimant un slide
+v9434163,editSlide,Fonction éditANT un slide
+v9355263,displayBottomMessagesTable,Fonction affichant le tableau des messages du bas
+v9355563,clearMessagesTable,Fonction vidant le tableau des messages
+v9490063,messageParts,Parties d'un message (statut, jour, texte)
+v9378063,toggleMessageStatus,Fonction activant/désactivant un message
+v9511263,newStatus,Nouveau statut du message (0/1)
+v9419363,moveMessageUp,Fonction déplaçant un message vers le haut
+v9419463,deleteMessage,Fonction supprimant un message
+v9449263,editMessageText,Fonction éditANT le texte d'un message
+v9378163,editMessageDay,Fonction éditANT le jour de diffusion d'un message
+v9462863,daySelectionPrompt,Message guide pour la sélection du jour
+v9355663,serializedMessages,Chaîne sérialisée des messages pour localStorage
+v9419563,marqueeText,Texte à faire défiler (messages actifs)
+v9367363,animationFrameId,Identifiant de l'animation requestAnimationFrame
+v9367463,lastTimestamp,Dernier timestamp pour l'animation
+v9405463,currentTranslateX,Valeur actuelle de translation horizontale (marquee)
+v9342163,marqueeDirection,Direction du défilement ("left" ou "right")
+v9475963,marqueeElement,Élément DOM du marquee (texte défilant)
+v9342263,marqueeWidth,Largeur du texte défilant
+v9328863,containerWidth,Largeur du conteneur parent
+v9334463,setMarqueeDirection,Fonction définissant la direction du marquee
+v9502363,directionParam,Paramètre de direction ('left' ou 'right')
+v9405563,initMarqueePosition,Fonction initialisant la position du marquee
+v9419663,parentContainer,Conteneur parent du marquee
+v9405663,animateMarquee,Fonction d'animation du défilement
+v9419763,timestamp,Temps actuel pour l'animation
+v9509463,deltaTime,Différence de temps depuis la dernière frame
+v9419863,directionMultiplier,Multiplicateur de direction (1 ou -1)
+v9393263,startMarqueeAnimation,Fonction démarrant l'animation du marquee
+v9405763,stopMarqueeAnimation,Fonction arrêtant l'animation du marquee
+v9462963,marqueeTextHorizontalElement,Élément du texte défilant en mode horizontal
+v9463063,marqueeTextVerticalElement,Élément du texte défilant en mode vertical
+v9367563,detectedDirection,Direction détectée (RTL ou LTR)
+v9337163,ramadanDaysLeftMessage,Message du nombre de jours restants avant Ramadan
+v9449363,isRTLText,Fonction détectant si le texte est en arabe (RTL)
+v9463663,arabicRegex,Expression régulière pour les caractères arabes
+v9367663,isMuharam,Booléen indiquant si le mois est Muharram (mois 7)
+v9348063,isShaban,Booléen indiquant si le mois est Chaabane (mois 8)
+v9511363,hijriDaySpan,Élément span pour le jour hégirien
+v9511463,hijriYearSpan,Élément span pour l'année hégirienne
+v9476063,hijriDateClass,Classe CSS pour la date hégirienne
+v9434263,prayerKey,Clé de prière (FAJR, DOHR, etc.) pour les ajustements
+v9355763,iqamaFajrValueElement,Élément affichant la valeur de l'Iqama pour Fajr
+v9355863,iqamaDohaValueElement,Élément affichant la valeur de l'Iqama pour Doha
+v9355963,iqamaDohrValueElement,Élément affichant la valeur de l'Iqama pour Dohr
+v9367763,iqamaAsrValueElement,Élément affichant la valeur de l'Iqama pour Asr
+v9337363,iqamaMgrbValueElement,Élément affichant la valeur de l'Iqama pour Maghrib
+v9356063,iqamaIshaValueElement,Élément affichant la valeur de l'Iqama pour Isha
+v9502463,popupMessage,Message à afficher dans une popup
+v9502563,popupDurationMinutes,Durée d'affichage de la popup en minutes
+v9476163,popupDurationMs,Durée d'affichage en millisecondes
+v9337463,isHadithVisible,Booléen indiquant si le hadith est visible (vs marquee)
+v9366063,updateDateDisplay,Fonction mettant à jour l'affichage de la date
+v9508463,weekDaySpan,Élément span pour le jour de la semaine
+v9336863,updateEidMessageVisibility,Fonction mettant à jour l'affichage du message de l'Aïd
+v9419963,hijriMonthsArray,Tableau des noms des mois hégiriens
+v9327163,checkAndRestoreIqamaCounter,Fonction vérifiant et restaurant le compteur d'Iqama en cas de reprise
+v9342563,remainingIqamaMinutes,Minutes restantes avant l'Iqama
+v9356563,initializeThemeScheduler,Fonction initialisant le changement de thème programmé
+v9356663,exportStatusDiv,Élément affichant le statut de l'exportation
+v9393863,exportDataLines,Lignes de données à exporter
+v9503363,settingValue,Valeur d'un paramètre
+v9328963,parseImportLine,Fonction analysant une ligne de fichier d'importation
+v9491063,rawLine,Ligne brute du fichier d'import
+v9435363,parsedLineParts,Parties de la ligne parsée (clé, valeur)
+v9329063,importByIdStatusDiv,Élément affichant le statut de l'import par ID
+v9450363,importId,ID d'importation saisi par l'utilisateur
+v9477363,importResponse,Réponse HTTP de l'import
+v9393963,importFileContent,Contenu du fichier d'importation
+v9326863,processImportData,Fonction traitant les données importées
+v9503463,importData,Données brutes importées
+v9420763,statusDiv,Élément d'affichage du statut
+v9379263,hasSettingsSection,Booléen indiquant la présence de la section SETTINGS
+v9342663,hasMessagesSection,Booléen indiquant la présence de la section MESSAGES
+v9406363,hasSlidesSection,Booléen indiquant la présence de la section SLIDES
+v9420863,hasTimesSection,Booléen indiquant la présence de la section TIMES
+v9435463,importLines,Lignes du fichier d'import
+v9464163,importKey,Clé d'importation
+v9464263,importValue,Valeur d'importation
+v9464363,importKeyValue,Paire clé/valeur parsée
+v9477563,trimmedLine,Ligne trimée
+v9325763,importLocalStatusDiv,Élément affichant le statut de l'import local
+v9477663,selectedFile,Fichier sélectionné pour l'import
+v9450463,fileReader,FileReader pour lire le fichier local
+v9477763,fileContent,Contenu du fichier local
+v9450563,keyCode,Code de la touche pressée
+v9491163,arrowKeysArray,Tableau des codes des touches fléchées (37,38,39,40,13)
+v9379363,isPointerModeActive,Booléen indiquant si le mode pointeur (télécommande) est actif
+v9464463,pointerLeft,Position gauche du pointeur
+v9464563,pointerTop,Position haute du pointeur
+v9348863,showPointer,Fonction affichant le pointeur
+v9394163,pointerTimeout,Timeout pour masquer le pointeur
+v9503563,clickX,Coordonnée X du clic
+v9503663,clickY,Coordonnée Y du clic
+v9491263,elementAtPoint,Élément à la position du clic
+v9420963,simulateClick,Fonction simulant un clic à la position du pointeur
+v9503763,simulatedX,Coordonnée X simulée
+v9503863,simulatedY,Coordonnée Y simulée
+v9491363,targetElement,Élément cible du clic
+v9503963,clickTimestamp,Timestamp du clic
+v9421063,checkAutoStartStatus,Fonction vérifiant le statut du démarrage automatique (Android)
+v9421163,isAutoStartEnabled,Booléen indiquant si l'auto-démarrage est activé
+v9450663,isAutoStartDisabled,Booléen indiquant si l'auto-démarrage est désactivé
+v9341663,isRTL,Booléen indiquant si la langue courante est RTL
+v9476263,hrIqamaTopVariant,Position haute variable pour l'Iqama en mode HR
+v9476363,hrIqamaBottomVariant,Position basse variable pour l'Iqama en mode HR
+v9508263,daySpan,Élément span pour le jour grégorien
+v9511063,gregorianDateSpan,Élément span pour la date grégorienne complète
+v9463463,dohaTimeClass,Classe CSS pour l'heure de Doha
+v9490463,amPmArabicClass,Classe CSS pour l'affichage AM/PM en arabe
+v9508363,gregorianMonthSpanId,Span for Gregorian month number (digit styling)
+v9490163,messageSeparatorClass,Class for message separator padding (0 33px)
+v9508163,dateSeparatorId,ID for date separator slash (salat color)
+v9511863,textLeftClass,Utility class for left text alignment
+v9475863,settingsCheckboxClass,Class for checkbox in settings tables (custom size)
+v9478263,unusedImageId,Unused ID for an image element (likely leftover)
+v9464663,debugStatusDivId,Hidden debug status div (absolute positioning, hidden)
+v9504263,verticalExtraInfoId,ID for extra info text in vertical mode (font size 80%, lower color)
+v9349063,bottomInfoBarId,Bottom info bar for vertical mode (absolute positioned text)
+v9491763,prayerRowWrapperClass,Wrapper class for prayer rows in vertical mode (relative, fixed height)
+v9490263,middleNamesVrClass,Class for vertical mode with prayer names in middle (alters header and time positions)
+v9432363,nextPrayerLabelText,Variable temporaire pour le texte du label "Prochaine prière" (utilisée pour l'affichage en arabe ou autres langues)
+v9500463,timeParts,Tableau contenant les parties heures et minutes d'une chaîne de temps (split par ':')
+v9447463,unusedVariable,Variable non utilisée (déclarée mais jamais employée)
+v9432763,time12hFormatted,Chaîne de temps formatée en 12 heures (avec ou sans zéro initial)
+v9377563,summerMonthsArray,Tableau des mois d'été (mars à septembre) pour l'ajustement de l'heure d'été
+v9487463,dayOfWeek,Variable temporaire stockant le jour de la semaine (0-6)
+v9487563,azanTimeFormattedFajr,Heure de l'Adhan pour Fajr formatée selon les préférences utilisateur
+v9487663,azanTimeFormattedShuruq,Heure de l'Adhan pour Shuruq formatée selon les préférences utilisateur
+v9487763,azanTimeFormattedDohr,Heure de l'Adhan pour Dohr formatée selon les préférences utilisateur
+v9487863,azanTimeFormattedAsr,Heure de l'Adhan pour Asr formatée selon les préférences utilisateur
+v9487963,azanTimeFormattedMaghrib,Heure de l'Adhan pour Maghrib formatée selon les préférences utilisateur
+v9488063,azanTimeFormattedIsha,Heure de l'Adhan pour Isha formatée selon les préférences utilisateur
+v9488163,dirAttribute,Chaîne d'attribut de direction ('dir="ltr"' ou 'dir="rtl"') pour l'affichage des dates
+v9488263,dateSeparatorHtml,Séparateur de date sous forme d'élément HTML (<span id='dateSeparatorId'>/)
+v9447863,AnneeCourante,Année courante extraite de l'objet Date
+v9447963,gregorianDateString,Chaîne contenant la date grégorienne formatée (jour/mois/année)
+v9488763,scrollableElement,Référence à l'élément DOM défilable dans le menu
+v9462363,ArabsourceString,Chaîne source pour le comptage des caractères arabes
+v9462463,currentChar,Caractère courant lors du comptage des caractères arabes
+v9489463,charCode,Code Unicode du caractère courant
+v9462563,charCount,Compteur de caractères arabes (excluant diacritiques et tatweel)
+v9489563,selectedHadith,Contenu du hadith aléatoire sélectionné
+v9433463,hadithLength,Longueur du hadith en caractères (pour validation)
+v9328663,applyThemeChange,Fonction qui applique le changement de thème selon le type sélectionné (par salat, jour, aléatoire)
+v9367063,saveBottomMessages,Fonction qui sauvegarde les messages du bas de l'écran dans le localStorage
+v9405163,updateMarqueeText,Fonction qui met à jour le texte défilant (marquee) à partir des messages actifs
+v9475763,tempMessageItem,Variable temporaire contenant un message (rappel, slide, message) lors du parcours des tableaux
+v9489963,tempReminderItem,Variable temporaire contenant un rappel ou un slide en cours d'édition
+v9508963,tableCellAction,Cellule de tableau contenant les actions (Éditer/Dupliquer)
+v9509063,tableCellMove,Cellule de tableau contenant le contrôle de déplacement vers le haut
+v9509163,tableCellDay,Cellule de tableau affichant le jour ou la date de programmation du message
+v9509263,tableCellMessage,Cellule de tableau affichant le texte du message
+v9509363,tableCellDelete,Cellule de tableau contenant le bouton de suppression (X)
+v9331863,updateUseImportedTimesCheckbox,Fonction qui met à jour l'état de la case à cocher "Utiliser les horaires importés"
+v9379063,applyForcedVerticalClass,Fonction qui applique la classe CSS pour le mode vertical forcé (vrRIGHT/vrLEFT) et ajuste l'unité de taille
+v9434963,locationProtocol,Protocole de la fenêtre courante (http:, https:, file:, resource:)
+v9356363,initUILabels,Fonction d'initialisation des libellés de l'interface utilisateur (traductions)
+v9502763,forcedVerticalOptionHtml,Chaîne HTML contenant les options de mode vertical forcé (OFF, rotation gauche/droite)
+v9435163,isBetween,Fonction qui teste si une valeur est comprise entre deux bornes (inclusif)
+v9511563,valueToTest,Valeur à tester dans la fonction isBetween
+v9511663,lowerBound,Borne inférieure pour le test isBetween
+v9511763,upperBound,Borne supérieure pour le test isBetween
+v9449863,gpsPositionString,Chaîne contenant la latitude et longitude séparées par une virgule
+v9490563,gpsCoordinatesArray,Tableau contenant latitude et longitude après découpage
+v9356463,displayGpsPosition,Fonction qui affiche la position GPS dans l'interface
+v9368163,getFutureDateString,Fonction qui retourne une chaîne de date (YYYY-MM-DD) après ajout d'un nombre de jours
+v9449963,daysOffset,Nombre de jours à ajouter à la date courante
+v9502863,tempDate,Objet Date temporaire pour les calculs de date future
+v9502963,formattedDay,Jour du mois formaté avec deux chiffres
+v9393763,getCurrentTimestampForWeather,Fonction qui retourne un timestamp (YYYY-MM-DDTHH:00) pour l'API météo
+v9503063,weatherDate,Objet Date utilisé pour la requête météo
+v9463763,timestampString,Chaîne de timestamp pour l'API météo
+v9406063,onGpsSuccess,Fonction de rappel en cas de succès de la géolocalisation
+v9420563,highlightCurrentLanguage,Fonction qui met en surbrillance la langue courante dans le menu
+v9476663,currentDateObj,Objet Date courant pour le changement de thème par jour
+v9490663,dayIndex,Index du jour de la semaine (0-6)
+v9509663,dailyThemeNumber,Numéro de thème extrait du tableau des thèmes quotidiens
+v9463863,getWeatherIcon,Fonction qui retourne le nom du fichier icône météo selon le code et l'heure
+v9476763,weatherCode,Code météo (0-99) selon la classification de l'API Open-Meteo
+v9476863,timeMinutes,Heure courante en minutes pour déterminer le jour/nuit
+v9503163,iconFileName,Nom du fichier icône météo (ex: i_clearDay.png)
+v9476963,currentHourTimestamp,Timestamp de l'heure courante (YYYY-MM-DDTHH:00)
+v9435263,temperaturesArray,Tableau des températures horaires du jour
+v9463963,weatherCodeValue,Valeur du code météo pour l'heure courante
+v9490763,weatherIconName,Nom de l'icône météo (fichier .png)
+v9509763,maxTemp,Température maximale du jour
+v9509863,minTemp,Température minimale du jour
+v9490863,prayerTimestamp,Timestamp de l'heure de prière (YYYY-MM-DDTHH:00)
+v9477063,weatherHorizontalElement,Référence à l'élément DOM météo horizontal (HmtALT)
+v9477163,weatherVerticalElement,Référence à l'élément DOM météo vertical (VmtALT)
+v9503263,prayerWeatherCode,Code météo pour l'heure de prière
+v9490963,prayerWeatherIcon,Nom de l'icône météo pour l'heure de prière
+v9464063,exportId,Identifiant unique retourné par le serveur pour le fichier d'export
+v9450263,exportUrl,URL complète pour télécharger le fichier d'export
+v9477463,importErrorMessage,Message d'erreur lors de l'import de fichier (fichier invalide ou non disponible)

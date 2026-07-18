@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<title>Tawkit</title>
+<meta http-equiv='content-type' content='text/html; charset=UTF-8'>
+<!--
+بسم الله الرحمن الرحيم
+الحمد لله رب العالمين
+والصلاة والسلام على سيدنا محمد
+وعلى آله وصحبه ومن تبعهم بإحسان إلى يوم الدين
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Tawkit.net	: Prayer Times Application
+Copyright	: Ismail CHAGDALI | www.tawkit.net
+Contact		: ismail@tawkit.net
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+شروط الاستعمال
+البرنامج مجاني !
+هذا التطبيق وقف لبيوت الله و لا يجوز بيعه .
+لايجوز حذف أو تغيير إسم البرنامج أو المؤلف .
+لابد بالاحتفاظ بهذا الإشعار القانوني مع البرنامج .
+يجوز التعديل على التطبيق  للاستخدام الشخصي فقط , لا لنشره متغيرا .
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+https://www.tawkit.net/#License
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+License :
+This software is free of charge but not open source.
+This app is intended for use in Mosques, homes, and any place where it may be useful.
+Selling this application is strictly prohibited under any circumstances.
+You are not allowed to change or remove the app name or author’s name.
+You may modify the app for personal use only (home and local Mosque).
+You are not allowed to distribute a modified version of the app.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'>
+<link rel='icon' href='favicon.ico'>
+<script src='settings-defaults.js?s=000'></script>
+<script>
+const jcTawkitVersionSTR = 'TAWKIT.NET 10A';
+const jcTawkitVersionINT = '0963';
+const versionCheckUrl = 'https://www.tawkit.net/version/';
+
+function dolog(logMessage, logOptionalParam = null)
+{
+if(logOptionalParam) console.log('TWKT : '+logMessage+' | '+logOptionalParam);
+else console.log('TWKT : '+logMessage);
+}
+
+const appVersionNumber = 963;
+let storedJsData = localStorage.getItem('JS_DATA'); 
+let JS_BOTTOM_MSGS = [];
+let JS_SLIDES_DATA = [];
+let JS_REMINDERS_DATA = [];
+if(storedJsData)
+{
+let parsedStoredData = JSON.parse(storedJsData);
+for(let propt in parsedStoredData){if(propt in JS_DATA) JS_DATA[propt] = parsedStoredData[propt];}
+}
+JS_DATA.ucNowCityCODE = JS_DATA.ucNowCityCODE.toLowerCase();
+</script>
+<script>
+let selectedStyleSheet = (JS_DATA.ucForcedVertical > 0 ? "style2.css" : "style1.css"); 
+document.write("<link rel='stylesheet' href='style0.css?s="+appVersionNumber+"'>");
+document.write("<link rel='stylesheet' href='"+selectedStyleSheet+"?s="+appVersionNumber+"'>");
+document.write("<script src='languages/lang-"+JS_DATA.ucLangNOW+".js'><\/script>");
+document.write("<script src='ayats/ayats-"+JS_DATA.ucAyatsLANG+".js'><\/script>");
+</script>
+<script src='ahadith.js'></script>
+<script src='countries.js'></script>
+<script src='messages-bottom.js'></script>
+<script src='messages-slides.js'></script>
+<script src='azkar/azkar.js'></script>
+<script src='azkar/azkar-sabah.js'></script>
+<script src='azkar/azkar-masaa.js'></script>
+<script src='m1prime.js?s=963'></script>
+</head>
+<body id='bodyElementId' class=''>
+<div id='audioElementsContainer'>
+    <audio id='audioAzanElement' 	data-xfile='audio_azan' src='audio/audio_azan.mp3'></audio>
+    <audio id='audioFajrElement' 	data-xfile='audio_fajr' src='audio/audio_fajr.mp3'></audio>
+    <audio id='audioShortAzanElement' 	data-xfile='short_azan'  src='audio/short_azan.mp3'></audio>
+    <audio id='audioShortIqamaElement' 	data-xfile='short_iqama' src='audio/short_iqama.mp3'></audio>
+    <audio id='audioBeepElement' 		data-xfile='wbeeep' src='audio/wbeeep.mp3'></audio>
+    <audio id='audioTeetElement' 		data-xfile='wteet'  src='audio/wteet.mp3'></audio>
+    <audio id='audioAlert1Element' 		data-xfile='alert1' src='audio/alert1.mp3'></audio>
+    <audio id='audioDrop1Element' 		data-xfile='w1drop' src='audio/w1drop.mp3'></audio>
+    <audio id='audioDrop3Element' 		data-xfile='w3drop' src='audio/w3drop.mp3'></audio>
+    <audio id='audioAlertsElement' 	data-xfile='w3alerts' src='audio/w3alerts.mp3'></audio>
+</div>
+
+<div id='mainVerticalContainer'>
+<div id='verticalBackgroundLayer'></div>
+
+    <div id='menuToggleButton' onclick='toggleMenuFunction();'>&#9776;</div>
+    <div id='mosqueNameDisplayVertical'></div>
+    <img id='appLogoImage' alt='' src='logo.png' ondblclick='activateBlackScreenFunction();'>
+    <div id='dateDisplayVertical' onclick='adjustHijriDateFunction();'></div>
+    <div id='tawkitVersionDisplay'></div>
+
+    <div id='weatherWidgetVertical' onclick='resetAppOnMultipleClicks();'>
+        <div id='weatherIconVertical'><img id='weatherIconImageVertical' alt='' src='images/meteo/0.png'></div>
+        <div id='weatherTempVertical'>-</div>
+        <div id='weatherMinMaxVertical'><span id='weatherMinMaxSpanVertical'>-</span></div>
+    </div>
+
+    <div id='nextPrayerCounterVertical'>
+        <div id='nextPrayerTimeDisplayVertical' onclick='toggleVrNamesMiddleFunction();'></div>
+        <div id='bigNextPrayCounterToggleDiv' onclick='toggleBigNextPrayCounterFunction();'></div>
+    </div>
+
+    <div id='dohaTimeDisplayVertical'></div>
+
+    <div id='fullClockContainerVertical' onclick='toggleClockFullFunction();'>
+        <div id='fullClockTimeDisplayVertical'></div>
+        <div id='fullClockSecondsDisplayVertical'></div>
+        <div id='fullClockAmPmDisplayVertical'></div>
+    </div>
+
+    <div id='miniClockContainerVertical' onclick='toggleClockFullFunction();'>
+        <span id='miniClockTimeDisplayVertical'></span><span id='miniClockSecondsDisplayVertical'></span>
+    </div>
+
+    <div id='azanPopupVertical' class='hiddenClass' onclick='hideElementFunction(this.id);'>
+    	<div id='azanPopupBackgroundVertical'></div>
+        <div id='azanPopupTitleVertical'></div>
+        <div id='azanPopupPrayerNameVertical'></div>
+        <div id='azanPopupTimeVertical'></div>
+    </div>
+
+    <div id='iqamaPopupVertical' class='hiddenClass' onclick='hideElementFunction(this.id);'>
+    	<div id='iqamaPopupBackgroundVertical'></div>
+        <div id='iqamaPopupTextVertical'></div>
+    </div>
+
+    <div id='dohaPopupVertical' class='hiddenClass' onclick='hideElementFunction(this.id);'>
+    <div id='dohaPopupBackgroundVertical'></div>
+        <div id='dohaPopupTextVertical'></div>
+    </div>
+
+
+    <div id='ayaDisplayContainerVertical' class='displayTableClass'>
+        <div id='ayaTextDisplayVertical' class='tableCellMiddleClass goldenColorClass' onclick='displayRandomAyaFunction();'></div>
+    </div>
+    <div id='messageDisplayContainerVertical' class='displayTableClass'>
+        <div id='messageTextDisplayVertical' class='tableCellMiddleClass'></div>
+    </div>
+
+
+
+    <div id='miniPrayerTimesVertical' class='hiddenClass'>
+        <table id='miniPrayerTimesTableVertical'>
+            <tr>
+                <td>
+                    <div id='spacerCell'>&nbsp;</div>
+                    <div id='prayerNameFajrMiniVertical' class='prayerNameClass'></div>
+                    <div id='prayerTimeFajrMiniVertical' class='prayerTimeClass'></div>
+                </td>
+                <td>
+                    <div id='prayerNameShrqMiniVertical' class='prayerNameClass'></div>
+                    <div id='prayerTimeShrqMiniVertical' class='prayerTimeClass'></div>
+                </td>
+                <td>
+                    <div id='prayerNameDohrMiniVertical' class='prayerNameClass'></div>
+                    <div id='prayerTimeDohrMiniVertical' class='prayerTimeClass'></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td>
+                    <div id='spacerCell2'>&nbsp;</div>
+                    <div id='prayerNameAsrMiniVertical' class='prayerNameClass'></div>
+                    <div id='prayerTimeAsrMiniVertical' class='prayerTimeClass'></div>
+                </td>
+                <td>
+                    <div id='prayerNameMgrbMiniVertical' class='prayerNameClass'></div>
+                    <div id='prayerTimeMgrbMiniVertical' class='prayerTimeClass'></div>
+                </td>
+                <td>
+                    <div id='prayerNameIshaMiniVertical' class='prayerNameClass'></div>
+                    <div id='prayerTimeIshaMiniVertical' class='prayerTimeClass'></div>
+                </td>
+            </tr>
+
+        </table>
+    </div>
+
+
+
+    <div id='highlightBarVertical'>&nbsp;</div>
+
+    <div id='prayerTimesContainerVertical' class=''>
+        <div id='prayerTimesHeaderVertical'>
+            <div id='headerRowVertical'>
+	            <div id='headerPrayerNameVertical'></div>
+	            <div id='headerAzanTimeVertical'></div>
+	            <div id='headerIqamaTimeVertical'></div>
+            </div>
+        </div>
+        <div id='prayerRowFajrVertical' class='prayerRowClass'>
+            <div id='prayerNameFajrVertical' class='prayerNameLargeClass' onclick='incrementThemeFunction();'>33333333333</div>
+            <div id='azanTimeFajrVertical' class='azanTimeClass' onclick='decrementThemeFunction();'></div>
+            <span id='iqamaTimeFajrVertical' class='iqamaTimeClass' ondblclick='toggleIqamaFullTimesFunction();'></span>
+            <div id='VmtALT0' class='weatherIconClass'></div>
+                    <div id='nightPrayersContainerVertical' onclick='toggleNightPrayersDisplayFunction();'>
+                    	<div id='midnightTimeDisplayVertical'></div>
+                    	<div id='lastThirdTimeDisplayVertical'></div>
+                    	<div id='tomorrowFajrTimeDisplayVertical'></div>
+                    </div>
+        </div>
+        <div id='prayerRowShrqVertical' class='prayerRowSecondaryClass'>
+            <div id='prayerNameShrqVertical' class='prayerNameLargeClass'></div>
+            <div id='azanTimeShrqVertical' class='azanTimeClass'></div>
+            <span id='iqamaTimeShrqVertical' class='iqamaTimeClass'></span>
+            <div id='VmtALT1' class='weatherIconClass'></div>
+        </div>
+        <div id='prayerRowDohrVertical' class='prayerRowClass'>
+            <div id='prayerNameDohrVertical' class='prayerNameLargeClass' onclick='triggerSlidesFunction();'></div>
+            <div id='azanTimeDohrVertical' class='azanTimeClass' onclick='triggerAzkarMainFunction();'></div>
+            <span id='iqamaTimeDohrVertical' class='iqamaTimeClass'></span>
+            <div id='VmtALT2' class='weatherIconClass'></div>
+        </div>
+        <div id='prayerRowAsrVertical' class='prayerRowClass'>
+            <div id='prayerNameAsrVertical' class='prayerNameLargeClass'></div>
+            <div id='azanTimeAsrVertical' class='azanTimeClass' onclick='triggerAzkarSabahFunction();'></div>
+            <span id='iqamaTimeAsrVertical' class='iqamaTimeClass' onclick='triggerAzkarMasaaFunction();'></span>
+            <div id='VmtALT3' class='weatherIconClass'></div>
+        </div>
+        <div id='prayerRowMgrbVertical' class='prayerRowClass'>
+            <div id='prayerNameMgrbVertical' class='prayerNameLargeClass' ondblclick='triggerIqamaTestFunction();'></div>
+            <div id='azanTimeMgrbVertical' class='azanTimeClass'></div>
+            <span id='iqamaTimeMgrbVertical' class='iqamaTimeClass' ondblclick='checkInternetConnectionFunction();'></span>
+            <div id='VmtALT4' class='weatherIconClass'></div>
+        </div>
+        <div id='prayerRowIshaVertical' class='prayerRowClass'>
+            <div id='prayerNameIshaVertical' class='prayerNameLargeClass'></div>
+            <div id='azanTimeIshaVertical' class='azanTimeClass'></div>
+            <span id='iqamaTimeIshaVertical' class='iqamaTimeClass' onclick='displayRandomHadithFunction();'>-</span>
+            <div id='VmtALT5' class='weatherIconClass'></div>
+        </div>
+    </div>
+
+
+    <div id='blackScreenVertical' onclick='deactivateBlackScreen();'><img id='noMobileImageVertical' alt='' src='images/no-mobile.png'></div>
+    <div id='hadithDisplayVertical' onclick='toggleMarqueeFunction();'></div>
+    <div id='marqueeContainerVertical' onclick='toggleMarqueeFunction();'><div id='marqueeTextVertical' class='marqueeTextClass'></div></div>
+    <div id='staticMessageDisplayVertical'></div>
+    <div id='internetStatusIndicatorVertical'>٭</div>
+
+    <div id='azkarContainerVertical' class='hiddenClass'>
+    	<div id='azkarContentWrapperVertical' onclick='stopAzkarDisplayFunction();'>
+        <div id='azkarClockDisplayVertical' class='azkarClockClass'></div>
+        <div id='azkarTextWrapperVertical'><div id='azkarTextDisplayVertical' class='hiddenClass'></div></div>
+        </div>
+    </div>
+
+
+    <div id='slidesContainerVertical' class='hiddenClass' onclick='stopSlidesDisplayFunction();'>
+        <div id='slidesClockDisplayVertical' class='azkarClockClass'></div>
+        <div id='slidesTextWrapperVertical'>
+            <div id='slidesTextDisplayVertical'></div>
+        </div>
+    </div>
+
+    <div id='azkar5minPictureContainerVertical' class='hiddenClass' onclick='hideAzkar5minPictureFunction();'>
+        <div id='picture5minClockDisplayVertical' class='azkarClockClass'></div>
+    </div>
+
+
+    <div id='iqamaCounterContainerVertical' class='hiddenClass'>
+        <svg id='iqamaCounterSvgVertical' viewBox='0 0 36 36'>
+            <path id='iqamaCounterCircleVertical' stroke-dasharray='100, 100' d='M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831'></path>
+        </svg>
+        <div id='iqamaCounterTimeDisplayVertical'></div>
+        <div id='iqamaCounterLabelVertical'></div>
+    </div>
+
+
+
+    <div id='secondCounterContainerVertical' class='hiddenClass' onclick="hideElementFunction('secondCounterContainerVertical');"></div>
+    <div id='eidMessageContainerVertical'></div>
+
+    <div id='fullScreenCounterContainerVertical' class='hiddenClass' onclick='closeFullScreenCounterFunction();'>
+        <div id='fullScreenCounterTimeDisplayVertical'></div>
+        <div id='fullScreenCounterLabelVertical'></div>
+    </div>
+
+    <img id='qrFlagImageVertical' alt='' style='visibility:hidden'>
+    <img id='psFlagImageVertical' alt='' src='./ps.png' onclick='restartApplicationFunction();'>
+</div>
+
+
+
+<div id='mainHorizontalContainer'>
+<div id='horizontalBackgroundLayer'></div>
+
+    <div id='menuToggleButtonHorizontal' onclick='toggleMenuFunction();'>&#9776;</div>
+    <img id='appLogoImageHorizontal' alt='' src='logo.png' ondblclick='activateBlackScreenFunction();'>
+    <div id='dateDisplayHorizontal' class='dateDisplayClass' onclick='adjustHijriDateFunction();'><span id='dateTextSpanHorizontal'></span></div>
+    <div id='mosqueNameDisplayHorizontal' class='mosqueNameClassHorizontal' onclick='toggleDatePositionFunction();'></div>
+    <div id='weatherWidgetHorizontal' class='weatherWidgetClass' onclick='resetAppOnMultipleClicks();'>
+        <div id='weatherIconHorizontal'><img id='weatherIconImageHorizontal' alt='' src='images/meteo/0.png'></div>
+        <div id='weatherTempHorizontal'>-</div>
+        <div id='weatherMinMaxHorizontal'><span id='weatherMinMaxSpanHorizontal'>-</span></div>
+    </div>
+    <div id='dohaTimeDisplayHorizontal'></div>
+
+    <div id='fullClockContainerHorizontal' onclick='toggleClockFullFunction();'>
+        <div id='fullClockTimeDisplayHorizontal'></div>
+        <div id='fullClockSecondsDisplayHorizontal'></div>
+        <div id='fullClockAmPmDisplayHorizontal'></div>
+    </div>
+
+    <div id='miniClockContainerHorizontal' onclick='toggleClockFullFunction();'>
+        <span id='miniClockTimeDisplayHorizontal'></span><span id='miniClockSecondsDisplayHorizontal'></span>
+    </div>
+
+    <div id='ayaDisplayContainerHorizontal' class='displayTableClass' onclick='displayRandomAyaFunction();'>
+        <div id='ayaTextDisplayHorizontal' class='tableCellMiddleClass goldenColorClass'></div>
+    </div>
+    <div id='messageDisplayContainerHorizontal' class='displayTableClass'>
+        <div id='messageTextDisplayHorizontal' class='tableCellMiddleClass'></div>
+    </div>
+
+    <div id='nextPrayerCounterHorizontal'>
+        <div id='nextPrayerTimeDisplayHorizontal' onclick='toggleHrNamesMiddleFunction();'></div>
+        <div id='nextPrayerLabelHorizontal' onclick='toggleBigNextPrayCounterFunction();'></div>
+    </div>
+
+    <div id='jomoaCounterHorizontal'>
+        <div id='jomoaTimeDisplayHorizontal'></div>
+        <div id='jomoaLabelHorizontal'></div>
+        <div id='secondJomoaTimeDisplayHorizontal'></div>
+    </div>
+
+    <div id='azanPopupHorizontal' class='hiddenClass' onclick='hideElementFunction(this.id);'>
+    <div id='azanPopupBackgroundHorizontal'>&nbsp;</div>
+        <div id='azanPopupTitleHorizontal'></div>
+        <div id='azanPopupPrayerNameHorizontal'></div>
+        <div id='azanPopupTimeHorizontal'></div>
+    </div>
+
+
+    <div id='iqamaPopupHorizontal' class='hiddenClass' onclick='hideElementFunction(this.id);'>
+    <div id='iqamaPopupBackgroundHorizontal'></div>
+        <div id='iqamaPopupTextHorizontal'></div>
+    </div>
+
+    <div id='dohaPopupHorizontal' class='hiddenClass' onclick='hideElementFunction(this.id);'>
+     <div id='dohaPopupBackgroundHorizontal'></div>
+        <div id='dohaPopupTextHorizontal'></div>
+    </div>
+
+
+
+    <div id='miniPrayerTimesHorizontal' class='hiddenClass'>
+        <table id='miniPrayerTimesTableHorizontal'>
+            <tr>
+                <td>
+                    <div id='spacerCellHorizontal'>&nbsp;</div>
+                    <div id='prayerNameFajrMiniHorizontal' class='prayerNameClassHorizontal'></div>
+                    <div id='prayerTimeFajrMiniHorizontal' class='prayerTimeClassHorizontal'></div>
+                </td>
+                <td>
+                    <div id='prayerNameShrqMiniHorizontal' class='prayerNameClassHorizontal'></div>
+                    <div id='prayerTimeShrqMiniHorizontal' class='prayerTimeClassHorizontal'></div>
+                </td>
+                <td>
+                    <div id='prayerNameDohrMiniHorizontal' class='prayerNameClassHorizontal'></div>
+                    <div id='prayerTimeDohrMiniHorizontal' class='prayerTimeClassHorizontal'></div>
+                </td>
+                <td>
+                    <div id='prayerNameAsrMiniHorizontal' class='prayerNameClassHorizontal'></div>
+                    <div id='prayerTimeAsrMiniHorizontal' class='prayerTimeClassHorizontal'></div>
+                </td>
+                <td>
+                    <div id='prayerNameMgrbMiniHorizontal' class='prayerNameClassHorizontal'></div>
+                    <div id='prayerTimeMgrbMiniHorizontal' class='prayerTimeClassHorizontal'></div>
+                </td>
+                <td>
+                    <div id='prayerNameIshaMiniHorizontal' class='prayerNameClassHorizontal'></div>
+                    <div id='prayerTimeIshaMiniHorizontal' class='prayerTimeClassHorizontal'></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div id='highlightBarHorizontal'></div>
+    <div id='prayerTimesContainerHorizontal'>
+        <table id='prayerTimesTableHorizontal' class='sixPrayersTableClass'>
+            <tr>
+                <td id='prayerCellFajrHorizontal' class='prayerCellClass'>
+                    <div id='spacerCellFajrHorizontal'>&nbsp;</div>
+                    <div id='prayerNameFajrHorizontal' class='prayerNameHorizontalClass' onclick='incrementThemeFunction();'></div>
+                    <div id='azanTimeFajrHorizontal' class='azanTimeHorizontalClass' onclick='decrementThemeFunction();'></div>
+                    <div id='iqamaTimeFajrHorizontal' class='iqamaTimeHorizontalClass' ondblclick='toggleIqamaFullTimesFunction();'></div>
+                    <div id='HmtALT0' class='weatherIconHorizontalClass'></div>
+                    <div id='nightPrayersContainerHorizontal' onclick='toggleNightPrayersDisplayFunction();'>
+                    	<div id='midnightTimeDisplayHorizontal'></div>
+                    	<div id='lastThirdTimeDisplayHorizontal'></div>
+                    	<div id='tomorrowFajrTimeDisplayHorizontal'></div>
+                    </div>
+
+                </td>
+                <td id='prayerCellShrqHorizontal' class='prayerCellClass'>
+                    <div id='prayerNameShrqHorizontal' class='prayerNameHorizontalClass'></div>
+                    <div id='azanTimeShrqHorizontal' class='azanTimeHorizontalClass'></div>
+                    <div id='iqamaTimeShrqHorizontal' class='iqamaTimeHorizontalClass'></div>
+                    <div id='HmtALT1' class='weatherIconHorizontalClass'></div>
+                </td>
+                <td id='prayerCellDohrHorizontal' class='prayerCellClass'>
+                    <div id='prayerNameDohrHorizontal' class='prayerNameHorizontalClass' onclick='triggerSlidesFunction();'></div>
+                    <div id='azanTimeDohrHorizontal' class='azanTimeHorizontalClass' onclick='triggerAzkarMainFunction();'></div>
+                    <div id='iqamaTimeDohrHorizontal' class='iqamaTimeHorizontalClass'></div>
+                    <div id='HmtALT2' class='weatherIconHorizontalClass'></div>
+                </td>
+                <td id='prayerCellAsrHorizontal' class='prayerCellClass'>
+                    <div id='prayerNameAsrHorizontal' class='prayerNameHorizontalClass'></div>
+                    <div id='azanTimeAsrHorizontal' class='azanTimeHorizontalClass' onclick='triggerAzkarSabahFunction();'></div>
+                    <div id='iqamaTimeAsrHorizontal' class='iqamaTimeHorizontalClass' onclick='triggerAzkarMasaaFunction();'></div>
+                    <div id='HmtALT3' class='weatherIconHorizontalClass'></div>
+                </td>
+                <td id='prayerCellMgrbHorizontal' class='prayerCellClass'>
+                    <div id='prayerNameMgrbHorizontal' class='prayerNameHorizontalClass' ondblclick='triggerIqamaTestFunction();'></div>
+                    <div id='azanTimeMgrbHorizontal' class='azanTimeHorizontalClass'></div>
+                    <div id='iqamaTimeMgrbHorizontal' class='iqamaTimeHorizontalClass' ondblclick='checkInternetConnectionFunction();'></div>
+                    <div id='HmtALT4' class='weatherIconHorizontalClass'></div>
+                </td>
+                <td id='prayerCellIshaHorizontal' class='prayerCellClass'>
+                    <div id='prayerNameIshaHorizontal' class='prayerNameHorizontalClass'></div>
+                    <div id='azanTimeIshaHorizontal' class='azanTimeHorizontalClass' ondblclick='toggleJomoaOnHrScreenFunction();'></div>
+                    <div id='iqamaTimeIshaHorizontal' class='iqamaTimeHorizontalClass' onclick='displayRandomHadithFunction();'></div>
+                    <div id='HmtALT5' class='weatherIconHorizontalClass'></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+
+
+    <div id='tawkitNameDisplayHorizontal' onclick='toggleHr5BoxesFunction();'></div>
+    <div id='hadithDisplayHorizontal' onclick='toggleMarqueeFunction();'></div>
+    <div id='marqueeContainerHorizontal' onclick='toggleMarqueeFunction();'><div id='marqueeTextHorizontal' class='marqueeTextClass'></div></div>
+    <div id='staticMessageDisplayHorizontal'></div>
+    <div id='cityCodeDisplayHorizontal'></div>
+    <div id='internetStatusIndicatorHorizontal'>٭</div>
+    <div id='blackScreenHorizontal' onclick='deactivateBlackScreen();'><img id='noMobileImageHorizontal' alt='' src='images/no-mobile.png'></div>
+
+    <div id='azkarContainerHorizontal' class='hiddenClass'>
+    	<div id='azkarContentWrapperHorizontal' onclick='stopAzkarDisplayFunction();'>
+        <div id='azkarClockDisplayHorizontal' class='azkarClockClass'></div>
+        <div id='azkarTextWrapperHorizontal'><div id='azkarTextDisplayHorizontal' class='hiddenClass'></div></div>
+        </div>
+    </div>
+
+    <div id='slidesContainerHorizontal' class='hiddenClass' onclick='stopSlidesDisplayFunction();'>
+        <div id='slidesClockDisplayHorizontal' class='azkarClockClass'></div>
+        <div id='slidesTextWrapperHorizontal'>
+            <div id='slidesTextDisplayHorizontal'></div>
+        </div>
+    </div>
+
+    <div id='azkar5minPictureContainerHorizontal' class='hiddenClass' onclick='hideAzkar5minPictureFunction();'>
+        <div id='picture5minClockDisplayHorizontal' class='azkarClockClass'></div>
+    </div>
+
+
+
+    <div id='iqamaCounterContainerHorizontal' class='hiddenClass'>
+        <svg id='iqamaCounterSvgHorizontal' viewBox='0 0 36 36'>
+            <path id='iqamaCounterCircleHorizontal' stroke-dasharray='100, 100' d='M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831'></path>
+        </svg>
+        <div id='iqamaCounterTimeDisplayHorizontal'></div>
+        <div id='iqamaCounterLabelHorizontal'></div>
+    </div>
+
+
+    <div id='secondCounterContainerHorizontal' class='hiddenClass' onclick="hideElementFunction('secondCounterContainerHorizontal');"></div>
+    <div id='eidMessageContainerHorizontal'></div>
+
+    <div id='fullScreenCounterContainerHorizontal' class='hiddenClass' onclick='closeFullScreenCounterFunction();'>
+    <div id='fullScreenCounterBackgroundHorizontal'></div>
+        <div id='fullScreenCounterTimeDisplayHorizontal'></div>
+        <div id='fullScreenCounterMiniClockHorizontal'></div>
+        <div id='fullScreenCounterLabelHorizontal'></div>
+        <div id='noMobileImageContainerHorizontal'><img alt='' src='images/no-mobile.png'></div>
+    </div>
+
+    <img id='qrFlagImageHorizontal' alt='' style='visibility:hidden'>
+    <img id='psFlagImageHorizontal' alt='' src='./ps.png' onclick='restartApplicationFunction();'>
+
+
+</div>
+
+
+
+
+<div id='mainMenuContainer' style='touch-action:none;'>
+
+    <div class='menuHeaderClass'>
+    	<div id='menuVersionDisplay' ondblclick='restartApplicationFunction();'></div>
+        <div id='menuScrollButtons'><span onclick="scrollMenuFunction('menuContentContainer', 0);">&#9650;</span> &nbsp;&nbsp; <span onclick="scrollMenuFunction('menuContentContainer', 1);">&#9660;</span></div>
+    </div>
+
+    <div id='menuContentContainer'>
+        <div id='languageSelectionContainer'>
+
+
+			<span id='BN' onclick='changeLanguageFunction(this);' title='Bengali'>বাংলা </span>
+			<span id='AR' onclick='changeLanguageFunction(this);' title='Arabic'>عربي </span>
+			<span id='PA' onclick='changeLanguageFunction(this);' title='Punjabi'>پنجابی </span>
+			<span id='UR' onclick='changeLanguageFunction(this);' title='Urdu'>اردو </span>
+			<br>
+			<span id='HI' onclick='changeLanguageFunction(this);' title='Hindi'>हिंदी </span>
+			<span id='AF' onclick='changeLanguageFunction(this);' title='Dari (Afghan Persian)'>دری </span>
+			<span id='PS' onclick='changeLanguageFunction(this);' title='Pashto'>پښتو </span>
+			<span id='KU' onclick='changeLanguageFunction(this);' title='Kurdish'>کوردی </span>
+			<br>
+			<span id='AM' onclick='changeLanguageFunction(this);' title='Amharic'>AM</span>
+			<span id='AZ' onclick='changeLanguageFunction(this);' title='Azerbaijani'>AZ</span>
+			<span id='BG' onclick='changeLanguageFunction(this);' title='Bulgarian'>BG</span>
+			<span id='BS' onclick='changeLanguageFunction(this);' title='Bosnian'>BS</span>
+			<span id='DA' onclick='changeLanguageFunction(this);' title='Danish'>DA</span>
+			<span id='DE' onclick='changeLanguageFunction(this);' title='German'>DE</span>
+			<span id='EN' onclick='changeLanguageFunction(this);' title='English'>EN</span>
+			<span id='ES' onclick='changeLanguageFunction(this);' title='Spanish'>ES</span>
+			<br>
+
+			<span id='FA' onclick='changeLanguageFunction(this);' title='Persian'>FA</span>
+			<span id='FP' onclick='changeLanguageFunction(this);' title='Filipino'>FP</span>
+			<span id='FR' onclick='changeLanguageFunction(this);' title='French'>FR</span>
+			<span id='HA' onclick='changeLanguageFunction(this);' title='Hausa'>HA</span>
+			<span id='ID' onclick='changeLanguageFunction(this);' title='Indonesian'>ID</span>
+			<span id='IT' onclick='changeLanguageFunction(this);' title='Italian'>IT</span>
+			<span id='JA' onclick='changeLanguageFunction(this);' title='Japanese'>JA</span>
+			<span id='KK' onclick='changeLanguageFunction(this);' title='Kazakh'>KK</span>
+			<br>
+
+			<span id='KM' onclick='changeLanguageFunction(this);' title='Shikomoro'>KM</span>
+			<span id='KO' onclick='changeLanguageFunction(this);' title='Korean'>KO</span>
+			<span id='KY' onclick='changeLanguageFunction(this);' title='Kyrgyz'>KY</span>
+			<span id='MS' onclick='changeLanguageFunction(this);' title='Malay'>MS</span>
+			<span id='NL' onclick='changeLanguageFunction(this);' title='Dutch'>NL</span>
+			<span id='NO' onclick='changeLanguageFunction(this);' title='Norwegian'>NO</span>
+			<span id='OM' onclick='changeLanguageFunction(this);' title='Oromo'>OM</span>
+			<span id='PT' onclick='changeLanguageFunction(this);' title='Portuguese'>PT</span>
+			<br>
+
+			<span id='RU' onclick='changeLanguageFunction(this);' title='Russian'>RU</span>
+			<span id='SI' onclick='changeLanguageFunction(this);' title='Sinhala'>SI</span>
+			<span id='SO' onclick='changeLanguageFunction(this);' title='Somali'>SO</span>
+			<span id='SQ' onclick='changeLanguageFunction(this);' title='Albanian'>SQ</span>
+			<span id='SV' onclick='changeLanguageFunction(this);' title='Swedish'>SV</span>
+			<span id='SW' onclick='changeLanguageFunction(this);' title='Swahili'>SW</span>
+			<span id='TA' onclick='changeLanguageFunction(this);' title='Tamil'>TA</span>
+			<span id='TG' onclick='changeLanguageFunction(this);' title='Tajik'>TG</span>
+			<br>
+
+			<span id='TH' onclick='changeLanguageFunction(this);' title='Thai'>TH</span>
+			<span id='TK' onclick='changeLanguageFunction(this);' title='Turkmen'>TK</span>
+			<span id='TR' onclick='changeLanguageFunction(this);' title='Turkish'>TR</span>
+			<span id='UG' onclick='changeLanguageFunction(this);' title='Uyghur'>UG</span>
+			<span id='UK' onclick='changeLanguageFunction(this);' title='Ukrainian'>UK</span>
+			<span id='UZ' onclick='changeLanguageFunction(this);' title='Uzbek'>UZ</span>
+			<span id='WO' onclick='changeLanguageFunction(this);' title='Wolof'>WO</span>
+			<span id='ZH' onclick='changeLanguageFunction(this);' title='Chinese'>ZH</span>
+			<br>
+
+
+			<div id='menuFooterLinks'>
+				<a target='_blank' href='https://www.tawkit.net/docs/'>&#9654; DOCUMENTATION</a><br>
+				<a target='_blank' href='https://www.tawkit.net/#updates'>&#9654; UPDATES</a><br>
+				<a target='_blank' href='https://www.tawkit.net/#License'>&#9654; LICENSE</a>
+				<div id='autoStartContainer'><input type='checkbox' id='autoStartCheckbox' onchange='toggleAutoStartFunction()'>&nbsp;&nbsp;<label for='autoStartCheckbox' id='autoStartLabel'>AUTO-START</label></div>
+			</div>
+
+        </div>
+
+
+
+        <div id='menuSectionsContainer'>
+            <div id='fullScreenButton' 	onclick="closeMenuFunction(); enterFullScreenFunction();"></div>
+            <div id='locationSettingsButton' 	onclick="closeMenuFunction(); showElementFunction('locationSectionId');"></div>
+            <div id='optionsSettingsButton' 		onclick="closeMenuFunction(); showElementFunction('optionsSectionId');"></div>            
+            <div id='bottomMessagesButton' 		onclick="closeMenuFunction(); showElementFunction('bottomMessagesSectionId');"></div>
+            <div id='personalFilesButton' 	onclick="closeMenuFunction(); showElementFunction('personalFilesSectionId');"></div>
+            <div id='importExportButton' 	onclick="closeMenuFunction(); showElementFunction('importExportSectionId');"></div>
+            <div id='soundRemindersButton' 	onclick="closeMenuFunction(); showElementFunction('soundRemindersSectionId');"></div>
+            <div id='themesButton' 		onclick="closeMenuFunction(); showElementFunction('themesSectionId');"></div>
+            <div id='forcedVerticalOption'></div>
+            <div id='adjustmentsButton' 	onclick="closeMenuFunction(); showElementFunction('adjustmentsSectionId');"></div>
+            <div id='blackScreenSettingsButton' 	onclick="closeMenuFunction(); showElementFunction('blackScreenSectionId');"></div>
+            <div id='azkarSettingsButton' 			onclick="closeMenuFunction(); showElementFunction('azkarSectionId');"></div>
+            <div id='slidesSettingsButton' 		onclick="closeMenuFunction(); showElementFunction('slidesSectionId');"></div>
+            <div id='shortcutsInfoButton' 		onclick="closeMenuFunction(); showElementFunction('shortcutsSectionId');"></div>
+            <div id='meteoApiButton' 			onclick="closeMenuFunction(); showElementFunction('meteoSectionId');"></div>
+        </div>
+
+        <div id='menuFooterCredits'>
+            <div id='creditsContent'></div>
+        </div>
+    </div>
+
+</div>
+
+<div id='aboutPopupId' class='modalPopupClass'>
+    <div class='modalHeaderClass'>
+        <div class='modalTitleClass'></div>
+        <div class='modalCloseButtonClass'><span onclick='closeModalFunction(this.parentNode);'>&#10006;</span></div>
+    </div>
+    <div id='aboutContentClass' class='modalContentClass textAlignCenterClass'><span id='aboutAppTitle'></span>
+        <br>
+        <br><span id='aboutDescription'></span>
+        <div id='aboutExtraInfo'></div>
+    </div>
+</div>
+
+
+<div id='optionsSectionId' class='modalPopupClass'>
+
+    <div class='modalHeaderClass'>
+        <div class='modalTitleClass'></div>
+        <div class='modalCloseButtonClass'><span class='cursorPointerClass' onclick="scrollMenuFunction('optionsContentContainer', 0);">&#9650;</span> &nbsp; <span class='cursorPointerClass' onclick="scrollMenuFunction('optionsContentContainer', 1);">&#9660;</span> &nbsp;&nbsp;&nbsp; <span onclick='closeModalFunction(this.parentNode);'>&#10006;</span></div>
+    </div>
+
+    <div id='optionsContentContainer' class='modalContentClass'>
+        <div>&#9673; <span id='mosqueNameOptionLabel' onclick="editMosqueNameFunction();"></span></div>
+        <div>&#9673; <span id='clockAdjustLabel'></span>&nbsp;<span class='clickableWhiteClass' id='clockAdjustValueSpanElement' onclick='editClockAdjustFunction();'></span></div>
+    	<div id='ayatsLanguageSelector' onclick='toggleAyatsLangListFunction();'>&#9673; <span id='ayatsLangLabel'></span> &#9660; </div>
+    	<div id='ayatsLangListContainer'>
+    		<span id='e7af' onclick="changeAyatsLanguageFunction('af');">AF</span>
+    		<span id='e7am' onclick="changeAyatsLanguageFunction('am');">AM</span>
+    		<span id='e7ar' onclick="changeAyatsLanguageFunction('ar');">AR</span>
+    		<span id='e7az' onclick="changeAyatsLanguageFunction('az');">AZ</span>
+    		<span id='e7bg' onclick="changeAyatsLanguageFunction('bg');">BG</span>
+    		<span id='e7bn' onclick="changeAyatsLanguageFunction('bn');">BN</span>
+    		<span id='e7bs' onclick="changeAyatsLanguageFunction('bs');">BS</span>
+    		<span id='e7da' onclick="changeAyatsLanguageFunction('da');">DA</span>
+    		<span id='e7de' onclick="changeAyatsLanguageFunction('de');">DE</span>
+    		<span id='e7en' onclick="changeAyatsLanguageFunction('en');">EN</span>
+    		<span id='e7es' onclick="changeAyatsLanguageFunction('es');">ES</span>
+    		<span id='e7fa' onclick="changeAyatsLanguageFunction('fa');">FA</span>
+    		<span id='e7fr' onclick="changeAyatsLanguageFunction('fr');">FR</span>
+    		<span id='e7ha' onclick="changeAyatsLanguageFunction('ha');">HA</span>
+    		<span id='e7hi' onclick="changeAyatsLanguageFunction('hi');">HI</span>
+    		<span id='e7id' onclick="changeAyatsLanguageFunction('id');">ID</span>
+    		<span id='e7it' onclick="changeAyatsLanguageFunction('it');">IT</span>
+    		<span id='e7ja' onclick="changeAyatsLanguageFunction('ja');">JA</span>
+    		<span id='e7kk' onclick="changeAyatsLanguageFunction('kk');">KK</span>
+    		<span id='e7ko' onclick="changeAyatsLanguageFunction('ko');">KO</span>
+    		<span id='e7ku' onclick="changeAyatsLanguageFunction('ku');">KU</span>
+    		<span id='e7ky' onclick="changeAyatsLanguageFunction('ky');">KY</span>
+    		<span id='e7ms' onclick="changeAyatsLanguageFunction('ms');">MS</span>
+    		<span id='e7nl' onclick="changeAyatsLanguageFunction('nl');">NL</span>
+    		<span id='e7no' onclick="changeAyatsLanguageFunction('no');">NO</span>
+    		<span id='e7om' onclick="changeAyatsLanguageFunction('om');">OM</span>
+    		<span id='e7pa' onclick="changeAyatsLanguageFunction('pa');">PA</span>
+    		<span id='e7ps' onclick="changeAyatsLanguageFunction('ps');">PS</span>
+    		<span id='e7pt' onclick="changeAyatsLanguageFunction('pt');">PT</span>
+    		<span id='e7ru' onclick="changeAyatsLanguageFunction('ru');">RU</span>
+    		<span id='e7sd' onclick="changeAyatsLanguageFunction('sd');">SD</span>
+    		<span id='e7si' onclick="changeAyatsLanguageFunction('si');">SI</span>
+    		<span id='e7so' onclick="changeAyatsLanguageFunction('so');">SO</span>
+    		<span id='e7sq' onclick="changeAyatsLanguageFunction('sq');">SQ</span>
+    		<span id='e7sv' onclick="changeAyatsLanguageFunction('sv');">SV</span>
+    		<span id='e7sw' onclick="changeAyatsLanguageFunction('sw');">SW</span>
+    		<span id='e7ta' onclick="changeAyatsLanguageFunction('ta');">TA</span>
+    		<span id='e7tg' onclick="changeAyatsLanguageFunction('tg');">TG</span>
+    		<span id='e7th' onclick="changeAyatsLanguageFunction('th');">TH</span>
+    		<span id='e7tk' onclick="changeAyatsLanguageFunction('tk');">TK</span>
+    		<span id='e7tl' onclick="changeAyatsLanguageFunction('tl');">TL</span>
+    		<span id='e7tr' onclick="changeAyatsLanguageFunction('tr');">TR</span>
+    		<span id='e7ug' onclick="changeAyatsLanguageFunction('ug');">UG</span>
+    		<span id='e7uk' onclick="changeAyatsLanguageFunction('uk');">UK</span>
+    		<span id='e7ur' onclick="changeAyatsLanguageFunction('ur');">UR</span>
+    		<span id='e7uz' onclick="changeAyatsLanguageFunction('uz');">UZ</span>
+    		<span id='e7wo' onclick="changeAyatsLanguageFunction('wo');">WO</span>
+    		<span id='e7zh' onclick="changeAyatsLanguageFunction('zh');">ZH</span>
+    	</div>
+
+        <hr>
+        <div><input type='checkbox' id='psFlagCheckbox' 	onchange='togglePsFlagFunction()'> &nbsp;				<label for='psFlagCheckbox'>علم فلسطين | Palestine flag</label></div>
+        <div><input type='checkbox' id='qrFlagCheckbox' 	onchange='toggleQrFlagFunction()'> &nbsp;				<label for='qrFlagCheckbox'>إظهار رمز QR للمسجد | Show mosque QR code</label></div>
+        <div><input type='checkbox' id='use24HoursCheckbox' 		onchange='toggle24HoursFunction()'> &nbsp;				<label for='use24HoursCheckbox' id='use24HoursLabel'></label></div>
+        <div><input type='checkbox' id='addZeroAmPmCheckbox' 		onchange='toggleAddZeroAmPmFunction()'> &nbsp;			<label for='addZeroAmPmCheckbox' id='addZeroAmPmLabel'></label></div>
+        <div><input type='checkbox' id='fullClockCheckbox'	onchange='toggleClockFullFunction()'> &nbsp;		<label for='fullClockCheckbox'><span id='fullClockLabel'></span> "00:00:00" </label></div>
+        <div><input type='checkbox' id='showNightPrayersCheckbox' 	onchange='toggleNightPrayersFunction()'> &nbsp;		<label for='showNightPrayersCheckbox' id='showNightPrayersLabel'></label></div>
+        <div><input type='checkbox' id='dimPastPrayersCheckbox' onchange='toggleDimPastPrayersFunction()'> &nbsp;		<label for='dimPastPrayersCheckbox' id='dimPastPrayersLabel'></label></div>
+        <div><input type='checkbox' id='middleSalatNamesCheckbox'	onchange='toggleHrNamesMiddleFunction()'> &nbsp;		<label for='middleSalatNamesCheckbox' id='middleSalatNamesLabel'></label></div>
+        <div><input type='checkbox' id='fiveBoxesOnlyCheckbox' 	onchange='toggleHr5BoxesFunction()'> &nbsp;			<label for='fiveBoxesOnlyCheckbox' id='fiveBoxesOnlyLabel'></label></div>
+        <div><input type='checkbox' id='fullIqamaTimesCheckbox' 	onchange='toggleIqamaFullTimesFunction()'> &nbsp;		<label for='fullIqamaTimesCheckbox' id='fullIqamaTimesLabel'></label></div>
+        <div><input type='checkbox' id='iqamaCounterCheckbox' onchange='toggleIqamaCounterFunction()'> &nbsp;		<label for='iqamaCounterCheckbox' id='iqamaCounterLabel'></label></div>
+        <div><input type='checkbox' id='fullScreenCounterCheckbox' onchange='toggleFullScreenCounterFunction()'> &nbsp;		<label for='fullScreenCounterCheckbox' id='fullScreenCounterLabel'></label></div>
+        <div><input type='checkbox' id='lastMinuteCounterCheckbox' 	onchange='toggleLastMinuteCounterFunction()'> &nbsp;			<label for='lastMinuteCounterCheckbox' id='lastMinuteCounterLabel'></label></div>
+        <div><input type='checkbox' id='arabicDigitsCheckbox' 	onchange='toggleArabicDigitsFunction()'> &nbsp;		<label for='arabicDigitsCheckbox' id='arabicDigitsLabel'></label></div>
+        <div><input type='checkbox' id='hideIqamatCheckbox' 		onchange='toggleHomeModeFunction()'> &nbsp;			<label for='hideIqamatCheckbox' id='hideIqamatLabel'></label></div>
+        <div><input type='checkbox' id='middleVrNamesCheckbox' 	onchange='toggleVrNamesMiddleFunction()'> &nbsp;		<label for='middleVrNamesCheckbox' id='middleVrNamesLabel'></label></div>
+        <div><input type='checkbox' id='showAzanScreenCheckbox' 		onchange='toggleAzanScreenFunction()'> &nbsp;			<label for='showAzanScreenCheckbox' id='showAzanScreenLabel'></label></div>
+        <div><input type='checkbox' id='showIqamaScreenCheckbox' 		onchange='toggleIqamaScreenFunction()'> &nbsp;			<label for='showIqamaScreenCheckbox' id='showIqamaScreenLabel'></label></div>
+        <div><input type='checkbox' id='dateUpRightHrCheckbox' 	onchange='toggleDatePositionFunction()'> &nbsp;			<label for='dateUpRightHrCheckbox' id='dateUpRightHrLabel'></label></div>
+        <div><input type='checkbox' id='verifyInternetCheckbox' 		onchange='toggleVerifyInternetFunction()'> &nbsp;		<label for='verifyInternetCheckbox' id='verifyInternetLabel'></label></div>
+        <div><input type='checkbox' id='timesBgShadowsCheckbox' onchange='toggleTimesBgShadowsFunction()'> &nbsp;		<label for='timesBgShadowsCheckbox' id='timesBgShadowsLabel'></label></div>
+        <div><input type='checkbox' id='semiTransparentBgsCheckbox' 	onchange='toggleSemiTransparentBgsFunction()'> &nbsp;			<label for='semiTransparentBgsCheckbox' id='semiTransparentBgsLabel'></label></div>
+        <div><input type='checkbox' id='counterColorAlertCheckbox' 	onchange='toggleCounterColorAlertFunction()'> &nbsp;		<label for='counterColorAlertCheckbox' id='counterColorAlertLabel'></label></div>
+		<div><input type='checkbox' id='bigNextPrayCounterCheckbox' 	onchange='toggleBigNextPrayCounterFunction()'> &nbsp;	<label for='bigNextPrayCounterCheckbox' id='bigNextPrayCounterLabel'></label></div>
+		<div><input type='checkbox' id='noMobileReminderCheckbox'    onchange='toggleNoMobileReminderFunction()'> &nbsp;	<label for='noMobileReminderCheckbox'>تذكير دوري بمنع استخدام الجوّال</label></div>
+
+
+        <hr>
+        <div><input type='checkbox' id='alertLastMinuteCheckbox' 	onchange='toggleAlertLastMinuteFunction()'>&nbsp;&nbsp;<span id='alertLastMinuteLabel'></span></div>
+        <div id='closeMobileAlertButton' class='infoTextClass' onclick='editMobileAlertFunction();'></div>
+
+        <div><input type='checkbox' id='iqamaHadithCheckbox' 	onchange='toggleIqamaHadithFunction()'> &nbsp;<label for='iqamaHadithCheckbox' id='iqamaHadithLabel'></label></div>
+        <hr>
+
+        <div><input type='checkbox' id='eidFitrCheckbox' onchange='toggleEidFitrFunction();'> &nbsp;<span id='eidFitrLabel' ></span> <span class='clickableWhiteClass' id='eidFitrTimeButton' onclick='editEidFitrTimeFunction();'></span></div>
+        <div><input type='checkbox' id='eidAdhaCheckbox' onchange='toggleEidAdhaFunction();'> &nbsp;<span id='eidAdhaLabel' ></span> <span class='clickableWhiteClass' id='eidAdhaTimeButton' onclick='editEidAdhaTimeFunction();'></span></div>
+        <hr>
+        <div>
+            <input type='checkbox' id='azanIqamaByVoiceCheckbox' onchange='toggleAzanVoiceFunction()'> &nbsp;<label for='azanIqamaByVoiceCheckbox' id='azanIqamaByVoiceLabel'></label>
+        </div>
+        <div>
+            <input type='checkbox' id='shortAzanCheckbox' onchange='toggleShortAzanFunction()'> &nbsp;<label for='shortAzanCheckbox' id='shortAzanLabel'></label>
+        </div>
+        <div>
+            <input type='checkbox' id='shortIqamaCheckbox' onchange='toggleShortIqamaFunction()'> &nbsp;<label for='shortIqamaCheckbox' id='shortIqamaLabel'></label>
+        </div>
+
+        <hr>
+        <div id='fontsSettingsTitle'></div>
+        <table id='fontsTable'>
+            <tr>
+                <th class='hiddenFontColumnClass'>TEXT</th>
+                <th>TIMES</th>
+                <th>CLOCK</th>
+                <th class='hiddenFontColumnClass'>AZKAR</th>
+            </tr>
+            <tr>
+
+                <td class='hiddenFontColumnClass'>
+                    <input type='radio' onclick="changeScreenFontFunction('Amiri');" 		name='Rfon1' id='APPUI-Amiri'><label for='APPUI-Amiri'> Amiri</label>
+                    <br>
+                    <input type='radio' onclick="changeScreenFontFunction('AmiriBold');" 	name='Rfon1' id='APPUI-AmiriBold'><label for='APPUI-AmiriBold'> AmiriBold</label>
+                    <br>
+                    <input type='radio' onclick="changeScreenFontFunction('CORDOBA');" 	name='Rfon1' id='APPUI-CORDOBA'><label for='APPUI-CORDOBA'> CORDOBA</label>
+                    <br>
+                    <input type='radio' onclick="changeScreenFontFunction('Andalus');" 	name='Rfon1' id='APPUI-Andalus'><label for='APPUI-Andalus'> Andalus</label>
+                    <br>
+                    <input type='radio' onclick="changeScreenFontFunction('KSA');" 		name='Rfon1' id='APPUI-KSA'><label for='APPUI-KSA'> KSA</label>
+                    <br>
+                    <input type='radio' onclick="changeScreenFontFunction('Taha');" 		name='Rfon1' id='APPUI-Taha'><label for='APPUI-Taha'> TAHA</label>
+                    <br>
+                    <input type='radio' onclick="changeScreenFontFunction('SULTAN');" 	name='Rfon1' id='APPUI-SULTAN'><label for='APPUI-SULTAN'> SULTAN</label>
+                    <br>
+                    <input type='radio' onclick="changeScreenFontFunction('STC');" 		name='Rfon1' id='APPUI-STC'><label for='APPUI-STC'> STC</label>
+                    <br>
+                    <input type='radio' onclick="changeScreenFontFunction('FODA');" 		name='Rfon1' id='APPUI-FODA'><label for='APPUI-FODA'> FODA</label>
+                    <br>
+                </td>
+                <td>
+                    <input type='radio' onclick="changeTimesFontFunction('FreeSerifBold');" name='Rfon2' id='TIMES-FreeSerifBold'><label for='TIMES-FreeSerifBold'> FreeSerifBold</label>
+                    <br>
+                    <input type='radio' onclick="changeTimesFontFunction('FreeSans');" 		name='Rfon2' id='TIMES-FreeSans'><label for='TIMES-FreeSans'> FreeSans</label>
+                    <br>
+                    <input type='radio' onclick="changeTimesFontFunction('FreeSansBold');" 	name='Rfon2' id='TIMES-FreeSansBold'><label for='TIMES-FreeSansBold'> FreeSansBold</label>
+                    <br>
+                    <input type='radio' onclick="changeTimesFontFunction('FONTO');" 		name='Rfon2' id='TIMES-FONTO'><label for='TIMES-FONTO'> FONTO</label>
+                    <br>
+                    <input type='radio' onclick="changeTimesFontFunction('SULTAN');" 		name='Rfon2' id='TIMES-SULTAN'><label for='TIMES-SULTAN'> SULTAN</label>
+                    <br>
+                    <input type='radio' onclick="changeTimesFontFunction('STC');" 			name='Rfon2' id='TIMES-STC'><label for='TIMES-STC'> STC</label>
+                    <br>
+                </td>
+                <td>
+                    <input type='radio' onclick="changeClockFontFunction('FreeSerifBold');"	name='Rfon3' id='CLOCK-FreeSerifBold'><label for='CLOCK-FreeSerifBold'> FreeSerifBold</label><br>
+                    <input type='radio' onclick="changeClockFontFunction('FreeSans');" 		name='Rfon3' id='CLOCK-FreeSans'><label for='CLOCK-FreeSans'> FreeSans</label><br>
+                    <input type='radio' onclick="changeClockFontFunction('FreeSansBold');" 	name='Rfon3' id='CLOCK-FreeSansBold'><label for='CLOCK-FreeSansBold'> FreeSansBold</label><br>
+                    <input type='radio' onclick="changeClockFontFunction('FONTO');" 			name='Rfon3' id='CLOCK-FONTO'><label for='CLOCK-FONTO'> FONTO</label><br>
+                    <input type='radio' onclick="changeClockFontFunction('SULTAN');" 			name='Rfon3' id='CLOCK-SULTAN'><label for='CLOCK-SULTAN'> SULTAN</label><br>
+                     <input type='radio' onclick="changeClockFontFunction('STC');" 			name='Rfon3' id='CLOCK-STC'><label for='CLOCK-SULTAN'> STC</label><br>
+                </td>
+                <td class='hiddenFontColumnClass'>
+                    <input type='radio' onclick="changeAzkarFontFunction('Taha');" 		name='Rfon4' id='AZKAR-Taha'><label for='AZKAR-Taha'> TAHA</label><br>
+                    <input type='radio' onclick="changeAzkarFontFunction('SULTAN');" 	name='Rfon4' id='AZKAR-SULTAN'><label for='AZKAR-SULTAN'> SULTAN</label><br>
+                    <input type='radio' onclick="changeAzkarFontFunction('FODA');" 		name='Rfon4' id='AZKAR-FODA'><label for='AZKAR-SULTAN'> FODA</label><br>
+                </td>
+            </tr>
+        </table>
+
+
+        <br>
+        <hr>
+
+        <br>
+        <br>
+        <br>
+        <br>
+
+    </div>
+
+</div>
+
+
+
+<div id='importExportSectionId' class='modalPopupClass'>
+
+    <div class='modalHeaderClass'>
+        <div class='modalTitleClass'></div>
+        <div class='modalCloseButtonClass'><span onclick="scrollMenuFunction('importExportContent', 0);">&#9650;</span> &nbsp; <span onclick="scrollMenuFunction('importExportContent', 1);">&#9660;</span> &nbsp;&nbsp;&nbsp; <span onclick='closeModalFunction(this.parentNode);'>&#10006;</span></div>
+    </div>
+
+	    <div id='importExportContent' class='modalContentClass'>
+
+			        <div id='exportInfoText' class='infoTextClass'>Export your settings to a file that you modify as needed.<br></div>
+			        <button id='exportSettingsButton' class='settingsActionButtonClass' onclick='exportSettingsFunction();'>&#8673; &nbsp; Export Settings</button><br>
+			        <div id='exportStatusDiv' class='infoTextClass textRightClass textLeftClass'>_</div>
+			        <hr>
+
+
+			        <div id='importByIdInfo' class='infoTextClass'>
+				        You upload your settings file on <a target='_blank' href='https://settings.tawkit.net'>https://settings.tawkit.net</a><br>
+				        You'll get ID of your settings file to enter here.
+			        </div>
+			        <button class='settingsActionButtonClass' onclick='importByIdFunction();'>&#8675; &nbsp; Import By ID</button>
+			        <div id='importByIdStatusDiv' class='infoTextClass textRightClass textLeftClass'>_</div>
+			        <hr>
+
+
+			        <div id='importLocalFileInfo' class='infoTextClass'>
+				        Import your settings file from this device<br>
+						<div class='textRightClass textLeftClass' >
+						<label for='importFileInput'>Select your settings file to Import : </label> &nbsp; <input id='importFileInput' name='importFileInput' type='file'>
+						</div>
+			        </div>
+			        <button class='settingsActionButtonClass' onclick='importLocalFileFunction();'>&#8675; &nbsp; Import Local file</button><br>
+			        <div id='importLocalStatusDiv' class='infoTextClass textRightClass textLeftClass'>_</div>
+			        <br>
+
+	    </div>
+
+</div>
+
+
+
+<div id='themesSectionId' class='modalPopupClass'>
+
+    <div class='modalHeaderClass'>
+        <div class='modalTitleClass'></div>
+        <div class='modalCloseButtonClass'><span onclick='closeModalFunction(this.parentNode);'>&#10006;</span></div>
+    </div>
+
+    <div class='modalContentClass'>
+
+        <table class='settingsTableClass'>
+            <tr>
+            <td><div id='themesSectionTitle'></div><div id='themesInfoText' class='infoTextClass'></div></td>
+            <td><span onclick="decrementThemeFunction()">&#9664;</span> &nbsp; <span onclick="incrementThemeFunction()">&#9654;</span></td>
+            <td id='currentThemeDisplay'></td>
+            </tr>
+        </table>
+
+        	<input type='radio' onclick='setThemeTypeFunction(0);' name='eBGs_' id='BGsType_0'>&nbsp;<label for='BGsType_0' id='themeTypeNoChangeLabel'></label>
+        	<hr>
+        	<input type='radio' onclick='setThemeTypeFunction(1);' name='eBGs_' id='BGsType_1'>&nbsp;<label for='BGsType_1' id='themeTypeBySalatLabel'></label>
+        	<span class='infoTextClass'>(Click on prayer to change)</span>
+					        <table class='themesBySalatTable'>
+					            <tr>
+					                <td id='jc0' onclick='editThemeForSalatFunction(0);'></td>
+					                <td id='jc1' onclick='editThemeForSalatFunction(1);'></td>
+					                <td id='jc2' onclick='editThemeForSalatFunction(2);'></td>
+					                <td id='jc3' onclick='editThemeForSalatFunction(3);'></td>
+					                <td id='jc4' onclick='editThemeForSalatFunction(4);'></td>
+					                <td id='jc5' onclick='editThemeForSalatFunction(5);'></td>
+					            </tr>
+					            <tr><td id='jm0'>0</td><td id='jm1'>0</td><td id='jm2'>0</td><td id='jm3'>0</td><td id='jm4'>0</td><td id='jm5'>0</td></tr>
+					        </table>
+        	<hr>
+        	<input type='radio' onclick='setThemeTypeFunction(2);' name='eBGs_' id='BGsType_2'>&nbsp;<label for='BGsType_2' id='themeTypeByDayLabel'></label>
+        	<span class='infoTextClass'>(Click on the day to change)</span>
+					        <table class='themesByDayTable'>
+					            <tr>
+					                <td id='jw0' onclick='editThemeForDayFunction(0);'></td>
+					                <td id='jw1' onclick='editThemeForDayFunction(1);'></td>
+					                <td id='jw2' onclick='editThemeForDayFunction(2);'></td>
+					                <td id='jw3' onclick='editThemeForDayFunction(3);'></td>
+					                <td id='jw4' onclick='editThemeForDayFunction(4);'></td>
+					                <td id='jw5' onclick='editThemeForDayFunction(5);'></td>
+					                <td id='jw6' onclick='editThemeForDayFunction(6);'></td>
+					            </tr>
+					            <tr><td id='jj0'>0</td><td id='jj1'>0</td><td id='jj2'>0</td><td id='jj3'>0</td><td id='jj4'>0</td><td id='jj5'>0</td><td id='jj6'>0</td></tr>
+					        </table>
+        	<hr>
+        	<input type='radio' onclick='setThemeTypeFunction(3);' name='eBGs_' id='BGsType_3'>&nbsp;<label for='BGsType_3' id='themeTypeRandomDailyLabel'></label><br>
+        	<span class='infoTextClass'>(Click on themes numbers to change)</span>&nbsp;&nbsp;<span id='themeRandomListSpanElement' onclick='editThemeRandomListFunction();'></span>
+        	<br>
+    </div>
+
+</div>
+
+
+
+<div id='azkarSectionId' class='modalPopupClass'>
+
+    <div class='modalHeaderClass'>
+        <div class='modalTitleClass'></div>
+        <div class='modalCloseButtonClass'><span onclick="scrollMenuFunction('azkarSettingsContent', 0);">&#9650;</span> &nbsp; <span onclick="scrollMenuFunction('azkarSettingsContent', 1);">&#9660;</span> &nbsp;&nbsp;&nbsp; <span onclick='closeModalFunction(this.parentNode);'>&#10006;</span></div>
+    </div>
+
+    <div id='azkarSettingsContent' class='modalContentClass'>
+        <input type='checkbox' id='azkarActiveCheckbox' onchange='toggleAzkarActiveFunction()'> &nbsp;<label for='azkarActiveCheckbox' id='azkarActiveLabel'> </label><br>
+        <input type='checkbox' id='repeatAzkarOnceCheckbox' onchange='toggleRepeatAzkarFunction()'> &nbsp;<label for='repeatAzkarOnceCheckbox' id='repeatAzkarLabel'></label><br>
+        <input type='checkbox' id='azkar5minPictureCheckbox' onchange='toggleAzkar5minPictureFunction()'> &nbsp;<label for='azkar5minPictureCheckbox' id='azkar5minPictureLabel'> </label><br>
+        <input type='checkbox' id='azkarBgWhiteCheckbox' onchange='toggleAzkarBgWhiteFunction()'> &nbsp;<label for='azkarBgWhiteCheckbox' id='azkarBgWhiteLabel'> </label><br>
+        <hr>
+        <input type='checkbox' id='azkarSabahCheckbox' onchange='toggleAzkarSabahFunction()'> &nbsp;<label for='azkarSabahCheckbox' id='azkarSabahLabel'> </label><br>
+        <input type='checkbox' id='azkarAsrCheckbox' onchange='toggleAzkarAsrFunction()'> &nbsp;<label for='azkarAsrCheckbox' id='azkarAsrLabel'> </label><br>
+        <input type='checkbox' id='azkarMaghribCheckbox' onchange='toggleAzkarMaghribFunction()'> &nbsp;<label for='azkarMaghribCheckbox' id='azkarMaghribLabel'> </label><br>
+        <input type='checkbox' id='azkarIshaCheckbox' onchange='toggleAzkarIshaFunction()'> &nbsp;<label for='azkarIshaCheckbox' id='azkarIshaLabel'> </label><br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+
+</div>
+
+
+
+<div id='slidesSectionId' class='modalPopupClass'>
+
+    <div class='modalHeaderClass'>
+        <div class='modalTitleClass'></div>
+        <div class='modalCloseButtonClass'><span onclick="scrollMenuFunction('slidesContentContainer', 0);">&#9650;</span> &nbsp; <span onclick="scrollMenuFunction('slidesContentContainer', 1);">&#9660;</span> &nbsp;&nbsp;&nbsp; <span onclick='closeModalFunction(this.parentNode);'>&#10006;</span></div>
+    </div>
+
+    <div id='slidesContentContainer' class='modalContentClass'>
+        <div><input type='checkbox' id='slidesActiveCheckbox' onchange='toggleSlidesActiveFunction()'> &nbsp; <label for='slidesActiveCheckbox' id='slidesActiveLabel'></label></div>
+        <div><input type='checkbox' id='slidesRandomCheckbox' onchange='toggleSlidesRandomFunction()'> &nbsp; <label for='slidesRandomCheckbox' id='slidesRandomLabel'></label></div>
+        <div onclick='editSlidesViewTimeFunction();'><span id='slidesViewTimeLabel'></span> <span class='whiteTextClass' id='slidesViewTimeValue'>0</span></div>
+        <div onclick='editTawkitViewTimeFunction();'><span id='tawkitViewTimeLabel'></span> <span class='whiteTextClass' id='tawkitViewTimeValue'>0</span></div>
+        <hr>
+        <div dir='ltr'>
+	            <div class='infoTextClass' >
+	            Slides are additional messages that you can display on the screen after Azkar/Sabah/Masaa. They are shown/hidden until the next Prayer.
+	            To test the Slides, click 3 times on DOHR name. To stop the Slides, click on Screen.
+	            <br>
+	            <b>PICTURES and HTTP URLS SUPPORT</b> : You can also add your own pictures as slides,
+	            you write the filename of your slide as new slide text.
+	            Your picture file must be .jpg or .png and located in the "/slides/" folder.
+	            </div>
+            <hr>
+            <button class='addSlideButtonClass cursorPointerClass' onclick='addSlideFunction();'>Add Slide : TEXT or File or LINK (https://...)</button>
+            <div class='infoTextClass'>Tip : Add the character "|" in your messages to create a new line</div>
+            <table id='slidesTable' dir='ltr'></table>
+        </div>
+        <br>
+        <br>
+        <br>
+    </div>
+
+</div>
+
+
+<div id='soundRemindersSectionId' class='modalPopupClass'>
+
+    <div class='modalHeaderClass'>
+        <div class='modalTitleClass'></div>
+        <div class='modalCloseButtonClass'><span onclick="scrollMenuFunction('remindersContentContainer', 0);">&#9650;</span> &nbsp; <span onclick="scrollMenuFunction('remindersContentContainer', 1);">&#9660;</span> &nbsp;&nbsp;&nbsp; <span onclick='closeModalFunction(this.parentNode);'>&#10006;</span></div>
+    </div>
+
+    <div id='remindersContentContainer' class='modalContentClass'>
+        <div><input type='checkbox' id='remindersActiveCheckbox' onchange='toggleRemindersActiveFunction()'> &nbsp; <label for='remindersActiveCheckbox' id='remindersActiveLabel'>Reminders | برمجة التنبيهات الصوتية </label></div>
+        <hr>
+        <div dir='ltr'>
+	            <div class='infoTextClass' >
+					<div dir='rtl' >
+					أضف تنبيهات صوتية قبل أو بعد أوقات الصلاة، بما في ذلك منتصف الليل والثلث الأخير. تظهر الرسالة لمدة 12 ثانية . فيما يلي كلمات الاستعمال :<br> 
+					FAJR, SHRQ, DOHR, ASSR, MGRB, ISHA, NISF, TULT<br>
+					BEFORE / AFTER . المزيد من المعومات في : <a href='https://www.tawkit.net/docs/#sound-alerts' target='_blank'>tawkit.net/docs</a>
+					</div>
+				<hr>
+			    Set sound alerts before/after prayer times, including midnight and last third of night. Alert shows a 12-second message. 
+			    <a href='#' onclick="testReminderSoundFunction();">Test sound here</a> <br>
+			    Keywords : FAJR, SHRQ, DOHR, ASSR, MGRB, ISHA, NISF, TULT<br>
+			    Actions : BEFORE or AFTER and put your message between (), example :<br>
+			    15.BEFORE.FAJR.(Salam Alaykoum)<br>
+	            </div>
+            <hr>
+
+            <button class='addSlideButtonClass cursorPointerClass' onclick='addReminderFunction();'>Add Reminder</button>
+            <table id='remindersTable' dir='ltr'></table>
+        </div>
+        <br>
+        <br>
+        <br>
+    </div>
+
+</div>
+
+
+
+<div id='adjustmentsSectionId' class='modalPopupClass'>
+
+    <div class='modalHeaderClass'>
+        <div class='modalTitleClass'></div>
+        <div class='modalCloseButtonClass'><span onclick="scrollMenuFunction('adjustmentsContentContainer', 0);">&#9650;</span> &nbsp; <span onclick="scrollMenuFunction('adjustmentsContentContainer', 1);">&#9660;</span> &nbsp;&nbsp;&nbsp; <span onclick='closeModalFunction(this.parentNode);'>&#10006;</span></div>
+    </div>
+
+    <div id='adjustmentsContentContainer' class='modalContentClass'>
+        <div><input type='checkbox' id='ramadanIsha30minCheckbox' onchange='toggleRamadanIshaFunction()'> &nbsp; <label for='ramadanIsha30minCheckbox' id='ramadanIshaLabel'> </label></div>
+        <div><input type='checkbox' id='summerTimeCheckbox' onchange='toggleSummerTimeFunction()'> &nbsp; <label for='summerTimeCheckbox' id='summerTimeLabel'> </label></div>
+        <div><input type='checkbox' id='forceOneHourMoreCheckbox' onchange='toggleForceOneHourMoreFunction()'> &nbsp; <label for='forceOneHourMoreCheckbox' id='forceOneHourMoreLabel'> </label></div>
+        <div><input type='checkbox' id='forceOneHourLessCheckbox' onchange='toggleForceOneHourLessFunction()'> &nbsp; <label for='forceOneHourLessCheckbox' id='forceOneHourLessLabel'> </label></div>
+
+        <hr>
+        <div id='prayersAdjustmentsTitle'>&#9673; &nbsp; Prayers Adjustements</div>
+        <table class='themesBySalatTable'>
+            <tr>
+                <td id='prayerNameFajrAdjust'></td>
+                <td id='prayerNameShrqAdjust'></td>
+                <td id='prayerNameDohrAdjust'></td>
+                <td id='prayerNameAsrAdjust'></td>
+                <td id='prayerNameMgrbAdjust'></td>
+                <td id='prayerNameIshaAdjust'></td>
+            </tr>
+            <tr>
+                <td id='athanMinutesFajrValue'></td>
+                <td id='athanMinutesShrqValue'></td>
+                <td id='athanMinutesDohrValue'></td>
+                <td id='athanMinutesAsrValue'></td>
+                <td id='athanMinutesMgrbValue'></td>
+                <td id='athanMinutesIshaValue'></td>
+            </tr>
+            <tr>
+                <td>
+                    <button class='adjustButtonClass' onclick="decrementAthanMinutesFunction('FAJR')">-</button>&nbsp;
+                    <button class='adjustButtonClass' onclick="incrementAthanMinutesFunction('FAJR')">+</button>
+                </td>
+                <td>
+                    <button class='adjustButtonClass' onclick="decrementAthanMinutesFunction('SHRQ')">-</button>&nbsp;
+                    <button class='adjustButtonClass' onclick="incrementAthanMinutesFunction('SHRQ')">+</button>
+                </td>
+                <td>
+                    <button class='adjustButtonClass' onclick="decrementAthanMinutesFunction('DOHR')">-</button>&nbsp;
+                    <button class='adjustButtonClass' onclick="incrementAthanMinutesFunction('DOHR')">+</button>
+                </td>
+                <td>
+                    <button class='adjustButtonClass' onclick="decrementAthanMinutesFunction('ASR')">-</button>&nbsp;
+                    <button class='adjustButtonClass' onclick="incrementAthanMinutesFunction('ASR')">+</button>
+                </td>
+                <td>
+                    <button class='adjustButtonClass' onclick="decrementAthanMinutesFunction('MAGHRIB')">-</button>&nbsp;
+                    <button class='adjustButtonClass' onclick="incrementAthanMinutesFunction('MAGHRIB')">+</button>
+                </td>
+                <td>
+                    <button class='adjustButtonClass' onclick="decrementAthanMinutesFunction('ISHA')">-</button>&nbsp;
+                    <button class='adjustButtonClass' onclick="incrementAthanMinutesFunction('ISHA')">+</button>
+                </td>
+            </tr>
+        </table>
+
+
+        <hr>
+        <div id='iqamaAdjustmentsTitle'></div>
+        <table id='iqamaAdjustmentsTable'>
+            <tr>
+                <td id='iqamaFajrLabel'></td>
+                <td id='iqamaFajrValue'></td>
+                <td><button class='adjustButtonClass' onclick="decrementIqamaMinutesFunction('FAJR')">-</button></td>
+                <td><button class='adjustButtonClass' onclick="incrementIqamaMinutesFunction('FAJR')">+</button></td>
+                <td>FIXED : <button id='fixedIqamaFajrButton' class='fixedIqamaButtonClass' onclick='editFixedIqamaFajrFunction();'></button></td>
+            </tr>
+
+            <tr>
+                <td id='iqamaDohaLabel'></td>
+                <td id='iqamaDohaValue'></td>
+                <td><button class='adjustButtonClass' onclick="decrementIqamaMinutesFunction('SHRQ')">-</button></td>
+                <td><button class='adjustButtonClass' onclick="incrementIqamaMinutesFunction('SHRQ')">+</button></td>
+                <td></td>
+            </tr>
+
+
+            <tr>
+                <td id='iqamaDohrLabel'></td>
+                <td id='iqamaDohrValue'></td>
+                <td><button class='adjustButtonClass' onclick="decrementIqamaMinutesFunction('DOHR')">-</button></td>
+                <td><button class='adjustButtonClass' onclick="incrementIqamaMinutesFunction('DOHR')">+</button></td>
+                <td>FIXED : <button id='fixedIqamaDohrButton' class='fixedIqamaButtonClass' onclick='editFixedIqamaDohrFunction();'></button></td>
+            </tr>
+
+            <tr>
+                <td id='iqamaAsrLabel'></td>
+                <td id='iqamaAsrValue'></td>
+                <td><button class='adjustButtonClass' onclick="decrementIqamaMinutesFunction('ASR')">-</button></td>
+                <td><button class='adjustButtonClass' onclick="incrementIqamaMinutesFunction('ASR')">+</button></td>
+                <td>FIXED : <button id='fixedIqamaAsrButton' class='fixedIqamaButtonClass' onclick='editFixedIqamaAsrFunction();'></button></td>
+            </tr>
+
+            <tr>
+                <td id='iqamaMgrbLabel'></td>
+                <td id='iqamaMgrbValue'></td>
+                <td><button class='adjustButtonClass' onclick="decrementIqamaMinutesFunction('MAGHRIB')">-</button></td>
+                <td><button class='adjustButtonClass' onclick="incrementIqamaMinutesFunction('MAGHRIB')">+</button></td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td id='iqamaIshaLabel'></td>
+                <td id='iqamaIshaValue'></td>
+                <td><button class='adjustButtonClass' onclick="decrementIqamaMinutesFunction('ISHA')">-</button></td>
+                <td><button class='adjustButtonClass' onclick="incrementIqamaMinutesFunction('ISHA')">+</button></td>
+                <td>FIXED : <button id='fixedIqamaIshaButton' class='fixedIqamaButtonClass' onclick='editFixedIqamaIshaFunction();'></button></td>
+            </tr>
+        </table>
+
+        <hr>
+
+		<span id='jomoaSettingsTitle'></span><br>
+		<button id='jomoaFixedTimeButton' class='fixedIqamaButtonClass fixedTimeButtonClass' onclick='editJomoaFixedTimeFunction();'></button>
+		<div><input type='checkbox' id='jomoaOnHrCheckbox' onchange='toggleJomoaOnHrScreenFunction()'> &nbsp;<label for='jomoaOnHrCheckbox' id='jomoaOnHrLabel'></label></div>
+		<div><input type='checkbox' id='jomoaAzanCheckbox' onchange='toggleJomoaAzanFunction()'> &nbsp;<label for='jomoaAzanCheckbox' id='jomoaAzanLabel'></label></div>
+
+
+
+        <hr>
+        <div id='primaryAzanSettingsTitle'></div>
+        <hr>
+        <div onclick='editPrimaryAzanFunction();'><span id='primaryAzanLabel'></span> <span class='whiteTextClass' id='primaryAzanValue'>0</span></div>
+        <hr>
+        <div onclick='editDohrXminAsrFunction();'><span id='dohrXminAsrLabel'></span> <span class='whiteTextClass' id='dohrXminAsrValue'>0</span></div>
+        <hr>
+
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+
+</div>
+
+
+
+<div id='blackScreenSectionId' class='modalPopupClass'>
+
+    <div class='modalHeaderClass'>
+        <div class='modalTitleClass'></div>
+        <div class='modalCloseButtonClass'><span onclick="scrollMenuFunction('blackScreenContentContainer', 0);">&#9650;</span> &nbsp; <span onclick="scrollMenuFunction('blackScreenContentContainer', 1);">&#9660;</span> &nbsp;&nbsp;&nbsp; <span onclick='closeModalFunction(this.parentNode);'>&#10006;</span></div>
+    </div>
+
+    <div id='blackScreenContentContainer' class='modalContentClass'>
+
+
+        <div><input type='checkbox' id='blackScreenInPrayingCheckbox' onchange='toggleBlackScreenInPrayingFunction()'> &nbsp;<label for='blackScreenInPrayingCheckbox' id='blackScreenInPrayingLabel'></label></div>
+        <hr>
+        <div><input type='checkbox' id='blackScreenShowClockCheckbox'	onchange='toggleBlackScreenClockFunction()'> &nbsp;<label for='blackScreenShowClockCheckbox' id='blackScreenShowClockLabel'></label></div>
+        <div><input type='checkbox' id='blackScreenShowDateCheckbox'		onchange='toggleBlackScreenDateFunction()'> &nbsp;<label for='blackScreenShowDateCheckbox' 	 id='blackScreenShowDateLabel'></label></div>
+        <hr>
+        <div><input type='checkbox' id='dohaScreenSaverCheckbox' onchange='toggleDohaScreenSaverFunction()'> &nbsp;<label for='dohaScreenSaverCheckbox' id='dohaScreenSaverLabel'></label></div>
+        <div><input type='checkbox' id='ishaScreenSaverCheckbox' onchange='toggleIshaScreenSaverFunction()'> &nbsp;<label for='ishaScreenSaverCheckbox' id='ishaScreenSaverLabel'></label></div>
+
+		<hr>
+
+        <table class='jomoaDimmerTable'>
+            <tr>
+                <td id='jomoaLabel'></td>
+                <td id='dimmerBeforeLabel'></td>
+                <td id='dimmerBeforeValue'>0</td>
+                <td>
+                    <button class='adjustButtonClass' onclick="decrementDimmerBeforeFunction()">-</button>
+                </td>
+                <td>
+                    <button class='adjustButtonClass' onclick="incrementDimmerBeforeFunction()">+</button>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td id='dimmerAfterLabel'></td>
+                <td id='dimmerAfterValue'>0</td>
+                <td>
+                    <button class='adjustButtonClass' onclick="decrementDimmerAfterFunction()">-</button>
+                </td>
+                <td>
+                    <button class='adjustButtonClass' onclick="incrementDimmerAfterFunction()">+</button>
+                </td>
+            </tr>
+        </table>
+
+
+
+
+        <div id='prayerDurationsTitle'></div>
+
+
+
+        <table class='prayerDurationTableClass'>
+            <tr>
+                <td id='durationFajrLabel'> </td>
+                <td id='durationFajrValue'>0</td>
+                <td>
+                    <button class='adjustButtonClass' onclick="decrementPrayerDurationFunction('FAJR')">-</button>
+                </td>
+                <td>
+                    <button class='adjustButtonClass' onclick="incrementPrayerDurationFunction('FAJR')">+</button>
+                </td>
+            </tr>
+        </table>
+
+
+
+        <table class='prayerDurationTableClass'>
+            <tr>
+                <td id='durationDohrLabel'> </td>
+                <td id='durationDohrValue'>0</td>
+                <td>
+                    <button class='adjustButtonClass' onclick="decrementPrayerDurationFunction('DOHR')">-</button>
+                </td>
+                <td>
+                    <button class='adjustButtonClass' onclick="incrementPrayerDurationFunction('DOHR')">+</button>
+                </td>
+            </tr>
+        </table>
+
+
+        <table class='prayerDurationTableClass'>
+            <tr>
+                <td id='durationAsrLabel'> </td>
+                <td id='durationAsrValue'>0</td>
+                <td>
+                    <button class='adjustButtonClass' onclick="decrementPrayerDurationFunction('ASR')">-</button>
+                </td>
+                <td>
+                    <button class='adjustButtonClass' onclick="incrementPrayerDurationFunction('ASR')">+</button>
+                </td>
+            </tr>
+        </table>
+
+
+        <table class='prayerDurationTableClass'>
+            <tr>
+                <td id='durationMgrbLabel'> </td>
+                <td id='durationMgrbValue'>0</td>
+                <td>
+                    <button class='adjustButtonClass' onclick="decrementPrayerDurationFunction('MAGHRIB')">-</button>
+                </td>
+                <td>
+                    <button class='adjustButtonClass' onclick="incrementPrayerDurationFunction('MAGHRIB')">+</button>
+                </td>
+            </tr>
+        </table>
+
+
+
+        <table class='prayerDurationTableClass'>
+            <tr>
+                <td id='durationIshaLabel'> </td>
+                <td id='durationIshaValue'>0</td>
+                <td>
+                    <button class='adjustButtonClass' onclick="decrementPrayerDurationFunction('ISHA')">-</button>
+                </td>
+                <td>
+                    <button class='adjustButtonClass' onclick="incrementPrayerDurationFunction('ISHA')">+</button>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+
+</div>
+
+
+
+
+<div id='locationSectionId' class='modalPopupClass'>
+
+    <div class='modalHeaderClass'>
+        <div class='modalTitleClass'><span id='locationSectionTitle'></span></div>
+        <div class='modalCloseButtonClass'><span onclick="scrollMenuFunction('locationContentContainer', 0);">&#9650;</span> &nbsp; <span onclick="scrollMenuFunction('locationContentContainer', 1);">&#9660;</span> &nbsp;&nbsp;&nbsp; <span onclick="closeModalFunction(this.parentNode);">&#10006;</span></div>
+    </div>
+
+    <div id='locationContentContainer' class='modalContentClass'>
+
+           <input type='checkbox' id='useWcsvCheckbox' onchange='toggleUseWcsvFunction()'> &nbsp;<label for='useWcsvCheckbox' id='useWcsvLabel'></label>
+           <hr>
+
+            <div class='locationSettingsClass'>
+                <div id='citySelectionTitle'></div>
+                <button id='selectCountryButton' class='locationSelectButtonClass' onclick='openCountryListFunction();'>_country</button>
+                <button id='selectCityButton' class='locationSelectButtonClass' onclick='openCityListFunction();'>_city</button>
+                <br><br>
+                <input type='checkbox' id='useImportedTimesCheckbox' onchange='toggleUseImportedTimesFunction()'> &nbsp;<label for='useImportedTimesCheckbox' id='useImportedTimesLabel'></label>
+                <hr>
+                <div>
+                    <div id='importedTimesInfoTitle'></div>
+                    <span id='importedTimesInfoText'></span>
+                    <div class='infoTextClass'>
+                    more info here : <a href='https://www.tawkit.net/docs/#mosque-location-settings' target='_blank'>tawkit.net/docs/#mosque-location-settings</a>
+                    </div>
+                    
+                </div>
+            </div>
+
+
+    </div>
+
+</div>
+
+
+
+<div id='personalFilesSectionId' class='modalPopupClass'>
+
+    <div class='modalHeaderClass'>
+        <div class='modalTitleClass'></div>
+        <div class='modalCloseButtonClass'><span onclick="scrollMenuFunction('personalFilesContentContainer', 0);">&#9650;</span> &nbsp; <span onclick="scrollMenuFunction('personalFilesContentContainer', 1);">&#9660;</span> &nbsp;&nbsp;&nbsp; <span onclick="closeModalFunction(this.parentNode);">&#10006;</span></div>
+    </div>
+
+    <div id='personalFilesContentContainer' class='modalContentClass'>
+
+	    <div><input type='checkbox' id='userFilesActiveCheckbox' onchange='toggleUserFilesFunction()'> &nbsp; <label for='userFilesActiveCheckbox' id='userFilesActiveLabel'> </label></div>
+	    <div id='userFilesInfoText' class='infoTextClass'></div>
+	    <hr>
+
+			    <div id='userFilesUploadSection'>
+
+
+					<input type='file' id='fileInputElement' accept='image/png, image/jpeg, image/jpg' style='display:none;'>
+
+					<div id='uploadInfoText' class='infoTextClass'>Use pictures *.jpg or *.png (less than 1MB per file)</div>
+					<div id='storageInfoDisplay' class='infoTextClass'></div>
+						<table class='uploadTableClass'>
+						<tr>
+							<td>
+								<div>Display Background</div>
+								<button class='uploadButtonClass'  onclick='uploadImageFunction(0);'>Upload</button>
+								<button class='uploadButtonClass'  onclick='removeUploadedImageFunction(0);'> X </button>
+								<img id='cjpf0' alt='' src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='>
+							</td>
+							<td>
+								<div>5min Azkar Picture</div>
+								<button class='uploadButtonClass'  onclick='uploadImageFunction(1);'>Upload</button>
+								<button class='uploadButtonClass'  onclick='removeUploadedImageFunction(1);'> X </button>
+								<img id='cjpf1' alt='' src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='>
+							</td>
+						</tr>
+						</table>
+
+			    </div>
+
+
+
+
+    </div>
+
+</div>
+
+
+
+<div id='bottomMessagesSectionId' class='modalPopupClass'>
+
+    <div class='modalHeaderClass'>
+        <div class='modalTitleClass'></div>
+        <div class='modalCloseButtonClass'><span onclick="scrollMenuFunction('bottomMessagesContent', 0);">&#9650;</span> &nbsp; <span onclick="scrollMenuFunction('bottomMessagesContent', 1);">&#9660;</span> &nbsp;&nbsp;&nbsp; <span onclick="closeModalFunction(this.parentNode);">&#10006;</span></div>
+    </div>
+
+    <div id='bottomMessagesContent' class='modalContentClass'>
+
+        <div id='bottomMessagesTitle'></div>
+        <div id='bottomMessagesInfoText' class='infoTextClass'></div>
+        <div><input type='checkbox' id='marqueeActiveCheckbox' onchange='toggleMarqueeFunction()'> &nbsp;<label for='marqueeActiveCheckbox' id='marqueeActiveLabel'> </label></div>
+        <button class='addSlideButtonClass cursorPointerClass' onclick='addMessageFunction();' id='addMessageButtonText'></button>
+        <div id='messagesHelpText' class='infoTextClass'></div>
+        <div><input type='checkbox' id='ramadanDaysLeftCheckbox' onchange='toggleRamadanDaysLeftFunction()'> &nbsp;<label for='ramadanDaysLeftCheckbox' id='ramadanDaysLeftLabel'> </label></div>
+        <br>
+        <table id='bottomMessagesTable' dir='ltr'></table>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+
+</div>
+
+
+<div id='shortcutsSectionId' class='modalPopupClass'>
+
+    <div class='modalHeaderClass'>
+        <div class='modalTitleClass'></div>
+        <div class='modalCloseButtonClass'><span onclick="scrollMenuFunction('shortcutsContentContainer', 0);">&#9650;</span> &nbsp; <span onclick="scrollMenuFunction('shortcutsContentContainer', 1);">&#9660;</span> &nbsp;&nbsp;&nbsp; <span onclick='closeModalFunction(this.parentNode);'>&#10006;</span></div>
+    </div>
+
+
+	    <div id='shortcutsContentContainer' class='modalContentClass'>
+	        <div id='shortcutsTitle'></div>
+	        <div id='shortcutsListContainer' class='infoTextClass'></div>
+
+				<ul class='textLeftClass'>
+				  <li>Click on clock to switch bewteen Mini and Full clock.</li>
+				  <li>Click on Hadith bottom screen, to switch between Ahadith and scrolling announcements.</li>
+				  <li>Click on Iqama of Isha, to change Ahadith.</li>
+				  <li>Click on Next-Pray TIME to make prayers names in middle (HR/VR)</li>
+				  <li>Click on Next-Pray TEXT to Enlarge Next-Pray Counter</li>
+				  <li>DoubleClick on logo to activate the black-screen.<br>( Click on black-screen to remove it).</li>
+				  <li>Click on Mosque name in HR-mode, to change the date to the up-right and Mosque name to the left.</li>
+				  <li>Click on tawkit name in HR-mode (left-bottom), to switch between 5 or 6 cells prayers display.</li>
+				  <li>Click 7 times on weather-forecasts to reset app settings and restart. (Useful when app is blocked with bad settings).</li>
+				  <li>DoubleClick on Iqama of Fajr to show Iqama-with-time On/Off</li>
+				  <li>Click on tomorrow-fajr-time 3 times, to show/hide Ayats</li>
+				</ul>
+
+	    </div>
+
+</div>
+
+
+<div id='meteoSectionId' class='modalPopupClass'>
+
+    <div class='modalHeaderClass'>
+        <div class='modalTitleClass'></div>
+        <div class='modalCloseButtonClass'><span onclick="scrollMenuFunction('meteoContentContainer', 0);">&#9650;</span> &nbsp; <span onclick="scrollMenuFunction('meteoContentContainer', 1);">&#9660;</span> &nbsp;&nbsp;&nbsp; <span onclick='closeModalFunction(this.parentNode);'>&#10006;</span></div>
+    </div>
+
+    <div id='meteoContentContainer' class='modalContentClass'>
+
+        <div><input type='checkbox' id='meteoActiveCheckbox' onchange='toggleMeteoActiveFunction()'> &nbsp;<label for='meteoActiveCheckbox' id='meteoActiveLabel'></label></div>
+        <div><input type='checkbox' id='meteoWithPrayersCheckbox' onchange='toggleMeteoWithPrayersFunction()'> &nbsp;<label for='meteoWithPrayersCheckbox' id='meteoWithPrayersLabel'></label></div>
+        <div class='textAlignCenterClass'>
+            <button onclick='getGpsPositionFunction();'>GPS Position By Browser</button>
+            <br>
+            <button onclick='setGpsManuallyFunction();'>GPS Position Manually</button>
+            <br>
+            <br> GPS Position : <span id='gpsPositionDisplay'></span>
+        </div>
+        <br>
+        <div class='infoTextClass textAlignCenterClass textLeftClass'>7 DAYS WEATHER FORECASTS.
+            <br>Auto-updates when application starts and at midnight.
+            <br>This service needs Internet at least once a week.
+            <br>
+            <br>Service by : Open-Meteo.com</div>
+        <br>
+        <br>
+        <br>
+
+    </div>
+
+</div>
+
+
+<img id='tvPointerImage' alt='' src='./images/tvPointer.png'>
+
+
+<div id='inputDialogContainer'>
+    <div id='inputDialogTitle'></div>
+    <input id='inputDialogTextField' type='text' inputmode='text' tabindex='0' value=""><br>
+    <button class='inputDialogButtonClass' onclick='cancelInputDialogFunction();'>CANCEL</button>
+    <button class='inputDialogButtonClass' onclick='confirmInputDialogFunction();'>OK</button>
+</div>
+
+
+
+
+<div id='countryListModalId' class='modalPopupClass'>
+    <div class='modalHeaderClass'>
+        <div class='modalTitleClass'></div>
+        <div class='modalCloseButtonClass'>
+        <span class='cursorPointerClass' onclick="scrollMenuFunction('countryListContent', 0);">&#9650;</span> &nbsp;
+        <span class='cursorPointerClass' onclick="scrollMenuFunction('countryListContent', 1);">&#9660;</span> &nbsp;&nbsp;&nbsp;
+        <span onclick='closeModalFunction(this.parentNode);'>&#10006;</span></div>
+    </div>
+    <div id='countryListContent' class='locationListContentClass'></div>
+</div>
+
+
+<div id='cityListModalId' class='modalPopupClass'>
+    <div class='modalHeaderClass'>
+        <div class='modalTitleClass'></div>
+        <div class='modalCloseButtonClass'><span class='cursorPointerClass' onclick="scrollMenuFunction('cityListContent', 0);">&#9650;</span> &nbsp; <span class='cursorPointerClass' onclick="scrollMenuFunction('cityListContent', 1);">&#9660;</span> &nbsp;&nbsp;&nbsp; <span onclick='closeModalFunction(this.parentNode);'>&#10006;</span></div>
+    </div>
+    <div id='cityListContent' class='locationListContentClass'></div>
+</div>
+
+
+<div id='alertToastDiv'></div>
+
+
+
+
+
+<script src='m2body.js?s=963'></script>
+<link rel='stylesheet' href='./spec/custom.css'>
+<script src='./spec/mosques-registry.js'></script>
+<script src='./spec/mosquee.js'></script>
+<script src='./spec/custom.js'></script>
+</body>
+
+
+</html>
+

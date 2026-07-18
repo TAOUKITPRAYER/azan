@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Notifications (Android 13+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Exact alarms for prayer times -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <!-- Vibrate on notification -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Wake device for azan notification -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Permet de demander l'exemption d'optimisation de batterie : appli
+         tourne en continu sur un écran mural (azan/horaires), pas un usage
+         ponctuel — cf. MainActivity.requestIgnoreBatteryOptimizations(). -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- Foreground service pour le téléchargement de récitateur : permet au
+         worker de continuer quand l'appli passe en arrière-plan (cf.
+         ReciterDownloadWorker.setForeground / dataSync requis depuis Android 14) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!-- Foreground service pour la lecture native de l'azan (MediaPlayer) quand
+         l'alarme se declenche appli fermee/arriere-plan (cf. AzanPlaybackService,
+         PrayerAlarmReceiver) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <!-- Access fine location (optional — for auto city detection) -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Sans cette permission, l'app n'apparait pas dans la liste système
+         "Acces Ne pas deranger" (ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS,
+         cf. MobileJsBridge.requestDndAccess) sur de nombreux OEM (Samsung
+         inclus) : cet ecran ne liste que les apps qui declarent ce marqueur. -->
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <!-- Requis pour installer l'APK de mise à jour téléchargé par l'app elle-même
+         (AppUpdateDownloader/UpdateDownloadReceiver) via ACTION_VIEW -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.TawkitMobile"
+        android:hardwareAccelerated="true"
+        android:usesCleartextTraffic="true">
+
+        <!-- Main Activity -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- Handle notification tap to open app -->
+            <intent-filter>
+                <action android:name="net.tawkit.mobile.OPEN_PRAYER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- Alias HOME (boitiers Android TV uniquement) : desactive par
+             defaut (etat reel pilote a l'execution via PackageManager, cf.
+             TvHomeLauncherHelper/TvHomeLauncherPrefs). Rend Tawkit
+             selectionnable comme ecran d'accueil systeme, ce qui garantit un
+             demarrage a chaque boot independamment des restrictions de
+             BOOT_COMPLETED propres a certains firmwares generiques (ex.
+             X88 Pro). -->
+        <activity-alias
+            android:name=".TvHomeLauncherAlias"
+            android:targetActivity=".MainActivity"
+            android:exported="true"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Boot receiver: reschedule alarms after reboot.
+             QUICKBOOT_POWERON (+ variante HTC) : de nombreux boitiers Android
+             TV generiques/non certifies n'emettent pas BOOT_COMPLETED mais
+             cette action a la place lors d'un "fast boot" -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Prayer alarm receiver -->
+        <receiver
+            android:name=".PrayerAlarmReceiver"
+            android:exported="false" />
+
+        <!-- Lecture native de l'azan (MediaPlayer) declenchee par PrayerAlarmReceiver -->
+        <service
+            android:name=".AzanPlaybackService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <!-- Coupure/remise du son autour de l'azan (onglet الإعدادات) -->
+        <receiver
+            android:name=".SilentModeReceiver"
+            android:exported="false" />
+
+        <!-- Installation automatique de la mise à jour une fois le téléchargement
+             DownloadManager réellement terminé (cf. AppUpdateDownloader) -->
+        <receiver
+            android:name=".UpdateDownloadReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+            </intent-filter>
+        </receiver>
+
+        <!-- FileProvider pour exposer l'APK téléchargé (getExternalFilesDir) à
+             l'installeur de paquets via une content:// URI -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths" />
+        </provider>
+
+        <!-- Widget d'accueil 4×2 : heures de prière + dates -->
+        <receiver
+            android:name=".TawkitWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="net.tawkit.mobile.WIDGET_MINUTE_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
+
+        <!-- Déclare le type de foreground service utilisé par WorkManager pour
+             le téléchargement resumable des récitateurs Coran (obligatoire à
+             partir d'Android 14 / targetSdk 34 dès qu'on appelle setForeground()
+             avec un type) — cf. ReciterDownloadWorker.buildForegroundInfo(). -->
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
+
+        <!-- WorkManager initializer -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup" />
+        </provider>
+
+    </application>
+</manifest>

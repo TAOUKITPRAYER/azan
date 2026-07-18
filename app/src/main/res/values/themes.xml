@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.TawkitMobile" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:statusBarColor">@android:color/black</item>
+        <item name="android:navigationBarColor">@android:color/black</item>
+    </style>
+
+    <!-- Appliquée à l'exécution (setTheme(), avant super.onCreate()) uniquement
+         quand MainActivity est relancée silencieusement au démarrage sur un
+         téléphone (EXTRA_SILENT_BOOT, cf. BootReceiver) : la fenêtre reste
+         totalement transparente/invisible pendant que le WebView recalcule
+         les horaires et reprogramme les alarmes en arrière-plan, sans
+         interrompre visuellement l'écran d'accueil/verrouillage. -->
+    <style name="Theme.TawkitMobile.Invisible" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>

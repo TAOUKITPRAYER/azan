@@ -1,0 +1,55 @@
+plugins {
+    id 'com.android.application' version '9.2.1'
+    id 'com.google.gms.google-services' version '4.4.2'
+}
+
+android {
+    namespace = 'net.tawkit.mobile'
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = "net.tawkit.mobile"
+        minSdk = 23
+        targetSdk = 34
+        versionCode = 12
+        versionName = "11.44A"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    androidResources {
+        noCompress.addAll('js', 'css', 'html', 'mp3', 'ogg', 'wav', 'json')
+    }
+
+}
+
+// Renames the output APK. Since AGP 9.0+, applicationVariants is removed.
+// The base extension is used to set the archive name prefix.
+base {
+    //archivesName = "tawkit_${android.defaultConfig.versionName.replace('.', '')}"
+    archivesName = "taoukit"
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    // WorkManager for background prayer time scheduling + resumable reciter downloads
+    implementation 'androidx.work:work-runtime-ktx:2.9.0'
+    // SAF (Storage Access Framework) helpers for USB folder import (reciters)
+    implementation 'androidx.documentfile:documentfile:1.0.1'
+    // OneSignal push notifications
+    implementation 'com.onesignal:OneSignal:5.1.6'
+}
+
+
+tasks.register("prepareKotlinBuildScriptModel") {}
+tasks.create("updateDaemonJvm") {}

@@ -1,0 +1,15 @@
+{
+  "reciters": [
+    { "id": "abdulbasit", "name": "عبد الباسط عبد الصمد", "url": "https://github.com/VOTRE-USER/VOTRE-REPO/releases/download/reciter-abdulbasit/abdulbasit.zip" },
+    { "id": "husary",     "name": "محمود خليل الحصري",     "url": "https://github.com/VOTRE-USER/VOTRE-REPO/releases/download/reciter-husary/husary.zip" },
+    { "id": "tablawi",    "name": "محمد محمود الطبلاوي",   "url": "https://github.com/VOTRE-USER/VOTRE-REPO/releases/download/reciter-tablawi/tablawi.zip" },
+    { "id": "ghamidi",    "name": "سعد الغامدي",           "url": "https://github.com/VOTRE-USER/VOTRE-REPO/releases/download/reciter-ghamidi/ghamidi.zip" },
+    { "id": "hudhaifi",   "name": "علي الحذيفي",           "url": "https://github.com/VOTRE-USER/VOTRE-REPO/releases/download/reciter-hudhaifi/hudhaifi.zip" },
+    { "id": "banna",      "name": "محمد أحمد البنّا",      "url": "https://github.com/VOTRE-USER/VOTRE-REPO/releases/download/reciter-banna/banna.zip" },
+    { "id": "jalnam",     "name": "خالد الجلنام",           "url": "https://github.com/VOTRE-USER/VOTRE-REPO/releases/download/reciter-jalnam/jalnam.zip" },
+    { "id": "minshawi",   "name": "محمد صديق المنشاوي",    "url": "https://github.com/VOTRE-USER/VOTRE-REPO/releases/download/reciter-minshawi/minshawi.zip" },
+    { "id": "rikbawi",    "name": "محمد الركباوي",          "url": "https://github.com/VOTRE-USER/VOTRE-REPO/releases/download/reciter-rikbawi/rikbawi.zip" },
+    { "id": "dawsari",    "name": "ياسر الدوسري",          "url": "https://github.com/VOTRE-USER/VOTRE-REPO/releases/download/reciter-dawsari/dawsari.zip" },
+    { "id": "ahmedajmi",  "name": "أحمد العجمي",           "url": "https://github.com/TAOUKITPRAYER/tawkit-reciters/releases/download/reciter-ahmedajmi/ahmedajmi.zip" }
+  ]
+}
