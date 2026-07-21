@@ -39,8 +39,8 @@ $GradlewBat  = Join-Path $ProjectRoot 'gradlew.bat'
 
 $PackageName  = 'net.tawkit.hijriadmin'
 $KeyAlias     = 'tawkit'
-$StorePass    = '19770327'
-$KeyPass      = '19770327'
+$StorePass    = $env:TAWKIT_KEYSTORE_PASSWORD
+$KeyPass      = $env:TAWKIT_KEYSTORE_PASSWORD
 
 function Write-Info    { param([string]$Msg) Write-Host $Msg -ForegroundColor Cyan }
 function Write-Success { param([string]$Msg) Write-Host $Msg -ForegroundColor Green }
@@ -97,6 +97,7 @@ function Show-Help {
 function Invoke-BuildApk {
     if (-not (Test-Path $Keystore)) { throw "Keystore introuvable : $Keystore" }
     if (-not (Test-Path $GradlewBat)) { throw "gradlew.bat introuvable : $GradlewBat" }
+    if (-not $StorePass) { throw "Variable d'environnement TAWKIT_KEYSTORE_PASSWORD non definie (mot de passe du keystore tawkit.jks)." }
 
     $sdkDir        = Get-AndroidSdkDir
     $buildToolsDir = Get-LatestBuildToolsDir -SdkDir $sdkDir
