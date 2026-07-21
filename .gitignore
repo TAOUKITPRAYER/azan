@@ -34,3 +34,8 @@ Thumbs.db
 # Third-party Mushaf APK/pages used only for local, private data analysis —
 # never to be committed/redistributed (copyrighted publisher content).
 app/mushaf/
+
+# Local reciter-download cache (raw audio archives, 100s of MB — exceeds
+# GitHub's file size limit and shouldn't be versioned; downloaded at
+# runtime by ReciterDownloader instead).
+reciters-catalog/*.zip
