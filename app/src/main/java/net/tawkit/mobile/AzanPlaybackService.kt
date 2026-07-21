@@ -76,8 +76,13 @@ class AzanPlaybackService : Service() {
         val prayer = intent?.getStringExtra("prayer") ?: "Salat"
 
         if (intent?.action == ACTION_STOP) {
-            Log.d("TWKT", "AzanPlaybackService: stop requested by user")
-            NativeEventLog.log(this, "AZAN", "NATIVE_STOP_USER prayer=$prayer")
+            // source : "notification_button" (bouton "Arreter", cf. buildNotification
+            // ci-dessous) ou "webview_popup_close" (MobileJsBridge.stopAzanPlayback,
+            // appele depuis custom.js quand l'utilisateur ferme la popup dans l'appli).
+            // Absent (vieux client / appel direct) -> "unknown".
+            val source = intent.getStringExtra("source") ?: "unknown"
+            Log.d("TWKT", "AzanPlaybackService: stop requested by user (source=$source)")
+            NativeEventLog.log(this, "AZAN", "NATIVE_STOP_USER prayer=$prayer source=$source")
             stopSelfCleanly()
             return START_NOT_STICKY
         }
@@ -127,6 +132,7 @@ class AzanPlaybackService : Service() {
         val stopIntent = Intent(this, AzanPlaybackService::class.java).apply {
             action = ACTION_STOP
             putExtra("prayer", prayer)
+            putExtra("source", "notification_button")
         }
         val pendingStop = PendingIntent.getService(
             this, 0, stopIntent,

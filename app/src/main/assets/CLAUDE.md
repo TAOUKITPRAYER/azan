@@ -150,7 +150,11 @@ Available events and their payloads:
 
 ## Azan Popup Safety Timer
 
-A `setTimeout` of **4 minutes** (240 000 ms) auto-closes the azan popup if `_ucReleaseAzanBlock()` was not called normally (e.g. app left unattended). This prevents the screen from staying locked on the azan overlay indefinitely.
+Two separate `setTimeout` safety timers auto-close the azan popup if `_ucReleaseAzanBlock()` was not called normally (e.g. audio fallback chain exhausted, app left unattended) — this prevents the screen from staying locked on the azan overlay indefinitely:
+- **300 s (5 min)** — normal mode (`ucAzanIqamaByVoice == 1`), covers the case where the audio `ended`/`error` events never fire.
+- **180 s (3 min)** — silent mode (`ucAzanIqamaByVoice != 1`), where there is no long audio to wait on in the first place.
+
+Debug console trace: `[AZAN] POPUP_FORCE_CLOSE reason=safety_timeout_300s` / `reason=silent_mode_timeout_180s`.
 
 ## Counter Drift Correction (`_installCounterDriftCorrection`)
 

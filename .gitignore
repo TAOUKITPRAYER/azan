@@ -30,3 +30,7 @@ tawkit.jks
 # OS cruft
 .DS_Store
 Thumbs.db
+
+# Third-party Mushaf APK/pages used only for local, private data analysis —
+# never to be committed/redistributed (copyrighted publisher content).
+app/mushaf/

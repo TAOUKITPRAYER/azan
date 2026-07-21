@@ -77,6 +77,14 @@ class MainActivity : AppCompatActivity() {
     /** Lancement silencieux post-boot (telephone) : cf. EXTRA_SILENT_BOOT. */
     private var isSilentBoot = false
 
+    /** Horodatage du dernier onPause() ; 0 = jamais mis en pause depuis le
+     *  lancement. Sert a ne declencher le resync JS (onResume) que si la
+     *  pause a dure assez longtemps pour avoir reellement suspendu les
+     *  timers via pauseTimers() -- evite de casser une popup azan/iqama en
+     *  cours pour un aller-retour trivial (ex. dialogue systeme). */
+    private var pausedAtMs = 0L
+    private val RESYNC_THRESHOLD_MS = 5000L
+
     // Request notification permission (Android 13+)
     private val notifPermLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -265,6 +273,17 @@ class MainActivity : AppCompatActivity() {
             // reflétée immédiatement, sans qu'une désinstallation complète soit
             // nécessaire.
             cacheMode = WebSettings.LOAD_NO_CACHE
+            // Par défaut, le WebView applique le réglage système "Taille de
+            // police" (accessibilité Android, Configuration.fontScale) sur le
+            // texte de la page, en plus de notre propre CSS. Cette appli est
+            // un affichage à mise en page fixe (proportions vw/vh calculées
+            // pour un rendu type kiosk — cf. _fixAyaFontSizeWideScreen dans
+            // custom.js) : le multiplicateur système vient s'ajouter à nos
+            // calculs et fait déborder/chevaucher certains éléments quand
+            // l'utilisateur agrandit la police du téléphone. On fige le rendu
+            // du texte à 100%, indépendamment du réglage système — la taille
+            // de police reste entièrement pilotée par notre CSS/JS.
+            textZoom = 100
             // Zoom WebView natif désactivé : le lecteur Coranique gère le
             // pincement lui-même via JS (touchmove + _qrApplyFontSize).
             // Avec setSupportZoom(true), le WebView intercepte le pincement
@@ -543,7 +562,32 @@ class MainActivity : AppCompatActivity() {
         webView.onResume()
         webView.resumeTimers()
         NativeEventLog.log(this, "AZAN", "APP_RESUME")
+        maybeTriggerJsResync()
         maybeReassertTvHomeLauncher()
+    }
+
+    /**
+     * Déclenche le resync JS (_ucResyncPrayerSequence dans custom.js) depuis
+     * le natif plutôt que de compter sur `document.visibilitychange` côté
+     * WebView, qui ne se synchronise pas de façon fiable avec le cycle de vie
+     * de l'Activity (onPause/onResume) — c'est pourtant onPause/onResume qui
+     * suspend/reprend réellement les timers JS via pauseTimers()/
+     * resumeTimers() ci-dessus. Sans ce déclenchement natif, l'app pouvait
+     * rester figée sur l'état d'avant la mise en arrière-plan après retour.
+     *
+     * Seuil dupliqué de HIDDEN_THRESHOLD_MS (custom.js, _installResyncOnResume)
+     * — garder les deux en phase si l'un des deux change.
+     */
+    private fun maybeTriggerJsResync() {
+        val pausedAt = pausedAtMs
+        pausedAtMs = 0L
+        if (pausedAt == 0L) return // jamais mis en pause depuis le lancement
+        val hiddenMs = System.currentTimeMillis() - pausedAt
+        if (hiddenMs <= RESYNC_THRESHOLD_MS) return
+        webView.evaluateJavascript(
+            "if (window._ucResyncPrayerSequence) window._ucResyncPrayerSequence('native_resume');",
+            null
+        )
     }
 
     /**
@@ -582,6 +626,7 @@ class MainActivity : AppCompatActivity() {
         // que le WebView backgrounded ne joue plus rien.
         webView.onPause()
         webView.pauseTimers()
+        pausedAtMs = System.currentTimeMillis()
         NativeEventLog.log(this, "AZAN", "APP_PAUSE")
     }
 

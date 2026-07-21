@@ -654,11 +654,20 @@ class MobileJsBridge(
      * azan dans l'appli, pour que les deux façons de couper le son
      * (notification ET popup) fonctionnent. Sans effet si rien ne joue :
      * AzanPlaybackService.onStartCommand traite ACTION_STOP silencieusement.
+     *
+     * prayer/source : transmis tels quels a NativeEventLog (NATIVE_STOP_USER)
+     * pour que le journal distingue QUI a coupe (bouton notification vs popup
+     * WebView) et QUELLE priere -- avant ce changement, cet appel ne
+     * transmettait ni l'un ni l'autre, et NativeEventLog retombait sur le
+     * prayer par defaut "Salat" (AzanPlaybackService.kt), rendant les deux
+     * sources indiscernables dans le journal.
      */
     @JavascriptInterface
-    fun stopAzanPlayback() {
+    fun stopAzanPlayback(prayer: String, source: String) {
         val intent = Intent(context, AzanPlaybackService::class.java).apply {
             action = AzanPlaybackService.ACTION_STOP
+            putExtra("prayer", prayer)
+            putExtra("source", source)
         }
         context.startService(intent)
     }
