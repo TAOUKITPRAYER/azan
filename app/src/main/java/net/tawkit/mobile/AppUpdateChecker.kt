@@ -253,7 +253,15 @@ object AppUpdateChecker {
                     }
                 }
             }
-            return RemoteVersion(remoteCode, remoteName, apkUrl, body)
+            // Aperçu (bouton "ℹ️ Info") : retire les lignes techniques
+            // versionCode:/versionName: du texte affiché à l'utilisateur —
+            // elles restent lues ci-dessus pour la comparaison, mais n'ont
+            // rien à faire dans un résumé de nouveautés lisible.
+            val releaseNotes = body.lineSequence()
+                .filterNot { versionCodePattern.matches(it) || versionNamePattern.matches(it) }
+                .joinToString("\n")
+                .trim()
+            return RemoteVersion(remoteCode, remoteName, apkUrl, releaseNotes)
         } finally {
             connection.disconnect()
         }
