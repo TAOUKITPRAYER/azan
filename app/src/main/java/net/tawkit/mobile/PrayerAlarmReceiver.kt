@@ -16,6 +16,8 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
         val prayerHour    = intent.getIntExtra("prayerHour", 0)
         val prayerMinute  = intent.getIntExtra("prayerMinute", 0)
         val minutesBefore = intent.getIntExtra("minutesBefore", 0)
+        val shortAzan     = intent.getBooleanExtra("shortAzan", false)
+        val voiceMode     = intent.getBooleanExtra("voiceMode", true)
 
         Log.d("TWKT", "Alerte $prayer dans $minutesBefore min — azan à $prayerHour:$prayerMinute")
 
@@ -42,6 +44,8 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                 putExtra("prayer", prayer)
                 putExtra("prayerHour", prayerHour)
                 putExtra("prayerMinute", prayerMinute)
+                putExtra("shortAzan", shortAzan)
+                putExtra("voiceMode", voiceMode)
             }
             ContextCompat.startForegroundService(context, svcIntent)
         } else {

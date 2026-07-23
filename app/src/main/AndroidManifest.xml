@@ -62,6 +62,17 @@
                 <action android:name="net.tawkit.mobile.OPEN_PRAYER" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <!-- Deep link "Ouvrir cette mosquée dans l'application" (bloc
+                 Partager de la fiche mosquée, custom.js _shareMosqueInfo) :
+                 tawkit://mosque/<mosque_id> — fonctionne uniquement si
+                 l'appli est déjà installée (pas d'App Link https, pas de
+                 assetlinks.json côté serveur pour cette 1ère version). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="tawkit" android:host="mosque" />
+            </intent-filter>
         </activity>
 
         <!-- Alias HOME (boitiers Android TV uniquement) : desactive par

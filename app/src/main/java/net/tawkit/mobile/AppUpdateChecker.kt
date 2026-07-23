@@ -73,7 +73,8 @@ object AppUpdateChecker {
     private data class RemoteVersion(
         val versionCode: Long?,
         val versionName: String,
-        val downloadUrl: String
+        val downloadUrl: String,
+        val releaseNotes: String
     )
 
     fun check(activity: AppCompatActivity, manual: Boolean) {
@@ -128,11 +129,14 @@ object AppUpdateChecker {
             .setCancelable(false)
             .setNegativeButton("Annuler", null)
             .setPositiveButton("OK", null)   // slot réservé, rempli si besoin ci-dessous
+            .setNeutralButton("ℹ️ Info", null)   // slot réservé (nouvelle version dispo uniquement)
             .show()
 
         val btnPositive = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
         val btnNegative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+        val btnNeutral0 = dialog.getButton(AlertDialog.BUTTON_NEUTRAL)
         btnPositive.visibility = View.GONE
+        btnNeutral0.visibility = View.GONE
 
         var cancelled = false
         btnNegative.setOnClickListener {
@@ -181,12 +185,15 @@ object AppUpdateChecker {
     ) {
         val (localCode, localName) = installedVersion(activity)
         val updateAvailable = remote.versionCode?.let { it > localCode }
-            ?: (normalizeVersion(remote.versionName) != normalizeVersion(localName))
+            ?: isRemoteVersionNewer(remote.versionName, localName)
+
+        val btnNeutral = dialog.getButton(AlertDialog.BUTTON_NEUTRAL)
 
         if (!updateAvailable) {
             dialog.setTitle("Application à jour")
             statusText.text = "Vous disposez de la dernière version disponible ($localName)."
             btnNegative.visibility = View.GONE
+            btnNeutral.visibility = View.GONE
             btnPositive.visibility = View.VISIBLE
             btnPositive.text = "OK"
             btnPositive.setOnClickListener { dialog.dismiss() }
@@ -199,6 +206,9 @@ object AppUpdateChecker {
             "Voulez-vous la télécharger et lancer la mise à jour ?"
         btnNegative.text = "Plus tard"
         btnNegative.setOnClickListener { dialog.dismiss() }
+        btnNeutral.visibility = View.VISIBLE
+        btnNeutral.text = "ℹ️ Info"
+        btnNeutral.setOnClickListener { showReleaseInfoDialog(activity, remote) }
         btnPositive.visibility = View.VISIBLE
         btnPositive.text = "Mettre à jour"
         btnPositive.setOnClickListener {
@@ -243,7 +253,7 @@ object AppUpdateChecker {
                     }
                 }
             }
-            return RemoteVersion(remoteCode, remoteName, apkUrl)
+            return RemoteVersion(remoteCode, remoteName, apkUrl, body)
         } finally {
             connection.disconnect()
         }
@@ -264,11 +274,11 @@ object AppUpdateChecker {
     private fun showResult(activity: AppCompatActivity, remote: RemoteVersion, manual: Boolean) {
         val (localCode, localName) = installedVersion(activity)
         val updateAvailable = remote.versionCode?.let { it > localCode }
-            ?: (normalizeVersion(remote.versionName) != normalizeVersion(localName))
+            ?: isRemoteVersionNewer(remote.versionName, localName)
 
         if (!updateAvailable) return
 
-        AlertDialog.Builder(activity)
+        val dialog = AlertDialog.Builder(activity)
             .setTitle("Nouvelle version disponible")
             .setMessage(
                 "Version installée : $localName\n" +
@@ -276,17 +286,65 @@ object AppUpdateChecker {
                     "Voulez-vous la télécharger et lancer la mise à jour ?"
             )
             .setNegativeButton("Plus tard", null)
+            .setNeutralButton("ℹ️ Info", null)   // réécrit ci-dessous (ne doit PAS fermer cette boîte)
             .setPositiveButton("Mettre à jour") { _, _ ->
                 openDownload(activity, remote.downloadUrl)
             }
             .show()
+
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+            showReleaseInfoDialog(activity, remote)
+        }
     }
 
-    private fun normalizeVersion(value: String): String =
-        value.lowercase()
-            .replace(Regex("[^a-z0-9]"), "")
-            .removePrefix("v")
-            .removeSuffix("beta")
+    /**
+     * Détails de la release GitHub (aperçu) — dialogue indépendant qui se
+     * superpose à la boîte "Nouvelle version disponible" SANS la fermer : la
+     * fermer (bouton "Fermer") révèle simplement la boîte parente toujours là.
+     */
+    private fun showReleaseInfoDialog(activity: AppCompatActivity, remote: RemoteVersion) {
+        val message = if (remote.releaseNotes.isNotBlank()) {
+            remote.releaseNotes
+        } else {
+            "Aucune information supplémentaire n'est disponible pour cette version."
+        }
+        AlertDialog.Builder(activity)
+            .setTitle("Détails de la version ${remote.versionName}")
+            .setMessage(message)
+            .setPositiveButton("Fermer", null)
+            .show()
+    }
+
+    /**
+     * Compare deux noms de version au format "MAJEUR.MINEUR[.PATCH...]"
+     * (ex. "11.64", "V11.51") composant par composant. Retourne null si l'un
+     * des deux formats n'est pas numériquement interprétable (ex. anciens
+     * formats "V10A_beta") — dans ce cas l'appelant ne doit PAS proposer de
+     * mise à jour (ambigu != plus récent), plutôt que de se rabattre sur une
+     * simple inégalité de chaînes (bug d'origine : une version distante PLUS
+     * ANCIENNE que l'installée déclenchait quand même la boîte "nouvelle
+     * version disponible").
+     */
+    private fun parseVersionParts(value: String): List<Int>? {
+        val cleaned = value.trim().removePrefix("V").removePrefix("v").substringBefore('_')
+        if (cleaned.isEmpty()) return null
+        val parts = cleaned.split(".")
+        val nums = parts.map { it.toIntOrNull() ?: return null }
+        return nums
+    }
+
+    /** true seulement si remoteName est numériquement STRICTEMENT supérieur à localName. */
+    private fun isRemoteVersionNewer(remoteName: String, localName: String): Boolean {
+        val remoteParts = parseVersionParts(remoteName) ?: return false
+        val localParts = parseVersionParts(localName) ?: return false
+        val maxLen = maxOf(remoteParts.size, localParts.size)
+        for (i in 0 until maxLen) {
+            val r = remoteParts.getOrElse(i) { 0 }
+            val l = localParts.getOrElse(i) { 0 }
+            if (r != l) return r > l
+        }
+        return false
+    }
 
     private fun openDownload(activity: AppCompatActivity, url: String) {
         try {

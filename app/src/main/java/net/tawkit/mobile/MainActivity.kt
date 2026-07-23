@@ -11,12 +11,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
+import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.webkit.ConsoleMessage
 import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -29,6 +31,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import java.io.File
 import com.onesignal.OneSignal
 import com.onesignal.debug.LogLevel
 import com.onesignal.notifications.INotificationClickEvent
@@ -71,6 +75,8 @@ class MainActivity : AppCompatActivity() {
 
     /** mosque_id reçu via tap notification avant que la page soit chargée */
     private var pendingConfigSync: String? = null
+    /** mosque_id reçu via deep link tawkit://mosque/<id> avant que la page soit chargée */
+    private var pendingMosqueDeepLink: String? = null
     private var isPageLoaded = false
     private var automaticUpdateCheckStarted = false
 
@@ -107,6 +113,48 @@ class MainActivity : AppCompatActivity() {
         }
         CoroutineScope(Dispatchers.IO).launch {
             ReciterManager.importFromTree(this@MainActivity, uri)
+        }
+    }
+
+    // Sélecteur de fichier standard WebView (<input type="file">, cf. custom.js
+    // sélecteur photo mosquée) : sans onShowFileChooser, ces clics ne font
+    // RIEN silencieusement — c'est pour ça que l'export/import de config
+    // basculait sur une modale "coller le JSON" côté Android au lieu du
+    // vrai sélecteur (cf. _installConfigBackup, custom.js). Résolu ici une
+    // fois pour toutes : ouvre le sélecteur système (galerie/fichiers +
+    // appareil photo si <input capture> et matériel disponible).
+    private var pendingFileChooserCallback: ValueCallback<Array<Uri>>? = null
+    private var cameraCaptureUri: Uri? = null
+
+    private val fileChooserLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val callback = pendingFileChooserCallback
+        pendingFileChooserCallback = null
+        if (callback == null) return@registerForActivityResult
+
+        val results: Array<Uri>? = when {
+            result.resultCode != RESULT_OK -> null
+            // Photo prise via l'appareil photo : l'intent de résultat ne contient
+            // pas l'URI (elle a été fixée à l'avance via EXTRA_OUTPUT), et la
+            // galerie n'a rien retourné non plus -> c'est la capture caméra.
+            result.data?.dataString == null && cameraCaptureUri != null -> arrayOf(cameraCaptureUri!!)
+            else -> WebChromeClient.FileChooserParams.parseResult(result.resultCode, result.data)
+        }
+        cameraCaptureUri = null
+        callback.onReceiveValue(results)
+    }
+
+    /** URI content:// (FileProvider, même autorité que les mises à jour APK)
+     *  pour le fichier où l'appareil photo système va écrire la capture. */
+    private fun createCameraCaptureUri(): Uri? {
+        return try {
+            val dir = File(cacheDir, "camera_captures").apply { mkdirs() }
+            val file = File(dir, "capture_${System.currentTimeMillis()}.jpg")
+            FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
+        } catch (e: Exception) {
+            Log.e("TWKT", "createCameraCaptureUri failed: ${e.message}")
+            null
         }
     }
 
@@ -157,6 +205,7 @@ class MainActivity : AppCompatActivity() {
             requestIgnoreBatteryOptimizations()
         }
         setupWebView()
+        handleMosqueDeepLinkIntent(intent)
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -252,6 +301,42 @@ class MainActivity : AppCompatActivity() {
         Log.d("TWKT", "Dispatched ucConfigSync for $mosqueId")
     }
 
+    /**
+     * Deep link "Ouvrir cette mosquée dans l'application" (bloc Partager de
+     * la fiche mosquée, custom.js _shareMosqueInfo) : tawkit://mosque/<id>,
+     * capté via l'intent-filter VIEW/BROWSABLE (AndroidManifest.xml). Extrait
+     * l'id puis dispatch un event dédié 'ucMosqueDeepLink' — DIFFÉRENT de
+     * 'ucConfigSync' (qui ne fait qu'une synchronisation légère de la table
+     * "mosques") : ici on veut un import COMPLET de la config (comme une
+     * sélection dans le sélecteur de mosquée), géré côté JS par
+     * window._ucHandleMosqueDeepLink (_installConfigBackup, custom.js).
+     */
+    private fun handleMosqueDeepLinkIntent(intent: Intent) {
+        val uri = intent.data ?: return
+        if (uri.scheme == "tawkit" && uri.host == "mosque") {
+            val mosqueId = uri.lastPathSegment
+            if (!mosqueId.isNullOrBlank()) {
+                Log.d("TWKT", "Mosque deep link received: $mosqueId")
+                dispatchMosqueDeepLink(mosqueId)
+            }
+        }
+    }
+
+    /** Si la page n'est pas encore chargée, stocke dans pendingMosqueDeepLink. */
+    private fun dispatchMosqueDeepLink(mosqueId: String) {
+        if (!isPageLoaded) {
+            pendingMosqueDeepLink = mosqueId
+            Log.d("TWKT", "Page not loaded yet, saving mosque deep link: $mosqueId")
+            return
+        }
+        val safe = mosqueId.replace("'", "\\'")
+        webView.evaluateJavascript(
+            "window.dispatchEvent(new CustomEvent('ucMosqueDeepLink',{detail:{mosque_id:'$safe'}}));",
+            null
+        )
+        Log.d("TWKT", "Dispatched ucMosqueDeepLink for $mosqueId")
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     @Suppress("DEPRECATION")
     private fun setupWebView() {
@@ -329,6 +414,49 @@ class MainActivity : AppCompatActivity() {
                 Log.d("TWKT", "[${msg.messageLevel()}] ${msg.message()}")
                 return true
             }
+            // <input type="file"> (galerie/fichiers + appareil photo si dispo) —
+            // cf. pendingFileChooserCallback ci-dessus pour le contexte.
+            override fun onShowFileChooser(
+                webView: WebView,
+                filePathCallback: ValueCallback<Array<Uri>>,
+                fileChooserParams: FileChooserParams
+            ): Boolean {
+                pendingFileChooserCallback?.onReceiveValue(null)
+                pendingFileChooserCallback = filePathCallback
+
+                val intents = mutableListOf<Intent>()
+                // Appareil photo, uniquement si le matériel existe (absent sur la
+                // plupart des box TV — l'intent est alors simplement omis, pas
+                // d'entrée "Appareil photo" dans le sélecteur système).
+                if (packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_CAMERA_ANY)) {
+                    val captureUri = createCameraCaptureUri()
+                    if (captureUri != null) {
+                        val captureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+                            putExtra(MediaStore.EXTRA_OUTPUT, captureUri)
+                            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                        }
+                        if (captureIntent.resolveActivity(packageManager) != null) {
+                            cameraCaptureUri = captureUri
+                            intents.add(captureIntent)
+                        }
+                    }
+                }
+
+                val chooserTarget = fileChooserParams.createIntent()
+                val chooser = Intent.createChooser(chooserTarget, "اختر صورة | Choisir une image")
+                if (intents.isNotEmpty()) {
+                    chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents.toTypedArray())
+                }
+
+                return try {
+                    fileChooserLauncher.launch(chooser)
+                    true
+                } catch (e: Exception) {
+                    Log.e("TWKT", "onShowFileChooser launch failed: ${e.message}")
+                    pendingFileChooserCallback = null
+                    false
+                }
+            }
             override fun onPermissionRequest(request: PermissionRequest) {
                 request.grant(request.resources)
             }
@@ -357,6 +485,27 @@ class MainActivity : AppCompatActivity() {
         }
 
         webView.webViewClient = object : WebViewClient() {
+            // Sans cet override, le WebView tente de NAVIGUER lui-meme vers les
+            // schemas non http(s) (tel:, mailto:, sms:, geo:...) utilises par
+            // la fiche mosquee (appel/email, cf. custom.js _wireMosqueProfileBlock)
+            // et affiche une page d'erreur au lieu d'ouvrir l'appli native
+            // correspondante (composeur, mail...). On laisse passer uniquement
+            // les schemas de la page elle-meme (file:// pour les assets locaux,
+            // http/https pour d'eventuelles ressources distantes) ; tout le
+            // reste est delegue a une Intent ACTION_VIEW standard.
+            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                val uri = request.url
+                when (uri.scheme) {
+                    "http", "https", "file", "about", "data", "blob" -> return false
+                }
+                return try {
+                    startActivity(Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                    true
+                } catch (e: Exception) {
+                    Log.e("TWKT", "shouldOverrideUrlLoading: no handler for $uri (${e.message})")
+                    true
+                }
+            }
             override fun onReceivedError(view: WebView, req: WebResourceRequest, err: WebResourceError) {
                 Log.e("TWKT", "Error: ${err.description} for ${req.url}")
                 if (req.isForMainFrame) hideSplash()
@@ -369,6 +518,11 @@ class MainActivity : AppCompatActivity() {
                 if (mid != null) {
                     pendingConfigSync = null
                     view.postDelayed({ dispatchConfigSync(mid) }, 1200)
+                }
+                val deepLinkMid = pendingMosqueDeepLink
+                if (deepLinkMid != null) {
+                    pendingMosqueDeepLink = null
+                    view.postDelayed({ dispatchMosqueDeepLink(deepLinkMid) }, 1200)
                 }
                 if (!automaticUpdateCheckStarted) {
                     automaticUpdateCheckStarted = true
@@ -645,5 +799,6 @@ class MainActivity : AppCompatActivity() {
         if (mosqueId != null) {
             dispatchConfigSync(mosqueId)
         }
+        handleMosqueDeepLinkIntent(intent)
     }
 }

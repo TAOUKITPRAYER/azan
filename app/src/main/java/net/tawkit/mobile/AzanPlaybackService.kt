@@ -51,6 +51,15 @@ class AzanPlaybackService : Service() {
         const val PREFS_NAME = "tawkit_azan_prefs"
         const val PREF_FLIP_TO_MUTE = "flip_to_mute_enabled"
 
+        /** Miroir de JS_DATA.ucAzanIqamaByVoice / ucShortAzanActive, synchronise
+         *  a chaque saveSettingsToStorageFunction() (cf. MobileJsBridge.
+         *  syncAzanPlaybackFlags) -- relu ICI (onStartCommand), pas seulement
+         *  depuis les extras de l'intent (potentiellement programmes des
+         *  heures plus tot), pour garantir qu'un azan desactive ne peut
+         *  jamais jouer le vrai son nativement. */
+        const val PREF_VOICE_MODE  = "voice_mode_enabled"
+        const val PREF_SHORT_AZAN  = "short_azan_active"
+
         // Detection "telephone pose ecran contre la table" : la gravite pointe
         // alors vers l'ecran, donnant un z d'accelerometre proche de -9.8 au
         // lieu de +9.8 (pose a l'endroit) ou proche de 0 (a la verticale).
@@ -87,14 +96,41 @@ class AzanPlaybackService : Service() {
             return START_NOT_STICKY
         }
 
-        // Appli deja au premier plan -> le WebView (m2body.js) joue deja son
-        // propre <audio> pour ce meme azan. Sans cette garde, les deux
-        // lectures demarrent en parallele (double azan constate par
-        // l'utilisateur, chacune ne s'arretant que par son propre mecanisme :
-        // flip-to-mute cote natif, fermeture de la popup cote WebView).
-        if (MainActivity.isAppInForeground) {
-            Log.d("TWKT", "AzanPlaybackService: app in foreground, skipping native playback")
-            NativeEventLog.log(this, "AZAN", "NATIVE_SKIP_FOREGROUND prayer=$prayer")
+        // Mode "voix complete" (ni azan court ni bip, cf. shortAzan/voiceMode
+        // ci-dessous) : source audio UNIQUE desormais -- ce service joue
+        // TOUJOURS le son reel, premier plan ou arriere-plan, sans se soucier
+        // de MainActivity.isAppInForeground. Le WebView (custom.js) coupe de
+        // son cote son propre <audio> correspondant (muted) pour ne garder
+        // que cette seule sortie audible ; il continue de tourner en silence
+        // pour piloter l'UI (equalizer, fermeture auto de la popup). Ancien
+        // bug corrige au passage : sortir l'appli PENDANT la lecture ne
+        // coupait plus rien cote natif (la garde etait evaluee une seule
+        // fois, au moment de l'alarme) -- desormais la lecture continue sans
+        // interruption a travers les changements d'etat foreground/background.
+        // Extras de l'intent = valeur au moment de LA PROGRAMMATION (peut
+        // dater de plusieurs heures, cf. reprogrammation quotidienne). Le
+        // SharedPreferences (cf. PREF_VOICE_MODE/PREF_SHORT_AZAN, synchronise
+        // a CHAQUE sauvegarde de reglage cote JS, quel que soit le chemin
+        // emprunte) est relu ICI, au tout dernier moment avant de jouer, et
+        // l'EMPORTE s'il existe -- garantit qu'un azan desactive APRES la
+        // programmation de l'alarme mais AVANT qu'elle sonne ne joue jamais
+        // le vrai son. Repli sur l'extra de l'intent seulement si ce
+        // SharedPreferences n'a encore jamais ete synchronise (tout premier
+        // lancement, avant la premiere sauvegarde de reglage).
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val intentShortAzan = intent?.getBooleanExtra("shortAzan", false) ?: false
+        val intentVoiceMode = intent?.getBooleanExtra("voiceMode", true) ?: true
+        val shortAzan = prefs.getBoolean(PREF_SHORT_AZAN, intentShortAzan)
+        val voiceMode = prefs.getBoolean(PREF_VOICE_MODE, intentVoiceMode)
+        val fullAudioMode = voiceMode && !shortAzan
+
+        // Azan court / mode bip : non geres nativement pour l'instant -- on
+        // conserve l'ancien comportement (JS premier plan uniquement, natif
+        // arriere-plan uniquement) plutot que de jouer le mauvais fichier
+        // (ce service ne connait que l'azan complet, cf. playAzan ci-dessous).
+        if (!fullAudioMode && MainActivity.isAppInForeground) {
+            Log.d("TWKT", "AzanPlaybackService: app in foreground (legacy short/beep mode), skipping native playback")
+            NativeEventLog.log(this, "AZAN", "NATIVE_SKIP_FOREGROUND_LEGACY prayer=$prayer shortAzan=$shortAzan voiceMode=$voiceMode")
             stopSelf()
             return START_NOT_STICKY
         }
@@ -102,7 +138,8 @@ class AzanPlaybackService : Service() {
         val prayerHour   = intent?.getIntExtra("prayerHour", 0) ?: 0
         val prayerMinute = intent?.getIntExtra("prayerMinute", 0) ?: 0
 
-        NativeEventLog.log(this, "AZAN", "NATIVE_PLAY_START prayer=$prayer")
+        NativeEventLog.log(this, "AZAN", "NATIVE_PLAY_START prayer=$prayer fullAudioMode=$fullAudioMode " +
+            "foreground=${MainActivity.isAppInForeground} shortAzan=$shortAzan voiceMode=$voiceMode")
         MobileJsBridge.createNotificationChannel(this)
         startForeground(NOTIF_ID, buildNotification(prayer, prayerHour, prayerMinute))
         acquireWakeLock()

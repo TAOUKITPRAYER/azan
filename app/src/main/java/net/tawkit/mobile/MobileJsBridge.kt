@@ -176,8 +176,14 @@ class MobileJsBridge(
                 val prayerHour   = obj.optInt("prayerHour",   hour)    // heure reelle azan
                 val prayerMinute = obj.optInt("prayerMinute", minute)
                 val minutesBefore = obj.optInt("minutesBefore", 0)
+                // Mode "voix complete" (ni azan court ni bip) : source audio
+                // unique cote natif desormais (cf. AzanPlaybackService), meme
+                // appli au premier plan -- le <audio> JS correspondant est
+                // coupe (muted) cote custom.js pour eviter un double son.
+                val shortAzan = obj.optInt("shortAzan", 0) == 1
+                val voiceMode = obj.optInt("voiceMode", 1) == 1
 
-                scheduleSinglePrayer(alarmManager, prayer, hour, minute, prayerHour, prayerMinute, minutesBefore)
+                scheduleSinglePrayer(alarmManager, prayer, hour, minute, prayerHour, prayerMinute, minutesBefore, shortAzan, voiceMode)
             }
             Log.d("TWKT", "Scheduled ${prayers.length()} prayer alerts")
         } catch (e: Exception) {
@@ -192,7 +198,9 @@ class MobileJsBridge(
         minute: Int,
         prayerHour: Int,
         prayerMinute: Int,
-        minutesBefore: Int
+        minutesBefore: Int,
+        shortAzan: Boolean = false,
+        voiceMode: Boolean = true
     ) {
         val cal = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
@@ -220,6 +228,8 @@ class MobileJsBridge(
             putExtra("prayerHour", prayerHour)       // heure réelle de l'azan
             putExtra("prayerMinute", prayerMinute)
             putExtra("minutesBefore", minutesBefore)
+            putExtra("shortAzan", shortAzan)
+            putExtra("voiceMode", voiceMode)
         }
 
         val pendingIntent = PendingIntent.getBroadcast(
@@ -688,6 +698,27 @@ class MobileJsBridge(
         Log.d("TWKT", "Flip-to-mute azan: $enabled")
     }
 
+    /**
+     * Miroir natif de JS_DATA.ucAzanIqamaByVoice / ucShortAzanActive (custom.js,
+     * appelé à chaque saveSettingsToStorageFunction() — donc quel que soit le
+     * chemin de modification : bascule manuelle, sync config distante, etc.).
+     *
+     * Sécurité : AzanPlaybackService relit CES valeurs (pas seulement les
+     * extras de l'intent figés au moment de la programmation, potentiellement
+     * vieux de plusieurs heures) juste avant de jouer le son réel, pour
+     * garantir qu'un azan désactivé (acEnableSwitch / ucAzanIqamaByVoice=0)
+     * ne peut JAMAIS déclencher le vrai son nativement, même si une alarme
+     * avait été programmée AVANT la désactivation.
+     */
+    @JavascriptInterface
+    fun syncAzanPlaybackFlags(voiceMode: Boolean, shortAzan: Boolean) {
+        context.getSharedPreferences(AzanPlaybackService.PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(AzanPlaybackService.PREF_VOICE_MODE, voiceMode)
+            .putBoolean(AzanPlaybackService.PREF_SHORT_AZAN, shortAzan)
+            .apply()
+    }
+
     @JavascriptInterface
     fun getDeviceInfo(): String {
         return JSONObject().apply {
@@ -918,5 +949,30 @@ class MobileJsBridge(
     @JavascriptInterface
     fun setKeepScreenOn(enabled: Boolean) {
         onSetKeepScreenOn(enabled)
+    }
+
+    /**
+     * Ouvre la feuille de partage systeme (WhatsApp/Messenger/SMS/etc.) avec
+     * un texte pre-rempli. Appele depuis custom.js (_shareMosqueInfo,
+     * bloc "Partager" de la fiche mosquee) — necessaire car le WebView ne
+     * supporte pas nativement l'API Web Share (navigator.share) de facon
+     * fiable selon la version ; on passe donc par un vrai Intent.ACTION_SEND,
+     * meme approche que onShowFileChooser pour le choix de photo.
+     */
+    @JavascriptInterface
+    fun shareText(title: String, text: String) {
+        try {
+            val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, text)
+                if (title.isNotBlank()) putExtra(Intent.EXTRA_SUBJECT, title)
+            }
+            val chooser = Intent.createChooser(sendIntent, title).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(chooser)
+        } catch (e: Exception) {
+            Log.e("TWKT", "shareText failed: ${e.message}")
+        }
     }
 }
