@@ -117,6 +117,24 @@ class AzanPlaybackService : Service() {
         // le vrai son. Repli sur l'extra de l'intent seulement si ce
         // SharedPreferences n'a encore jamais ete synchronise (tout premier
         // lancement, avant la premiere sauvegarde de reglage).
+        val prayerHour   = intent?.getIntExtra("prayerHour", 0) ?: 0
+        val prayerMinute = intent?.getIntExtra("prayerMinute", 0) ?: 0
+
+        // OBLIGATOIRE avant toute autre logique : PrayerAlarmReceiver demarre
+        // ce service via startForegroundService(), ce qui impose a Android de
+        // recevoir un startForeground() quasi immediatement (sinon
+        // ForegroundServiceDidNotStartInTimeException -> crash immediat de
+        // l'appli, meme si le popup azan etait ouvert au premier plan --
+        // constate en pratique via rapport debug + logcat le 23/07/2026,
+        // exactement sur le cas "azan court + appli au premier plan"
+        // ci-dessous, qui faisait un stopSelf() precoce SANS jamais appeler
+        // startForeground()). On la poste donc tout de suite, quelle que soit
+        // la decision de lecture prise ensuite, et on la retire proprement
+        // (stopForeground, cf. stopSelfCleanly) si on decide finalement de ne
+        // pas jouer.
+        MobileJsBridge.createNotificationChannel(this)
+        startForeground(NOTIF_ID, buildNotification(prayer, prayerHour, prayerMinute))
+
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val intentShortAzan = intent?.getBooleanExtra("shortAzan", false) ?: false
         val intentVoiceMode = intent?.getBooleanExtra("voiceMode", true) ?: true
@@ -131,17 +149,12 @@ class AzanPlaybackService : Service() {
         if (!fullAudioMode && MainActivity.isAppInForeground) {
             Log.d("TWKT", "AzanPlaybackService: app in foreground (legacy short/beep mode), skipping native playback")
             NativeEventLog.log(this, "AZAN", "NATIVE_SKIP_FOREGROUND_LEGACY prayer=$prayer shortAzan=$shortAzan voiceMode=$voiceMode")
-            stopSelf()
+            stopSelfCleanly()
             return START_NOT_STICKY
         }
 
-        val prayerHour   = intent?.getIntExtra("prayerHour", 0) ?: 0
-        val prayerMinute = intent?.getIntExtra("prayerMinute", 0) ?: 0
-
         NativeEventLog.log(this, "AZAN", "NATIVE_PLAY_START prayer=$prayer fullAudioMode=$fullAudioMode " +
             "foreground=${MainActivity.isAppInForeground} shortAzan=$shortAzan voiceMode=$voiceMode")
-        MobileJsBridge.createNotificationChannel(this)
-        startForeground(NOTIF_ID, buildNotification(prayer, prayerHour, prayerMinute))
         acquireWakeLock()
         playAzan(prayer == "Fajr")
         maybeStartFlipToMuteDetection()
