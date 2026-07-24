@@ -683,6 +683,19 @@ class MobileJsBridge(
     }
 
     /**
+     * Interroge AzanPlaybackService.isPlayingNow -- utilise par custom.js
+     * (_ucResyncPrayerSequence) pour savoir, AVANT de declencher son propre
+     * nettoyage (qui coupe justement cette lecture native), si un azan reel
+     * etait en cours au moment ou l'appli reprend la main -- et donc s'il
+     * faut enchainer sur un reload automatique pour rattraper le countdown
+     * iqama plutot que de laisser l'ecran principal sans rien.
+     */
+    @JavascriptInterface
+    fun isAzanCurrentlyPlaying(): Boolean {
+        return AzanPlaybackService.isPlayingNow
+    }
+
+    /**
      * Active/desactive la coupure de l'azan par retournement du telephone
      * (onglet الإعدادات — custom.js, _ucToggleFlipToMuteAzan). Stocke dans les
      * SharedPreferences (pas dans le localStorage de la WebView) car c'est

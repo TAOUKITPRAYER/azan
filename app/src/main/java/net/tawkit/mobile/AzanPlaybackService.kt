@@ -60,6 +60,17 @@ class AzanPlaybackService : Service() {
         const val PREF_VOICE_MODE  = "voice_mode_enabled"
         const val PREF_SHORT_AZAN  = "short_azan_active"
 
+        /** True pendant toute lecture reelle en cours (entre le debut de
+         *  playAzan() et stopSelfCleanly()/onDestroy()) -- interroge par
+         *  MobileJsBridge.isAzanCurrentlyPlaying(), lu par custom.js
+         *  (_ucResyncPrayerSequence) AVANT d'appeler hideAzanPopupFunction()
+         *  (qui declenche justement l'arret natif) pour savoir si CE resync
+         *  vient d'interrompre un azan reellement sonore -- et donc s'il faut
+         *  enchainer sur un reload automatique (cf. custom.js) pour au moins
+         *  rattraper le countdown iqama, plutot que de laisser l'utilisateur
+         *  sur la page principale sans rien. */
+        @Volatile var isPlayingNow: Boolean = false
+
         // Detection "telephone pose ecran contre la table" : la gravite pointe
         // alors vers l'ecran, donnant un z d'accelerometre proche de -9.8 au
         // lieu de +9.8 (pose a l'endroit) ou proche de 0 (a la verticale).
@@ -155,6 +166,7 @@ class AzanPlaybackService : Service() {
 
         NativeEventLog.log(this, "AZAN", "NATIVE_PLAY_START prayer=$prayer fullAudioMode=$fullAudioMode " +
             "foreground=${MainActivity.isAppInForeground} shortAzan=$shortAzan voiceMode=$voiceMode")
+        isPlayingNow = true
         acquireWakeLock()
         playAzan(prayer == "Fajr")
         maybeStartFlipToMuteDetection()
@@ -284,6 +296,7 @@ class AzanPlaybackService : Service() {
     }
 
     private fun stopSelfCleanly() {
+        isPlayingNow = false
         stopFlipToMuteDetection()
         try {
             mediaPlayer?.release()
