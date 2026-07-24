@@ -340,6 +340,16 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     @Suppress("DEPRECATION")
     private fun setupWebView() {
+        // Active chrome://inspect (Chrome DevTools distant) sur ce WebView --
+        // permet de brancher un vrai eval JS/console/DOM inspector via un
+        // téléphone connecté en USB (adb), sans quoi le diagnostic de bugs
+        // custom.js en conditions réelles se limite aux traces _L()/logcat
+        // (cf. rapports debug Supabase). App 100% offline, contenu local de
+        // confiance uniquement : aucun risque à l'activer inconditionnellement
+        // (l'accès requiert de toute façon une connexion adb autorisée sur CE
+        // téléphone, pas un vecteur d'attaque distant).
+        WebView.setWebContentsDebuggingEnabled(true)
+
         webView.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true           // localStorage (prayer settings)
