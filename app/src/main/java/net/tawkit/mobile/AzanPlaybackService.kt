@@ -153,12 +153,19 @@ class AzanPlaybackService : Service() {
         val voiceMode = prefs.getBoolean(PREF_VOICE_MODE, intentVoiceMode)
         val fullAudioMode = voiceMode && !shortAzan
 
-        // Azan court / mode bip : non geres nativement pour l'instant -- on
-        // conserve l'ancien comportement (JS premier plan uniquement, natif
-        // arriere-plan uniquement) plutot que de jouer le mauvais fichier
-        // (ce service ne connait que l'azan complet, cf. playAzan ci-dessous).
+        // Azan court / mode bip au premier plan : deja joue par le WebView
+        // (custom.js, playAzanSoundFunction) via son propre <audio>, non
+        // coupe dans ce mode (seul le mode "voix complete" mute le <audio>
+        // JS, cf. custom.js AUDIO_SOURCE) -- jouer aussi nativement ferait un
+        // double son. On saute donc uniquement ce cas precis ; en
+        // arriere-plan (WebView en pause, rien ne joue cote JS), ce service
+        // doit jouer quelque chose : cf. playAzan ci-dessous, qui choisit
+        // desormais le bon fichier (bip/court/complet) au lieu de toujours
+        // retomber sur l'azan complet (bug constate en pratique, rapport
+        // debug 24/07/2026 : acEnableSwitch=false mais azan complet joue en
+        // arriere-plan).
         if (!fullAudioMode && MainActivity.isAppInForeground) {
-            Log.d("TWKT", "AzanPlaybackService: app in foreground (legacy short/beep mode), skipping native playback")
+            Log.d("TWKT", "AzanPlaybackService: app in foreground (bip/short azan handled by WebView), skipping native playback")
             NativeEventLog.log(this, "AZAN", "NATIVE_SKIP_FOREGROUND_LEGACY prayer=$prayer shortAzan=$shortAzan voiceMode=$voiceMode")
             stopSelfCleanly()
             return START_NOT_STICKY
@@ -168,7 +175,7 @@ class AzanPlaybackService : Service() {
             "foreground=${MainActivity.isAppInForeground} shortAzan=$shortAzan voiceMode=$voiceMode")
         isPlayingNow = true
         acquireWakeLock()
-        playAzan(prayer == "Fajr")
+        playAzan(prayer == "Fajr", voiceMode, shortAzan)
         maybeStartFlipToMuteDetection()
         return START_NOT_STICKY
     }
@@ -262,9 +269,21 @@ class AzanPlaybackService : Service() {
         }
     }
 
-    private fun playAzan(isFajr: Boolean) {
+    private fun playAzan(isFajr: Boolean, voiceMode: Boolean, shortAzan: Boolean) {
         try {
-            val assetPath = "spec/audio/" + if (isFajr) "audio_fajr.ogg" else "audio_azan.ogg"
+            // Reproduit exactement le choix de fichier de playAzanSoundFunction()
+            // (m2body.js) : bip si le mode vocal est desactive (ucAzanIqamaByVoice
+            // != 1), azan court si actif (ucShortAzanActive == 1), sinon l'azan
+            // complet -- ces 2 premiers sont des fichiers CORE fixes (hors spec/,
+            // jamais personnalises par mosquee, memes chemins que index.html),
+            // contrairement a audio_fajr/audio_azan qui restent personnalisables
+            // par mosquee (spec/audio/).
+            val assetPath = when {
+                !voiceMode -> "audio/wbeeep.mp3"
+                shortAzan  -> "audio/short_azan.mp3"
+                isFajr     -> "spec/audio/audio_fajr.ogg"
+                else       -> "spec/audio/audio_azan.ogg"
+            }
             val afd = assets.openFd(assetPath)
             mediaPlayer = MediaPlayer().apply {
                 setAudioAttributes(
