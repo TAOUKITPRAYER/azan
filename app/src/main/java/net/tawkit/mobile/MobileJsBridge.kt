@@ -335,6 +335,89 @@ class MobileJsBridge(
     }
 
     /**
+     * Programme le rappel hadith (10 min avant chaque priere, reglage
+     * independant JS_CUSTOM.ucHadithReminderEnabled, cf. custom.js
+     * _installHadithReminder). Recepteur DEDIE (HadithAlarmReceiver, pas
+     * PrayerAlarmReceiver) : evite toute collision avec requestCodeFor()
+     * ci-dessus (qui ne distingue pas la valeur exacte de minutesBefore) --
+     * cf. commentaire en tete de HadithAlarmReceiver.kt. Reprogrammation
+     * quotidienne complete (custom.js), meme schema que
+     * schedulePrayerNotifications : chaque appel annule d'abord tout ce qui
+     * etait en attente.
+     *
+     * @param jsonArray JSON: [{ prayer, arabicName, hour, minute, hadithText, hadithSource }]
+     */
+    @JavascriptInterface
+    fun scheduleHadithNotifications(jsonArray: String) {
+        try {
+            cancelHadithAlarms()
+            val items = JSONArray(jsonArray)
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+            for (i in 0 until items.length()) {
+                val obj = items.getJSONObject(i)
+                val prayer       = obj.getString("prayer")
+                val arabicName   = obj.optString("arabicName", prayer)
+                val hour         = obj.getInt("hour")
+                val minute       = obj.getInt("minute")
+                val hadithText   = obj.getString("hadithText")
+                val hadithSource = obj.optString("hadithSource", "")
+
+                val cal = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, hour)
+                    set(Calendar.MINUTE, minute)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                    if (timeInMillis <= System.currentTimeMillis()) add(Calendar.DAY_OF_MONTH, 1)
+                }
+
+                val intent = Intent(context, HadithAlarmReceiver::class.java).apply {
+                    putExtra("prayer", prayer)
+                    putExtra("arabicName", arabicName)
+                    putExtra("hadithText", hadithText)
+                    putExtra("hadithSource", hadithSource)
+                }
+                val pendingIntent = PendingIntent.getBroadcast(
+                    context, 800 + (PRAYER_INDEX[prayer] ?: 6), intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.timeInMillis, pendingIntent)
+                    } else {
+                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, cal.timeInMillis, pendingIntent)
+                    }
+                } catch (se: SecurityException) {
+                    Log.w("TWKT", "scheduleHadithNotifications: exact alarm permission missing for $prayer")
+                }
+            }
+            Log.d("TWKT", "Scheduled ${items.length()} hadith reminders")
+        } catch (e: Exception) {
+            Log.e("TWKT", "scheduleHadithNotifications error: ${e.message}")
+        }
+    }
+
+    /**
+     * Annule toutes les alarmes de rappel hadith en attente. Appele avant
+     * chaque reprogrammation (cf. scheduleHadithNotifications ci-dessus) et
+     * quand l'utilisateur desactive ucHadithReminderEnabled.
+     */
+    @JavascriptInterface
+    fun cancelHadithAlarms() {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        PRAYER_INDEX.keys.forEach { prayer ->
+            val intent = Intent(context, HadithAlarmReceiver::class.java)
+            val pi = PendingIntent.getBroadcast(
+                context, 800 + (PRAYER_INDEX[prayer] ?: 6), intent,
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            )
+            pi?.let { alarmManager.cancel(it) }
+        }
+        Log.d("TWKT", "Cancelled hadith reminder alarms")
+    }
+
+    /**
      * Programme la coupure puis la remise du son autour de l'azan de chaque
      * prière (onglet الإعدادات — custom.js, _ucScheduleSilentModeAlarms()).
      * Réutilise le même mécanisme AlarmManager.setExactAndAllowWhileIdle que

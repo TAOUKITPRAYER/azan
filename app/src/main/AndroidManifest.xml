@@ -114,6 +114,11 @@
             android:name=".PrayerAlarmReceiver"
             android:exported="false" />
 
+        <!-- Rappel hadith 10 min avant chaque priere (reglage independant) -->
+        <receiver
+            android:name=".HadithAlarmReceiver"
+            android:exported="false" />
+
         <!-- Lecture native de l'azan (MediaPlayer) declenchee par PrayerAlarmReceiver -->
         <service
             android:name=".AzanPlaybackService"
