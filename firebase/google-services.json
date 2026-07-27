@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "181100629815",
+    "project_id": "tawkit-fc764",
+    "storage_bucket": "tawkit-fc764.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:181100629815:android:12c4041fa362ba30ec94b2",
+        "android_client_info": {
+          "package_name": "net.tawkit.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDR4k8A7NRXaZjT3Tgf13P2CIPgBFo5slI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

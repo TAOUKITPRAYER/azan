@@ -60,6 +60,16 @@ class AzanPlaybackService : Service() {
         const val PREF_VOICE_MODE  = "voice_mode_enabled"
         const val PREF_SHORT_AZAN  = "short_azan_active"
 
+        /** Id (catalogue azan-catalog.json) du muezzin personnalisé choisi par
+         *  l'utilisateur (custom.js, _installAzanCatalogFeature), synchronise
+         *  via MobileJsBridge.syncAzanCatalogSelection à chaque selection/
+         *  deselection ET a chaque reprogrammation d'alarme (memes garanties
+         *  que PREF_VOICE_MODE/PREF_SHORT_AZAN ci-dessus : relu ici, pas
+         *  seulement au moment ou l'alarme a ete programmee). Chaine vide =
+         *  aucune selection -> son par defaut de l'appli (fichiers spec/audio). */
+        const val PREF_AZAN_FAJR_ID    = "azan_catalog_fajr_id"
+        const val PREF_AZAN_GENERAL_ID = "azan_catalog_general_id"
+
         /** True pendant toute lecture reelle en cours (entre le debut de
          *  playAzan() et stopSelfCleanly()/onDestroy()) -- interroge par
          *  MobileJsBridge.isAzanCurrentlyPlaying(), lu par custom.js
@@ -284,7 +294,27 @@ class AzanPlaybackService : Service() {
                 isFajr     -> "spec/audio/audio_fajr.ogg"
                 else       -> "spec/audio/audio_azan.ogg"
             }
-            val afd = assets.openFd(assetPath)
+
+            // Muezzin personnalise choisi dans le catalogue (custom.js,
+            // _acSelectCommit -> MobileJsBridge.syncAzanCatalogSelection) :
+            // uniquement en mode "voix complete" (court/bip gardent leur son
+            // fixe, jamais couverts par le catalogue cote JS non plus, cf.
+            // _acApplyAzanToPlayer qui ne touche que audioFajrElement/
+            // audioAzanElement). Repli silencieux sur le fichier bundle si
+            // aucune selection, id introuvable sur disque, ou fichier efface
+            // depuis (ex. stockage libere manuellement).
+            var customFile: java.io.File? = null
+            if (voiceMode && !shortAzan) {
+                val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                val selectedId = prefs.getString(
+                    if (isFajr) PREF_AZAN_FAJR_ID else PREF_AZAN_GENERAL_ID, ""
+                ).orEmpty()
+                if (selectedId.isNotEmpty()) {
+                    val f = AzanCatalogManager.getInstalledFile(this, selectedId)
+                    if (f != null && f.exists()) customFile = f
+                }
+            }
+
             mediaPlayer = MediaPlayer().apply {
                 setAudioAttributes(
                     AudioAttributes.Builder()
@@ -292,8 +322,15 @@ class AzanPlaybackService : Service() {
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                         .build()
                 )
-                setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-                afd.close()
+                if (customFile != null) {
+                    Log.d("TWKT", "AzanPlaybackService: using custom catalog azan file=${customFile.name}")
+                    NativeEventLog.log(this@AzanPlaybackService, "AZAN", "NATIVE_PLAY_CUSTOM_CATALOG file=${customFile.name}")
+                    setDataSource(customFile.absolutePath)
+                } else {
+                    val afd = assets.openFd(assetPath)
+                    setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                    afd.close()
+                }
                 setOnPreparedListener { start() }
                 setOnCompletionListener {
                     Log.d("TWKT", "AzanPlaybackService: playback completed")

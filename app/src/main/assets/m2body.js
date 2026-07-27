@@ -8662,7 +8662,7 @@ function simulateClick(simulatedX,simulatedY)
 			
 			  if ((clickTimestamp - lastTvClickTimestamp) < 290)
 			  {
-				targetElement.ondblclick?.();
+				if (targetElement.ondblclick) targetElement.ondblclick();
 			  }
 			else
 			  {

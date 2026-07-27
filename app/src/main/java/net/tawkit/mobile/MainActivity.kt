@@ -37,6 +37,8 @@ import com.onesignal.OneSignal
 import com.onesignal.debug.LogLevel
 import com.onesignal.notifications.INotificationClickEvent
 import com.onesignal.notifications.INotificationClickListener
+import com.onesignal.notifications.INotificationLifecycleListener
+import com.onesignal.notifications.INotificationWillDisplayEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -282,6 +284,42 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+        // Reception SILENCIEUSE (sans banniere systeme), pour l'administration
+        // a distance (cf. rapid-service mode remote_config_update, custom.js
+        // _installRemoteMosqueAdmin) : contrairement au tap ci-dessus, qui
+        // necessite un humain physiquement devant l'ecran -- inenvisageable
+        // pour une box murale sans surveillance -- ce listener s'execute des
+        // que la notification est recue tant que le PROCESSUS appli est vivant
+        // (premier plan ou arriere-plan recent), ce qui couvre le cas reel de
+        // la box (toujours relancee au premier plan, cf. BootReceiver/
+        // TvHomeLauncherPrefs). data.silent=true DISTINGUE ce push du push
+        // VISIBLE "Mise a jour des horaires" (meme type "config_update",
+        // declenche par le trigger SQL on_mosque_update a chaque ecriture
+        // mosques -- y compris celles de l'administration a distance elle-
+        // meme) : seul silent=true supprime la banniere, l'autre continue de
+        // s'afficher normalement (comportement existant, inchange). Si le
+        // processus est completement tue (rare pour une box), le polling
+        // cote box (filet de securite, cf. custom.js) rattrape sous 15-20s
+        // au prochain lancement.
+        OneSignal.Notifications.addForegroundLifecycleListener(object : INotificationLifecycleListener {
+            override fun onWillDisplay(event: INotificationWillDisplayEvent) {
+                val data     = event.notification.additionalData
+                val type     = data?.optString("type", "")      ?: ""
+                val mosqueId = data?.optString("mosque_id", "") ?: ""
+                val silent   = data?.optBoolean("silent", false) ?: false
+                if (type == "config_update" && mosqueId.isNotEmpty() && silent) {
+                    event.preventDefault()
+                    Log.d("TWKT", "Silent config_update received for $mosqueId")
+                    runOnUiThread { dispatchConfigSync(mosqueId) }
+                } else if (type == "remote_action" && silent) {
+                    event.preventDefault()
+                    val action = data?.optString("action", "") ?: ""
+                    val target = data?.optString("target", "") ?: ""
+                    Log.d("TWKT", "Silent remote_action received: $action/$target")
+                    runOnUiThread { dispatchRemoteAction(action, target) }
+                }
+            }
+        })
         Log.d("TWKT", "OneSignal initialized")
     }
 
@@ -299,6 +337,27 @@ class MainActivity : AppCompatActivity() {
             null
         )
         Log.d("TWKT", "Dispatched ucConfigSync for $mosqueId")
+    }
+
+    /** Dispatch l'event ucRemoteAction vers le WebView (onglet Actions,
+     *  _installRemoteMosqueAdmin -> custom.js listener 'ucRemoteAction').
+     *  Contrairement à dispatchConfigSync, PAS de file d'attente si la page
+     *  n'est pas encore chargée : une commande ponctuelle ("bascule la
+     *  lecture maintenant") rejouée après un délai arbitraire au chargement
+     *  suivant n'a plus le même sens que l'intention originale de l'admin --
+     *  on l'ignore simplement plutôt que de la reporter. */
+    private fun dispatchRemoteAction(action: String, target: String) {
+        if (!isPageLoaded || action.isEmpty()) {
+            Log.d("TWKT", "Remote action dropped (page not loaded or empty action)")
+            return
+        }
+        val safeAction = action.replace("'", "\\'")
+        val safeTarget = target.replace("'", "\\'")
+        webView.evaluateJavascript(
+            "window.dispatchEvent(new CustomEvent('ucRemoteAction',{detail:{action:'$safeAction',target:'$safeTarget'}}));",
+            null
+        )
+        Log.d("TWKT", "Dispatched ucRemoteAction: $action/$target")
     }
 
     /**
@@ -421,7 +480,7 @@ class MainActivity : AppCompatActivity() {
 
         webView.webChromeClient = object : WebChromeClient() {
             override fun onConsoleMessage(msg: ConsoleMessage): Boolean {
-                Log.d("TWKT", "[${msg.messageLevel()}] ${msg.message()}")
+                Log.d("TWKT", "[${msg.messageLevel()}] ${msg.message()} (${msg.sourceId()}:${msg.lineNumber()})")
                 return true
             }
             // <input type="file"> (galerie/fichiers + appareil photo si dispo) —
@@ -769,8 +828,17 @@ class MainActivity : AppCompatActivity() {
         if (isSilentBoot) return
         if (!DeviceType.isAndroidTv(this)) return
         if (!TvHomeLauncherPrefs.isEnabled(this)) return
-        if (TvHomeLauncherHelper.isCurrentlyDefaultHome(this)) return
+        if (TvHomeLauncherHelper.isCurrentlyDefaultHome(this)) {
+            TvHomeLauncherPrefs.resetReassertFailCount(this)
+            return
+        }
+        // Certains boitiers crashent instantanement sur l'ecran systeme de
+        // choix d'accueil (bug AOSP, cf. TvHomeLauncherPrefs), ce qui sans
+        // ce garde-fou renvoie aussitot le focus a onResume() et rouvre le
+        // picker en boucle continue (l'appli parait alors "plantee").
+        if (!TvHomeLauncherPrefs.canAttemptReassert(this)) return
         Log.d("TWKT", "TV home launcher preference lost — reopening picker")
+        TvHomeLauncherPrefs.recordReassertAttempt(this)
         TvHomeLauncherHelper.setAliasEnabled(this, true)
         TvHomeLauncherHelper.openHomeAppPicker(this)
     }

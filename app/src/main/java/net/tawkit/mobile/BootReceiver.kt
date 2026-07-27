@@ -1,5 +1,7 @@
 package net.tawkit.mobile
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -32,7 +34,7 @@ class BootReceiver : BroadcastReceiver() {
         Log.d("TWKT", "Boot receiver triggered by action=${intent.action}")
 
         if (DeviceType.isAndroidTv(context)) {
-            if (TvHomeLauncherPrefs.isEnabled(context)) {
+            if (TvHomeLauncherPrefs.isEnabled(context) && TvHomeLauncherHelper.isCurrentlyDefaultHome(context)) {
                 // Le systeme lance deja Tawkit tout seul (ecran d'accueil
                 // par defaut). Le relancer ici en plus creerait une seconde
                 // instance concurrente du WebView : les deux tentent de lire
@@ -43,11 +45,54 @@ class BootReceiver : BroadcastReceiver() {
                 Log.d("TWKT", "Boot completed (TV) — home launcher active, OS already launching, skipping")
                 return
             }
-            Log.d("TWKT", "Boot completed (TV) — relaunching in foreground")
+            // BUG (trouve 27/07/2026) : TvHomeLauncherPrefs.isEnabled() seul
+            // reflete l'INTENTION (l'utilisateur a deja tente de definir
+            // Tawkit comme accueil), pas la realite systeme. Sur les boitiers
+            // ou l'ecran systeme de choix d'accueil crashe instantanement
+            // (bug AOSP, cf. TvHomeLauncherPrefs), ce choix n'aboutit jamais :
+            // isEnabled reste bloque a true alors que le vrai launcher par
+            // defaut (resolu par le systeme) est celui du fabricant (ex.
+            // com.vs.vslauncher). L'ancien code sautait alors purement et
+            // simplement le lancement, en supposant a tort que l'OS s'en
+            // chargeait -- l'appli ne demarrait donc jamais au boot. Verifier
+            // isCurrentlyDefaultHome() en plus de isEnabled() avant de sauter
+            // restaure le filet de secours exactement quand il est utile.
+            // BUG (trouve 27/07/2026) : deux approches testees en conditions
+            // reelles sur ce firmware (KM22) ont echoue :
+            //  1) context.startActivity() direct, meme relaye via un foreground
+            //     service avec startForeground() deja appele : catalogue
+            //     "Background activity start" par ActivityTaskManager
+            //     (isCallingUidForeground=false, isBgStartWhitelisted=false),
+            //     processus tue juste apres, aucune UI, aucune exception.
+            //  2) setFullScreenIntent() + PendingIntent.send() : le jeton BAL
+            //     temporaire visible dans dumpsys notification
+            //     ("whitelist: ...+30s0ms") ne suffit PAS a lui seul --
+            //     isBgStartWhitelisted reste false et l'activite est bloquee de
+            //     la meme facon (le declenchement plein-ecran automatique de
+            //     setFullScreenIntent() n'existe de toute facon que si le
+            //     keyguard est verrouille, absent sur ce boitier TV).
+            // Fonctionne en revanche : programmer une alarme exacte
+            // (AlarmManager.setExactAndAllowWhileIdle, meme mecanisme deja
+            // utilise pour les alertes de priere, cf. MobileJsBridge) dont le
+            // PendingIntent cible directement MainActivity. Quand
+            // AlarmManagerService declenche ce PendingIntent (appel systeme,
+            // pas depuis notre propre processus), Android accorde l'exemption
+            // BAL correspondante -- comportement documente et deja exploite par
+            // les applications de type reveil.
+            Log.d("TWKT", "Boot completed (TV) — scheduling launch via AlarmManager")
             val launch = Intent(context, MainActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }
-            context.startActivity(launch)
+            val launchPendingIntent = PendingIntent.getActivity(
+                context, 0, launch,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + 2000,
+                launchPendingIntent
+            )
             return
         }
 

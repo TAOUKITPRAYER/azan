@@ -815,6 +815,23 @@ class MobileJsBridge(
             .apply()
     }
 
+    /**
+     * Miroir natif de JS_CUSTOM.ucAzanFajrSelected / ucAzanGeneralSelected
+     * (custom.js, catalogue de muezzins) -- meme raison que syncAzanPlaybackFlags
+     * ci-dessus : AzanPlaybackService (composant natif independant, tourne meme
+     * appli fermee) doit lire ce choix pour jouer le VRAI son personnalise
+     * plutot que de retomber sur le fichier bundle par defaut. Chaine vide =
+     * pas de selection pour ce groupe.
+     */
+    @JavascriptInterface
+    fun syncAzanCatalogSelection(fajrId: String, generalId: String) {
+        context.getSharedPreferences(AzanPlaybackService.PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(AzanPlaybackService.PREF_AZAN_FAJR_ID, fajrId)
+            .putString(AzanPlaybackService.PREF_AZAN_GENERAL_ID, generalId)
+            .apply()
+    }
+
     @JavascriptInterface
     fun getDeviceInfo(): String {
         return JSONObject().apply {

@@ -97,12 +97,17 @@
         <!-- Boot receiver: reschedule alarms after reboot.
              QUICKBOOT_POWERON (+ variante HTC) : de nombreux boitiers Android
              TV generiques/non certifies n'emettent pas BOOT_COMPLETED mais
-             cette action a la place lors d'un "fast boot" -->
+             cette action a la place lors d'un "fast boot".
+             priority="999" (max autorise aux apps tierces) : constate en
+             conditions reelles (27/07/2026, boitier KM22) que BOOT_COMPLETED
+             est distribue sequentiellement a une dizaine d'autres BootReceiver
+             installes (launcher, gestionnaires systeme tiers, etc.) avant le
+             notre : plus d'une minute d'attente sans cet attribut. -->
         <receiver
             android:name=".BootReceiver"
             android:exported="true"
             android:enabled="true">
-            <intent-filter>
+            <intent-filter android:priority="999">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
@@ -124,6 +129,7 @@
             android:name=".AzanPlaybackService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
+
 
         <!-- Coupure/remise du son autour de l'azan (onglet الإعدادات) -->
         <receiver

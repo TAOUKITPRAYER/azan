@@ -36,6 +36,11 @@ object AzanCatalogManager {
         getBaseDir(context).listFiles { f -> f.isFile && !f.name.endsWith(".part") && f.nameWithoutExtension == id }
             ?.firstOrNull()
 
+    /** Fichier réellement présent sur disque pour cet id, ou null si jamais
+     *  téléchargé (ou supprimé) -- utilisé par AzanPlaybackService pour jouer
+     *  nativement le muezzin choisi dans le catalogue au lieu du son par défaut. */
+    fun getInstalledFile(context: Context, id: String): java.io.File? = fileFor(context, id)
+
     /** Ids déjà présents sur le disque (scan direct, pas d'état séparé). JSON: ["id1","id2",...] */
     fun listInstalledIds(context: Context): String {
         val ids = getBaseDir(context).listFiles { f -> f.isFile && !f.name.endsWith(".part") }
