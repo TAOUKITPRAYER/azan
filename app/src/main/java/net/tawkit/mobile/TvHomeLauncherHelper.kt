@@ -55,7 +55,21 @@ object TvHomeLauncherHelper {
         val resolved = context.packageManager.resolveActivity(
             homeIntent, PackageManager.MATCH_DEFAULT_ONLY
         )
-        return resolved?.activityInfo?.packageName == context.packageName
+        if (resolved?.activityInfo?.packageName != context.packageName) return false
+        // BUG (trouve 28/07/2026, boitier raven/Z6) : resolveActivity() peut
+        // renvoyer notre package via une preference HOME persistee au niveau
+        // systeme (mAlways=true, visible dans dumpsys package "Preferred
+        // Activities") meme quand TvHomeLauncherAlias lui-meme est redevenu
+        // disabled -- constate apres une reinstallation d'appli qui a
+        // reinitialise le composant a son etat par defaut du manifest
+        // (android:enabled="false") sans effacer cette preference systeme,
+        // distincte et non liee. Sans ce controle, BootReceiver et
+        // maybeReassertTvHomeLauncher() croient tous les deux a tort que le
+        // systeme lancera Tawkit -- et aucun des deux ne fait quoi que ce
+        // soit pour corriger la situation : l'appli ne demarre plus jamais,
+        // ni au boot ni via la reassertion automatique.
+        return context.packageManager.getComponentEnabledSetting(ALIAS_COMPONENT) ==
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED
     }
 
     /** Ouvre le selecteur systeme "application d'accueil" ; a defaut, guide

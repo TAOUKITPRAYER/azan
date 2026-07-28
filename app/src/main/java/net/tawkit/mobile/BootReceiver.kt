@@ -34,15 +34,19 @@ class BootReceiver : BroadcastReceiver() {
         Log.d("TWKT", "Boot receiver triggered by action=${intent.action}")
 
         if (DeviceType.isAndroidTv(context)) {
-            if (TvHomeLauncherPrefs.isEnabled(context) && TvHomeLauncherHelper.isCurrentlyDefaultHome(context)) {
-                // Le systeme lance deja Tawkit tout seul (ecran d'accueil
-                // par defaut). Le relancer ici en plus creerait une seconde
-                // instance concurrente du WebView : les deux tentent de lire
-                // /ecrire le meme localStorage a quelques instants d'intervalle,
-                // et l'une peut lire les donnees comme vides et les reinitialiser
-                // -> perte apparente des reglages mosquee/heures deja
-                // configures (constate sur X88 Pro 20). Rien a faire ici.
-                Log.d("TWKT", "Boot completed (TV) — home launcher active, OS already launching, skipping")
+            if (MainActivity.isAppInForeground) {
+                // Une instance de MainActivity tourne deja reellement dans ce
+                // process (le systeme a deja lance Tawkit comme ecran
+                // d'accueil ; un BroadcastReceiver sans android:process dedie
+                // s'execute dans le process existant de l'appli s'il tourne
+                // deja). C'est le seul signal fiable a 100% : le relancer ici
+                // en plus creerait une seconde instance concurrente du WebView,
+                // les deux tentant de lire/ecrire le meme localStorage a
+                // quelques instants d'intervalle, l'une pouvant lire les
+                // donnees comme vides et les reinitialiser -> perte apparente
+                // des reglages mosquee/heures deja configures (constate sur
+                // X88 Pro 20). Rien a faire ici.
+                Log.d("TWKT", "Boot completed (TV) — MainActivity already running, skipping")
                 return
             }
             // BUG (trouve 27/07/2026) : TvHomeLauncherPrefs.isEnabled() seul
@@ -54,9 +58,22 @@ class BootReceiver : BroadcastReceiver() {
             // defaut (resolu par le systeme) est celui du fabricant (ex.
             // com.vs.vslauncher). L'ancien code sautait alors purement et
             // simplement le lancement, en supposant a tort que l'OS s'en
-            // chargeait -- l'appli ne demarrait donc jamais au boot. Verifier
-            // isCurrentlyDefaultHome() en plus de isEnabled() avant de sauter
-            // restaure le filet de secours exactement quand il est utile.
+            // chargeait -- l'appli ne demarrait donc jamais au boot.
+            // BUG (trouve 28/07/2026, boitier raven/Z6) : meme en verifiant
+            // EN PLUS TvHomeLauncherHelper.isCurrentlyDefaultHome() (qui
+            // interroge PackageManager.resolveActivity), le signal reste
+            // trompeur -- confirme en conditions reelles : sur ce boitier,
+            // PackageManager rapporte Tawkit comme alias HOME correctement
+            // resolu ET actif (COMPONENT_ENABLED_STATE_ENABLED), et pourtant
+            // le systeme ne le lance jamais reellement au boot (firmware
+            // generique/non certifie, cf. commentaire DeviceType). Deux
+            // signaux PackageManager de suite se sont donc reveles non
+            // fiables sur des boitiers differents. isAppInForeground
+            // court-circuite definitivement ce probleme : au lieu de deviner
+            // ce que le systeme va faire, on verifie l'unique fait qui
+            // compte reellement -- Tawkit tourne-t-il deja au premier plan,
+            // oui ou non. Le filet de secours AlarmManager ci-dessous
+            // s'execute donc desormais dans tous les autres cas.
             // BUG (trouve 27/07/2026) : deux approches testees en conditions
             // reelles sur ce firmware (KM22) ont echoue :
             //  1) context.startActivity() direct, meme relaye via un foreground
