@@ -35,7 +35,7 @@
          inclus) : cet ecran ne liste que les apps qui declarent ce marqueur. -->
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <!-- Requis pour installer l'APK de mise à jour téléchargé par l'app elle-même
-         (AppUpdateDownloader/UpdateDownloadReceiver) via ACTION_VIEW -->
+         (AppUpdateDownloader) via ACTION_VIEW -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <application
@@ -111,6 +111,26 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+                <!-- Filet de relance apres une mise a jour silencieuse a distance
+                     (cf. BootReceiver.ACCEPTED_ACTIONS) -->
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Device Admin (essai en cours, 31/07/2026) : uniquement pour obtenir
+             le statut Device Owner (dpm set-device-owner) et installer les
+             mises a jour silencieusement via PackageInstaller.Session (cf.
+             TawkitDeviceAdminReceiver, device_admin_receiver.xml ; policy
+             volontairement vide, aucune restriction imposee a l'appareil). -->
+        <receiver
+            android:name=".TawkitDeviceAdminReceiver"
+            android:exported="true"
+            android:permission="android.permission.BIND_DEVICE_ADMIN">
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin_receiver" />
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
 
@@ -135,16 +155,6 @@
         <receiver
             android:name=".SilentModeReceiver"
             android:exported="false" />
-
-        <!-- Installation automatique de la mise à jour une fois le téléchargement
-             DownloadManager réellement terminé (cf. AppUpdateDownloader) -->
-        <receiver
-            android:name=".UpdateDownloadReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
-            </intent-filter>
-        </receiver>
 
         <!-- FileProvider pour exposer l'APK téléchargé (getExternalFilesDir) à
              l'installeur de paquets via une content:// URI -->

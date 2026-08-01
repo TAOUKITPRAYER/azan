@@ -22,10 +22,21 @@ class BootReceiver : BroadcastReceiver() {
         // Boitiers Android TV generiques/non certifies : n'emettent souvent
         // pas ACTION_BOOT_COMPLETED mais l'une de ces actions "fast boot" a
         // la place (cf. AndroidManifest.xml pour le meme constat).
+        // MY_PACKAGE_REPLACED (31/07/2026) : meme traitement qu'un boot --
+        // necessaire pour la mise a jour silencieuse a distance
+        // (RemoteSilentUpdater/SilentUpdateHelper) qui remplace l'APK sans
+        // jamais passer par l'ecran d'installation systeme. Sur les box ou
+        // Tawkit est deja alias HOME actif, l'OS relance seul l'activite HOME
+        // apres remplacement (constate en conditions reelles) -- mais ce
+        // n'est pas garanti sur toutes les box (alias HOME desactive par
+        // defaut, cf. TvHomeLauncherPrefs), d'ou ce filet explicite qui
+        // reutilise la meme technique AlarmManager deja eprouvee ci-dessous
+        // plutot que de supposer que l'auto-relance HOME suffira partout.
         private val ACCEPTED_ACTIONS = setOf(
             Intent.ACTION_BOOT_COMPLETED,
             "android.intent.action.QUICKBOOT_POWERON",
-            "com.htc.intent.action.QUICKBOOT_POWERON"
+            "com.htc.intent.action.QUICKBOOT_POWERON",
+            Intent.ACTION_MY_PACKAGE_REPLACED
         )
     }
 

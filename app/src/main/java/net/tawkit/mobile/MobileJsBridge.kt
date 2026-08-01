@@ -46,10 +46,17 @@ class MobileJsBridge(
     private val onSetKeepScreenOn: (Boolean) -> Unit = {},
     /** Lance à la demande la vérification de version GitHub. */
     private val onCheckForUpdate: () -> Unit = {},
+    /** Lance la mise à jour silencieuse déclenchée à distance (cf. startSilentAppUpdate). */
+    private val onRemoteSilentUpdate: () -> Unit = {},
     /** Ouvre le menu outils TV (reglages Android / changer l'ecran d'accueil)
      *  — cf. MainActivity.showTvUtilityMenu(). Pas d'ecran de reglages
      *  accessible en mode horizontal pour proposer ces actions autrement. */
-    private val onOpenTvUtilityMenu: () -> Unit = {}
+    private val onOpenTvUtilityMenu: () -> Unit = {},
+    /** Active/désactive la vérification quotidienne de mise à jour, à l'heure
+     *  (hour, minute) donnée -- cf. MainActivity.setAutoDailyUpdateEnabled.
+     *  Remplace le sondage push/60s comme mécanisme de déclenchement de
+     *  production, cf. ucMosqueInfoAdminSection. */
+    private val onSetAutoDailyUpdate: (Boolean, Int, Int) -> Unit = { _, _, _ -> }
 ) {
 
     companion object {
@@ -738,6 +745,31 @@ class MobileJsBridge(
     @JavascriptInterface
     fun checkForAppUpdate() {
         onCheckForUpdate()
+    }
+
+    /**
+     * Déclenché à distance (cf. remote_action 'update_app', custom.js
+     * listener ucRemoteAction, garde box-only déjà en place) -- lance
+     * RemoteSilentUpdater.run() en tâche de fond côté MainActivity (jamais de
+     * boîte de dialogue, contrairement à checkForAppUpdate() ci-dessus qui
+     * est le déclenchement manuel/interactif depuis le menu).
+     */
+    @JavascriptInterface
+    fun startSilentAppUpdate() {
+        onRemoteSilentUpdate()
+    }
+
+    /**
+     * Active/désactive la vérification automatique quotidienne de mise à
+     * jour silencieuse, à l'heure choisie par l'admin -- cf.
+     * ucMosqueInfoAdminSection, réglages JS_CUSTOM.ucAutoDailyUpdateEnabled /
+     * ucAutoDailyUpdateTime. Appelé au chargement de page (état courant) et
+     * à chaque changement de la case à cocher ou du champ horaire --
+     * redémarre systématiquement la boucle avec les valeurs actuelles.
+     */
+    @JavascriptInterface
+    fun setAutoDailyUpdateEnabled(enabled: Boolean, hour: Int, minute: Int) {
+        onSetAutoDailyUpdate(enabled, hour, minute)
     }
 
     /**

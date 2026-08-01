@@ -1,8 +1,10 @@
 package net.tawkit.mobile
 
+import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.provider.Settings
 import android.util.Log
@@ -70,6 +72,40 @@ object TvHomeLauncherHelper {
         // ni au boot ni via la reassertion automatique.
         return context.packageManager.getComponentEnabledSetting(ALIAS_COMPONENT) ==
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+    }
+
+    /**
+     * Sur les boitiers passes Device Owner (cf. DeviceOwnerInstaller), impose
+     * silencieusement Tawkit comme ecran d'accueil via l'API officielle
+     * addPersistentPreferredActivity -- contrairement au mecanisme manuel
+     * ci-dessus (alias + selecteur systeme, qui exige un geste utilisateur),
+     * celle-ci ne necessite AUCUNE interaction et prend le pas sur une
+     * preference HOME deja enregistree par un launcher OEM.
+     *
+     * Trouve le 01/08/2026 sur le boitier KM22 (192.168.1.14, tout juste
+     * passe Device Owner) : com.vs.vslauncher (launcher systeme preinstalle)
+     * s'etait deja impose comme accueil permanent (mAlways=true dans
+     * "Preferred Activities", visible via dumpsys package) avant meme
+     * l'installation de Tawkit -- l'alias etait bien active et le geste de
+     * re-selection avait ete tente (cf. TvHomeLauncherPrefs, reassert_fail_
+     * count=1) mais Android ne re-propose jamais le selecteur une fois une
+     * preference mAlways=true deja actee, donc l'appli demarrait seulement
+     * en second plan derriere vslauncher via BootReceiver.
+     */
+    fun enforceDeviceOwnerHome(context: Context) {
+        try {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            if (!dpm.isDeviceOwnerApp(context.packageName)) return
+            setAliasEnabled(context, true)
+            val admin = ComponentName(context, TawkitDeviceAdminReceiver::class.java)
+            val filter = IntentFilter(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_HOME)
+                addCategory(Intent.CATEGORY_DEFAULT)
+            }
+            dpm.addPersistentPreferredActivity(admin, filter, ALIAS_COMPONENT)
+        } catch (e: Exception) {
+            Log.e("TWKT", "enforceDeviceOwnerHome failed: ${e.message}")
+        }
     }
 
     /** Ouvre le selecteur systeme "application d'accueil" ; a defaut, guide

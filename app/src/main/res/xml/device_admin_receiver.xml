@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Politique volontairement vide (aucune restriction imposée) : Tawkit
+    n'utilise le statut Device Owner QUE pour l'installation silencieuse de
+    mises à jour via PackageInstaller (cf. DeviceOwnerInstaller.kt), jamais
+    pour verrouiller/restreindre l'appareil. La déclaration <device-admin>
+    reste néanmoins obligatoire même sans policy active.
+-->
+<device-admin xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-policies />
+</device-admin>

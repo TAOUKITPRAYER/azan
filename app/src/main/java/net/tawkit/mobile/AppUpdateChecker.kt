@@ -70,7 +70,10 @@ object AppUpdateChecker {
     private val versionNamePattern =
         Regex("""(?im)^\s*versionName\s*[:=]\s*(.+?)\s*$""")
 
-    private data class RemoteVersion(
+    // Visibilité par défaut (pas private) : réutilisé par RemoteSilentUpdater
+    // pour le flux de mise à jour déclenché à distance (headless, pas de
+    // dialogue), qui a besoin des mêmes champs sans dupliquer le parsing.
+    data class RemoteVersion(
         val versionCode: Long?,
         val versionName: String,
         val downloadUrl: String,
@@ -217,7 +220,8 @@ object AppUpdateChecker {
         }
     }
 
-    private fun fetchRemoteVersion(): RemoteVersion {
+    // Visibilité par défaut (pas private), même raison que RemoteVersion ci-dessus.
+    fun fetchRemoteVersion(): RemoteVersion {
         val connection = (URL(RELEASE_API_URL).openConnection() as HttpURLConnection).apply {
             requestMethod = "GET"
             connectTimeout = 10_000
@@ -267,8 +271,12 @@ object AppUpdateChecker {
         }
     }
 
+    // Context (pas AppCompatActivity) : réutilisé par RemoteSilentUpdater qui
+    // n'a qu'un Context (pas d'Activity en tâche de fond headless) -- même
+    // implémentation, seuls .packageManager/.packageName sont utilisés,
+    // disponibles sur Context comme sur Activity.
     @Suppress("DEPRECATION")
-    private fun installedVersion(activity: AppCompatActivity): Pair<Long, String> {
+    fun installedVersion(activity: Context): Pair<Long, String> {
         val info = activity.packageManager.getPackageInfo(activity.packageName, 0)
         val code = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             info.longVersionCode

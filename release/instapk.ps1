@@ -9,12 +9,15 @@
         apk         Compile la release (gradlew assembleRelease), aligne
                     (zipalign) et signe (apksigner) avec tawkit.jks
                     -> genere release\taoukit.apk
-        install     Installe/met a jour release\taoukit.apk sur l'appareil
-                    adb courant (adb install -r : conserve les donnees/config
-                    deja presentes sur l'appareil)
-        fullinstall Desinstalle net.tawkit.mobile s'il est present (efface
-                    les donnees de l'appareil) puis installe release\taoukit.apk
-        all         Enchaine apk puis fullinstall
+        install     [serial] Installe/met a jour release\taoukit.apk sur
+                    l'appareil adb courant, ou celui indique par [serial]
+                    (adb -s, requis si plusieurs appareils adb sont connectes
+                    -- cf. 'adb devices') (adb install -r : conserve les
+                    donnees/config deja presentes sur l'appareil)
+        fullinstall [serial] Desinstalle net.tawkit.mobile s'il est present
+                    (efface les donnees de l'appareil) puis installe
+                    release\taoukit.apk sur l'appareil adb courant ou [serial]
+        all         [serial] Enchaine apk puis fullinstall
         setversion  <version> : met a jour la version partout en une seule
                     commande (app\build.gradle : versionName + versionCode
                     incremente ; spec\custom.js : CUSTOM_APP_VERSION) -> plus
@@ -29,6 +32,7 @@
     Exemples :
         powershell -ExecutionPolicy Bypass -File release\instapk.ps1 apk
         powershell -ExecutionPolicy Bypass -File release\instapk.ps1 install
+        powershell -ExecutionPolicy Bypass -File release\instapk.ps1 install 192.168.1.18:35541
         powershell -ExecutionPolicy Bypass -File release\instapk.ps1 fullinstall
         powershell -ExecutionPolicy Bypass -File release\instapk.ps1 all
         powershell -ExecutionPolicy Bypass -File release\instapk.ps1 setversion 11.3A
@@ -111,15 +115,20 @@ function Show-Help {
     Write-Host "               (zipalign) et signe (apksigner) avec tawkit.jks"
     Write-Host "               -> genere release\taoukit.apk"
     Write-Host ""
-    Write-Host "  install      Installe/met a jour release\taoukit.apk sur l'appareil"
-    Write-Host "               adb courant (adb install -r : conserve les donnees deja"
-    Write-Host "               presentes sur l'appareil, ex. config mosquee)."
+    Write-Host "  install [serial]"
+    Write-Host "               Installe/met a jour release\taoukit.apk sur l'appareil"
+    Write-Host "               adb courant, ou celui designe par [serial] (obligatoire"
+    Write-Host "               si plusieurs appareils adb sont connectes -- voir la"
+    Write-Host "               colonne de gauche de 'adb devices'). adb install -r :"
+    Write-Host "               conserve les donnees deja presentes sur l'appareil."
     Write-Host ""
-    Write-Host "  fullinstall  Desinstalle net.tawkit.mobile s'il est deja present"
+    Write-Host "  fullinstall [serial]"
+    Write-Host "               Desinstalle net.tawkit.mobile s'il est deja present"
     Write-Host "               (efface les donnees existantes sur l'appareil) puis"
-    Write-Host "               installe release\taoukit.apk."
+    Write-Host "               installe release\taoukit.apk sur l'appareil adb courant"
+    Write-Host "               ou celui designe par [serial]."
     Write-Host ""
-    Write-Host "  all          Enchaine apk puis fullinstall."
+    Write-Host "  all [serial] Enchaine apk puis fullinstall."
     Write-Host ""
     Write-Host "  setversion <version>"
     Write-Host "               Met a jour la version partout en une seule commande :"
@@ -139,6 +148,7 @@ function Show-Help {
     Write-Host "Exemples :" -ForegroundColor Yellow
     Write-Host "  powershell -ExecutionPolicy Bypass -File release\instapk.ps1 apk"
     Write-Host "  powershell -ExecutionPolicy Bypass -File release\instapk.ps1 install"
+    Write-Host "  powershell -ExecutionPolicy Bypass -File release\instapk.ps1 install 192.168.1.18:35541"
     Write-Host "  powershell -ExecutionPolicy Bypass -File release\instapk.ps1 fullinstall"
     Write-Host "  powershell -ExecutionPolicy Bypass -File release\instapk.ps1 all"
     Write-Host "  powershell -ExecutionPolicy Bypass -File release\instapk.ps1 setversion 11.3A"
@@ -305,30 +315,38 @@ function Invoke-GetVersion {
 }
 
 function Invoke-Install {
+    param([string]$DeviceSerial)
+
     if (-not (Test-Path $OutputApk)) {
         throw "release\taoukit.apk introuvable. Lancez d'abord : instapk.ps1 apk (ou 'all')."
     }
     $sdkDir = Get-AndroidSdkDir
     $adb    = Get-AdbExe -SdkDir $sdkDir
+    $adbArgs = @()
+    if ($DeviceSerial) { $adbArgs += @('-s', $DeviceSerial) }
 
-    Write-Info "==> Installation (mise a jour) sur l'appareil courant..."
-    & $adb install -r $OutputApk
+    Write-Info "==> Installation (mise a jour) sur $(if ($DeviceSerial) { $DeviceSerial } else { "l'appareil courant" })..."
+    & $adb @adbArgs install -r $OutputApk
     if ($LASTEXITCODE -ne 0) { throw "Echec de adb install (code $LASTEXITCODE)" }
     Write-Success "OK : mise a jour installee."
 }
 
 function Invoke-FullInstall {
+    param([string]$DeviceSerial)
+
     if (-not (Test-Path $OutputApk)) {
         throw "release\taoukit.apk introuvable. Lancez d'abord : instapk.ps1 apk (ou 'all')."
     }
     $sdkDir = Get-AndroidSdkDir
     $adb    = Get-AdbExe -SdkDir $sdkDir
+    $adbArgs = @()
+    if ($DeviceSerial) { $adbArgs += @('-s', $DeviceSerial) }
 
     Write-Info "==> Desinstallation de $PackageName si present (efface les donnees existantes)..."
-    & $adb uninstall $PackageName | Out-Null
+    & $adb @adbArgs uninstall $PackageName | Out-Null
 
-    Write-Info "==> Installation propre sur l'appareil courant..."
-    & $adb install $OutputApk
+    Write-Info "==> Installation propre sur $(if ($DeviceSerial) { $DeviceSerial } else { "l'appareil courant" })..."
+    & $adb @adbArgs install $OutputApk
     if ($LASTEXITCODE -ne 0) { throw "Echec de adb install (code $LASTEXITCODE)" }
     Write-Success "OK : installation propre terminee."
 }
@@ -338,9 +356,9 @@ $normalizedAction = if ($Action) { $Action.Trim().ToLowerInvariant() } else { ''
 
 switch ($normalizedAction) {
     'apk'         { Invoke-BuildApk }
-    'install'     { Invoke-Install }
-    'fullinstall' { Invoke-FullInstall }
-    'all'         { Invoke-BuildApk; Invoke-FullInstall }
+    'install'     { Invoke-Install -DeviceSerial $Version }
+    'fullinstall' { Invoke-FullInstall -DeviceSerial $Version }
+    'all'         { Invoke-BuildApk; Invoke-FullInstall -DeviceSerial $Version }
     'setversion'  { Invoke-SetVersion -NewVersion $Version }
     'getversion'  { Invoke-GetVersion | Out-Null }
     'help'        { Show-Help }

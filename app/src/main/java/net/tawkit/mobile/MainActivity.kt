@@ -41,7 +41,11 @@ import com.onesignal.notifications.INotificationLifecycleListener
 import com.onesignal.notifications.INotificationWillDisplayEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
 
@@ -81,6 +85,12 @@ class MainActivity : AppCompatActivity() {
     private var pendingMosqueDeepLink: String? = null
     private var isPageLoaded = false
     private var automaticUpdateCheckStarted = false
+
+    /** Boucle de vérification quotidienne (heure choisie par l'admin) de mise
+     *  à jour silencieuse, cf. setAutoDailyUpdateEnabled -- remplace le
+     *  sondage 60s (désactivé, cf. onPageFinished) comme mécanisme de
+     *  production. Nul si désactivée. */
+    private var dailySilentUpdateJob: Job? = null
 
     /** Lancement silencieux post-boot (telephone) : cf. EXTRA_SILENT_BOOT. */
     private var isSilentBoot = false
@@ -360,6 +370,120 @@ class MainActivity : AppCompatActivity() {
         Log.d("TWKT", "Dispatched ucRemoteAction: $action/$target")
     }
 
+    /** Dispatch le résultat de la sonde de capacité "mise à jour silencieuse"
+     *  (cf. onPageFinished ci-dessus) -- custom.js le rapporte à Supabase par
+     *  mosque_id, pour affichage dans l'administration à distance. */
+    private fun dispatchSilentUpdateCapability(capable: Boolean) {
+        if (!isPageLoaded) return
+        val model = android.os.Build.MODEL.replace("'", "")
+        val release = android.os.Build.VERSION.RELEASE.replace("'", "")
+        webView.evaluateJavascript(
+            "window.dispatchEvent(new CustomEvent('ucSilentUpdateCapability'," +
+                "{detail:{capable:$capable,model:'$model',androidVersion:'$release'}}));",
+            null
+        )
+        Log.d("TWKT", "Dispatched ucSilentUpdateCapability: capable=$capable")
+    }
+
+    /** Lance RemoteSilentUpdater.run() en tâche de fond (cf. MobileJsBridge
+     *  .startSilentAppUpdate, action 'update_app') puis rapporte le résultat
+     *  au WebView. Progression (dialogue natif + rapport Supabase, demandé
+     *  le 31/07/2026) transmise via silentUpdateOnProgress -- la box reste
+     *  sans surveillance, mais un admin present devant l'ecran ou consultant
+     *  a distance depuis son telephone peut suivre l'avancement. */
+    private fun runRemoteSilentUpdate() {
+        Log.d("TWKT", "Remote silent update: starting")
+        CoroutineScope(Dispatchers.IO).launch {
+            val outcome = RemoteSilentUpdater.run(this@MainActivity) { p ->
+                runOnUiThread { silentUpdateOnProgress(p) }
+            }
+            Log.d("TWKT", "Remote silent update outcome: $outcome")
+            withContext(Dispatchers.Main) { dispatchSilentUpdateOutcome(outcome) }
+        }
+    }
+
+    /**
+     * Active/désactive la boucle de vérification quotidienne (heure choisie
+     * par l'admin, cf. hour/minute) de mise à jour silencieuse -- remplace
+     * le sondage push/60s comme mécanisme de production (cf. discussion
+     * 31/07/2026 : le push OneSignal s'est révélé peu fiable sur cette
+     * classe de boîtier, best-effort par nature). Piloté depuis custom.js
+     * (ucMosqueInfoAdminSection, JS_CUSTOM.ucAutoDailyUpdateEnabled/
+     * ucAutoDailyUpdateTime), appelé à chaque changement (case à cocher OU
+     * champ horaire) -- annule systématiquement toute boucle existante avant
+     * d'en (re)lancer une avec les valeurs actuelles, pour qu'un changement
+     * d'heure pendant que c'est déjà activé prenne effet immédiatement.
+     */
+    fun setAutoDailyUpdateEnabled(enabled: Boolean, hour: Int, minute: Int) {
+        if (!DeviceType.isAndroidTv(this)) return
+        dailySilentUpdateJob?.cancel()
+        dailySilentUpdateJob = null
+        if (!enabled) {
+            Log.d("TWKT", "Daily silent update check: disabled")
+            return
+        }
+        Log.d("TWKT", "Daily silent update check: enabled at %02d:%02d".format(hour, minute))
+        dailySilentUpdateJob = CoroutineScope(Dispatchers.IO).launch {
+            while (true) {
+                delay(delayUntilNextTimeMs(hour, minute))
+                runDailySilentUpdateCheck("Daily")
+            }
+        }
+    }
+
+    private fun delayUntilNextTimeMs(hour: Int, minute: Int): Long {
+        val cal = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+            if (timeInMillis <= System.currentTimeMillis()) add(Calendar.DAY_OF_MONTH, 1)
+        }
+        return cal.timeInMillis - System.currentTimeMillis()
+    }
+
+    private suspend fun runDailySilentUpdateCheck(label: String) {
+        Log.d("TWKT", "$label silent update check: starting")
+        val outcome = RemoteSilentUpdater.run(this@MainActivity) { p ->
+            runOnUiThread { silentUpdateOnProgress(p) }
+        }
+        Log.d("TWKT", "$label silent update check outcome: $outcome")
+        withContext(Dispatchers.Main) { dispatchSilentUpdateOutcome(outcome) }
+    }
+
+    /** Appelé (déjà sur le thread UI) à chaque étape de RemoteSilentUpdater.run()
+     *  qui a effectivement quelque chose à montrer (donc jamais pour le cas
+     *  "déjà à jour", qui ne passe pas par ce callback) : met à jour le
+     *  dialogue visible sur la box ET rapporte la progression au WebView pour
+     *  écriture Supabase (cf. custom.js, table mosque_device_status). */
+    private fun silentUpdateOnProgress(progress: RemoteSilentUpdater.Progress) {
+        SilentUpdateProgressDialog.update(this, progress)
+        dispatchSilentUpdateProgress(progress)
+    }
+
+    private fun dispatchSilentUpdateProgress(progress: RemoteSilentUpdater.Progress) {
+        if (!isPageLoaded) return
+        val safePhase = progress.phase.replace("'", "\\'")
+        val safeMsg = progress.message.replace("'", "\\'").replace("\n", " ")
+        val pctJs = progress.pct?.toString() ?: "null"
+        webView.evaluateJavascript(
+            "window.dispatchEvent(new CustomEvent('ucSilentUpdateProgress'," +
+                "{detail:{phase:'$safePhase',message:'$safeMsg',pct:$pctJs," +
+                "bytesDownloaded:${progress.bytesDownloaded},totalBytes:${progress.totalBytes}}}));",
+            null
+        )
+    }
+
+    private fun dispatchSilentUpdateOutcome(outcome: RemoteSilentUpdater.Outcome) {
+        if (!isPageLoaded) return
+        val safeMsg = outcome.message.replace("'", "\\'").replace("\n", " ")
+        webView.evaluateJavascript(
+            "window.dispatchEvent(new CustomEvent('ucSilentUpdateResult'," +
+                "{detail:{success:${outcome.success},silent:${outcome.silent},message:'$safeMsg'}}));",
+            null
+        )
+    }
+
     /**
      * Deep link "Ouvrir cette mosquée dans l'application" (bloc Partager de
      * la fiche mosquée, custom.js _shareMosqueInfo) : tawkit://mosque/<id>,
@@ -471,9 +595,11 @@ class MainActivity : AppCompatActivity() {
                 onCheckForUpdate = {
                     runOnUiThread { AppUpdateChecker.check(this, manual = true) }
                 },
+                onRemoteSilentUpdate = { runRemoteSilentUpdate() },
                 onOpenTvUtilityMenu = {
                     runOnUiThread { showTvUtilityMenu() }
-                }
+                },
+                onSetAutoDailyUpdate = { enabled, hour, minute -> setAutoDailyUpdateEnabled(enabled, hour, minute) }
             ),
             "AndroidMobile"
         )
@@ -599,6 +725,33 @@ class MainActivity : AppCompatActivity() {
                         { AppUpdateChecker.maybeAutoCheck(this@MainActivity) },
                         1500
                     )
+                }
+                // Sonde de capacité "mise à jour silencieuse" (box uniquement -- un
+                // téléphone n'est jamais mis à jour à distance sans surveillance) :
+                // pas de garde "une seule fois par process" contrairement à
+                // automaticUpdateCheckStarted ci-dessus -- checkCapability() est un
+                // test local (su 0 id), pas un appel réseau, donc pas besoin de
+                // l'économiser ; le refaire à chaque rechargement (y compris via le
+                // bouton "Recharger la box" de l'administration à distance) permet
+                // de rafraîchir le statut sans action dédiée supplémentaire.
+                if (DeviceType.isAndroidTv(this@MainActivity)) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        // Device Owner (officiel, cf. DeviceOwnerInstaller) d'abord --
+                        // simple appel DevicePolicyManager, quasi instantané ; la sonde
+                        // su (checkCapability) n'est faite qu'en second, seulement si
+                        // la box n'est pas Device Owner (quasi toujours false -- cf.
+                        // commentaire de classe SilentUpdateHelper -- pas la peine de
+                        // payer son coût de ~1-3s à chaque chargement si déjà capable).
+                        val isDo = DeviceOwnerInstaller.isDeviceOwner(this@MainActivity)
+                        if (isDo) TvHomeLauncherHelper.enforceDeviceOwnerHome(this@MainActivity)
+                        val capable = isDo || SilentUpdateHelper.checkCapability()
+                        withContext(Dispatchers.Main) { dispatchSilentUpdateCapability(capable) }
+                    }
+                    // La vérification automatique quotidienne (01:00) est démarrée/
+                    // arrêtée explicitement par custom.js via setAutoDailyUpdateEnabled
+                    // (ucMosqueInfoAdminSection), pas ici -- l'état persiste côté JS
+                    // (JS_CUSTOM.ucAutoDailyUpdateEnabled), pas besoin de la relancer
+                    // à chaque chargement de page côté natif.
                 }
                 maybeShowAutoStartSetupPrompt(view)
                 maybeShowTvHomeLauncherPrompt(view)

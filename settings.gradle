@@ -18,3 +18,4 @@ dependencyResolutionManagement {
 rootProject.name = "TawkitMobile"
 include ':app'
 include ':hijri-admin'
+include ':mosque-admin'
