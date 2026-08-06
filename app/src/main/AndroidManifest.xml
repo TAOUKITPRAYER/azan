@@ -156,6 +156,11 @@
             android:name=".SilentModeReceiver"
             android:exported="false" />
 
+        <!-- Volume au maximum juste avant l'azan (onglet تعديل الأذان) -->
+        <receiver
+            android:name=".VolumeBoostReceiver"
+            android:exported="false" />
+
         <!-- FileProvider pour exposer l'APK téléchargé (getExternalFilesDir) à
              l'installeur de paquets via une content:// URI -->
         <provider

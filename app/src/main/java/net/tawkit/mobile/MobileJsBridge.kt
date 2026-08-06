@@ -623,6 +623,75 @@ class MobileJsBridge(
     fun isSilentModeActive(): Boolean = SilentModeReceiver.isAppSilencing(context)
 
     /**
+     * Programme, une fois par prière, une alarme qui monte le volume (musique
+     * + alarme) au maximum peu avant l'azan (onglet "تعديل الأذان" —
+     * custom.js, _ucScheduleVolumeBoostAlarms()). Alarme unique par prière,
+     * pas de restauration ensuite (cf. VolumeBoostReceiver).
+     *
+     * @param jsonArray JSON: [{ prayer, hour, minute, dayOffset }]
+     */
+    @JavascriptInterface
+    fun scheduleVolumeBoostAlarms(jsonArray: String) {
+        try {
+            cancelVolumeBoostAlarms()
+            val items = JSONArray(jsonArray)
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+            for (i in 0 until items.length()) {
+                val obj = items.getJSONObject(i)
+                val prayer = obj.getString("prayer")
+                val cal = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, obj.getInt("hour"))
+                    set(Calendar.MINUTE, obj.getInt("minute"))
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                    val dayOffset = obj.optInt("dayOffset", 0)
+                    if (dayOffset != 0) add(Calendar.DAY_OF_MONTH, dayOffset)
+                    // Meme correctif que scheduleSinglePrayer/scheduleSilentAction :
+                    // si, meme apres dayOffset, le moment calcule est deja passe
+                    // (app rouverte tard), decaler d'un jour supplementaire au lieu
+                    // d'abandonner silencieusement la programmation.
+                    if (timeInMillis <= System.currentTimeMillis()) add(Calendar.DAY_OF_MONTH, 1)
+                }
+                val intent = Intent(context, VolumeBoostReceiver::class.java).apply {
+                    putExtra("prayer", prayer)
+                }
+                val pendingIntent = PendingIntent.getBroadcast(
+                    context, 900 + i, intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.timeInMillis, pendingIntent)
+                    } else {
+                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, cal.timeInMillis, pendingIntent)
+                    }
+                } catch (e: SecurityException) {
+                    Log.e("TWKT", "Cannot schedule volume boost for $prayer: ${e.message}")
+                }
+            }
+            Log.d("TWKT", "Scheduled volume-boost alarms for ${items.length()} prayers")
+        } catch (e: Exception) {
+            Log.e("TWKT", "scheduleVolumeBoostAlarms error: ${e.message}")
+        }
+    }
+
+    /** Annule toutes les alarmes de volume-boost en attente (requestCodes 900-904). */
+    @JavascriptInterface
+    fun cancelVolumeBoostAlarms() {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        for (i in 0 until 5) {
+            val intent = Intent(context, VolumeBoostReceiver::class.java)
+            val pi = PendingIntent.getBroadcast(
+                context, 900 + i, intent,
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            )
+            pi?.let { alarmManager.cancel(it) }
+        }
+        Log.d("TWKT", "Cancelled all volume-boost alarms")
+    }
+
+    /**
      * Filet de sécurité : force la restauration de la sonnerie et remet à
      * zéro les compteurs des DEUX fonctionnalités (avant-azan et après-azan),
      * sans condition. Appelé depuis custom.js (_ucCheckStaleSilentMode) quand
