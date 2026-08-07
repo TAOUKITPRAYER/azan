@@ -128,6 +128,26 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Picker SAF pour choisir un fichier audio azan personnalise (onglet
+    // "تعديل الأذان", blocs "أذان الفجر" / "أذان (باقي الصلوات)", cf.
+    // custom.js _acPickCustomFile / MobileJsBridge.pickCustomAzanFile).
+    // groupKey ("fajr"/"general") fixe juste avant .launch(), lu au retour.
+    private var pendingCustomAzanGroup: String? = null
+
+    private val pickAudioLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        val groupKey = pendingCustomAzanGroup
+        pendingCustomAzanGroup = null
+        if (uri == null || groupKey == null) {
+            Log.d("TWKT", "Custom azan file picker: cancelled")
+            return@registerForActivityResult
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            AzanCatalogManager.importCustomFile(this@MainActivity, groupKey, uri)
+        }
+    }
+
     // Sélecteur de fichier standard WebView (<input type="file">, cf. custom.js
     // sélecteur photo mosquée) : sans onShowFileChooser, ces clics ne font
     // RIEN silencieusement — c'est pour ça que l'export/import de config
@@ -599,7 +619,11 @@ class MainActivity : AppCompatActivity() {
                 onOpenTvUtilityMenu = {
                     runOnUiThread { showTvUtilityMenu() }
                 },
-                onSetAutoDailyUpdate = { enabled, hour, minute -> setAutoDailyUpdateEnabled(enabled, hour, minute) }
+                onSetAutoDailyUpdate = { enabled, hour, minute -> setAutoDailyUpdateEnabled(enabled, hour, minute) },
+                onPickCustomAzanFile = { groupKey ->
+                    pendingCustomAzanGroup = groupKey
+                    pickAudioLauncher.launch(arrayOf("audio/mpeg", "audio/ogg", "audio/mp4", "audio/x-wav", "audio/*"))
+                }
             ),
             "AndroidMobile"
         )

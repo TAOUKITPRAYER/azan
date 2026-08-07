@@ -56,7 +56,11 @@ class MobileJsBridge(
      *  (hour, minute) donnée -- cf. MainActivity.setAutoDailyUpdateEnabled.
      *  Remplace le sondage push/60s comme mécanisme de déclenchement de
      *  production, cf. ucMosqueInfoAdminSection. */
-    private val onSetAutoDailyUpdate: (Boolean, Int, Int) -> Unit = { _, _, _ -> }
+    private val onSetAutoDailyUpdate: (Boolean, Int, Int) -> Unit = { _, _, _ -> },
+    /** Declenche le picker SAF (ActivityResultContracts.OpenDocument, filtre
+     *  audio) pour choisir un fichier azan personnalise -- cf. MainActivity
+     *  pickAudioLauncher, custom.js _acPickCustomFile. groupKey: "fajr" | "general". */
+    private val onPickCustomAzanFile: (String) -> Unit = {}
 ) {
 
     companion object {
@@ -189,8 +193,14 @@ class MobileJsBridge(
                 // coupe (muted) cote custom.js pour eviter un double son.
                 val shortAzan = obj.optInt("shortAzan", 0) == 1
                 val voiceMode = obj.optInt("voiceMode", 1) == 1
+                // Decalage de jour explicite (envoye par custom.js._sendToNative
+                // pour Fajr quand elle est deja passee aujourd'hui) : evite de
+                // dependre du fallback "deja passe -> +1 jour" ci-dessous, qui
+                // reutilise l'heure d'aujourd'hui au lieu de la vraie heure du
+                // jour vise.
+                val dayOffset = obj.optInt("dayOffset", 0)
 
-                scheduleSinglePrayer(alarmManager, prayer, hour, minute, prayerHour, prayerMinute, minutesBefore, shortAzan, voiceMode)
+                scheduleSinglePrayer(alarmManager, prayer, hour, minute, prayerHour, prayerMinute, minutesBefore, shortAzan, voiceMode, dayOffset)
             }
             Log.d("TWKT", "Scheduled ${prayers.length()} prayer alerts")
         } catch (e: Exception) {
@@ -207,13 +217,20 @@ class MobileJsBridge(
         prayerMinute: Int,
         minutesBefore: Int,
         shortAzan: Boolean = false,
-        voiceMode: Boolean = true
+        voiceMode: Boolean = true,
+        dayOffset: Int = 0
     ) {
         val cal = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
+            // Decalage de jour explicite fourni par l'appelant (cf. Fajr dans
+            // custom.js._sendToNative, qui calcule la vraie heure du lendemain
+            // au lieu de laisser le fallback ci-dessous deviner). Applique AVANT
+            // le fallback : une fois ce decalage pose, l'heure resultante est
+            // deja dans le futur donc le fallback ne fait rien de plus.
+            if (dayOffset != 0) add(Calendar.DAY_OF_MONTH, dayOffset)
             // Si l'heure calculee est deja passee aujourd'hui, programmer pour
             // demain a la meme heure plutot que d'abandonner. AVANT ce correctif,
             // toute priere deja passee "aujourd'hui" au moment de l'appel
@@ -225,6 +242,9 @@ class MobileJsBridge(
             // (calcul le plus recent disponible) : ecart de 1-2 min au pire
             // avec l'heure exacte du lendemain, corrige de toute facon des la
             // prochaine reprogrammation quotidienne (custom.js, UC_EVT.AZAN_TIME).
+            // Reste un filet de securite pour les 4 autres prieres (dayOffset=0
+            // dans leur cas) et pour Fajr si jamais le lookahead JS a echoue et
+            // dayOffset vaut encore 0.
             if (timeInMillis <= System.currentTimeMillis()) add(Calendar.DAY_OF_MONTH, 1)
         }
 
@@ -1119,6 +1139,34 @@ class MobileJsBridge(
     /** Etat du téléchargement en cours. JSON: {status, message?} — status: idle|downloading|done|error */
     @JavascriptInterface
     fun getAzanCatalogDownloadStatus(id: String): String = AzanCatalogManager.getDownloadStatus(id)
+
+    // ── Fichier azan personnalisé (choisi par l'utilisateur, explorateur
+    // Android) : deux blocs dédiés en tête du catalogue (onglet "تعديل
+    // الأذان", cf. custom.js _acPickCustomFile) -- "أذان الفجر" et "أذان
+    // (باقي الصلوات)". Stocké via AzanCatalogManager sous un id réservé
+    // (custom_fajr / custom_general), donc rejoué nativement par
+    // AzanPlaybackService exactement comme un élément du catalogue en ligne,
+    // sans aucun code de lecture dédié.
+
+    /** Ouvre le sélecteur de fichiers système filtré audio (mp3/ogg/mp4/...). groupKey: "fajr" | "general". */
+    @JavascriptInterface
+    fun pickCustomAzanFile(groupKey: String) {
+        onPickCustomAzanFile(groupKey)
+    }
+
+    /** Etat de la copie en cours apres selection du fichier. JSON: {status, message?} — idle|copying|done|error */
+    @JavascriptInterface
+    fun getCustomAzanImportStatus(groupKey: String): String = AzanCatalogManager.getCustomImportStatus(groupKey)
+
+    /** Fichier personnalisé actuellement installé pour ce groupe. JSON: {hasFile, fileName} */
+    @JavascriptInterface
+    fun getCustomAzanFileInfo(groupKey: String): String = AzanCatalogManager.getCustomFileInfo(context, groupKey)
+
+    /** Supprime le fichier personnalisé importé pour ce groupe (repli sur le catalogue/son par défaut). */
+    @JavascriptInterface
+    fun clearCustomAzanFile(groupKey: String) {
+        AzanCatalogManager.clearCustomFile(context, groupKey)
+    }
 
     // ── Riwayat Coran (textes) : stockage natif ────────────────────────────
     // Remplace l'ancien cache IndexedDB + le flag JS_CUSTOM.ucRiwayaInstalled

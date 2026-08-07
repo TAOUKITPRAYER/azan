@@ -1,6 +1,8 @@
 package net.tawkit.mobile
 
 import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -115,5 +117,96 @@ object AzanCatalogManager {
                 conn?.disconnect()
             }
         }
+    }
+
+    // ── Fichier personnalisé choisi par l'utilisateur (explorateur Android,
+    // cf. custom.js _acPickCustomFile / MobileJsBridge.pickCustomAzanFile) ────
+    // Réutilise EXACTEMENT le même stockage/lookup que le catalogue en ligne
+    // (fichier sous azan_catalog/<id>.<ext>, id = clé unique réservée par
+    // groupe) : AzanPlaybackService.playAzan() et _acApplyAzanToPlayer (JS)
+    // n'ont donc besoin d'AUCUNE modification pour jouer un fichier importé
+    // par l'utilisateur -- ils ne savent pas (et n'ont pas besoin de savoir)
+    // que cet id ne vient pas du catalogue distant.
+    const val CUSTOM_FAJR_ID    = "custom_fajr"
+    const val CUSTOM_GENERAL_ID = "custom_general"
+    private const val PREFS_NAME_CUSTOM  = "tawkit_azan_custom_prefs"
+    private const val PREF_NAME_PREFIX   = "custom_name_"   // + groupKey
+    private val SUPPORTED_EXT = setOf("mp3", "ogg", "oga", "mp4", "m4a", "wav", "aac")
+
+    fun customIdFor(groupKey: String): String = if (groupKey == "fajr") CUSTOM_FAJR_ID else CUSTOM_GENERAL_ID
+
+    private data class ImportState(val status: String, val message: String = "")
+    private val customImports = ConcurrentHashMap<String, ImportState>()   // groupKey -> state
+
+    fun getCustomImportStatus(groupKey: String): String {
+        val st = customImports[groupKey] ?: return JSONObject().apply { put("status", "idle") }.toString()
+        return JSONObject().apply {
+            put("status", st.status)
+            if (st.message.isNotEmpty()) put("message", st.message)
+        }.toString()
+    }
+
+    private fun queryDisplayName(context: Context, uri: Uri): String? {
+        return try {
+            context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c ->
+                if (c.moveToFirst()) c.getString(0) else null
+            }
+        } catch (e: Exception) { null }
+    }
+
+    /** A appeler depuis une coroutine (IO), apres que l'utilisateur a choisi un
+     *  fichier via le picker SAF (ActivityResultContracts.OpenDocument). */
+    fun importCustomFile(context: Context, groupKey: String, uri: Uri) {
+        customImports[groupKey] = ImportState("copying")
+        try {
+            val displayName = queryDisplayName(context, uri) ?: "audio"
+            var ext = displayName.substringAfterLast('.', "").lowercase()
+            if (ext !in SUPPORTED_EXT) {
+                ext = when (context.contentResolver.getType(uri)) {
+                    "audio/mpeg" -> "mp3"
+                    "audio/mp4", "audio/m4a" -> "m4a"
+                    "audio/aac" -> "aac"
+                    "audio/wav", "audio/x-wav" -> "wav"
+                    else -> "ogg"
+                }
+            }
+            val id = customIdFor(groupKey)
+            val baseDir = getBaseDir(context)
+            // Supprime tout fichier precedent pour ce groupe (extension possiblement differente)
+            baseDir.listFiles { f -> f.isFile && f.nameWithoutExtension == id }?.forEach { it.delete() }
+            val target = java.io.File(baseDir, "$id.$ext")
+            val input = context.contentResolver.openInputStream(uri)
+                ?: throw Exception("Impossible de lire le fichier choisi")
+            input.use { inp -> target.outputStream().use { out -> inp.copyTo(out) } }
+
+            context.getSharedPreferences(PREFS_NAME_CUSTOM, Context.MODE_PRIVATE).edit()
+                .putString(PREF_NAME_PREFIX + groupKey, displayName)
+                .apply()
+
+            customImports[groupKey] = ImportState("done")
+        } catch (e: Exception) {
+            customImports[groupKey] = ImportState("error", e.message ?: "erreur de copie")
+        }
+    }
+
+    /** JSON: {hasFile, fileName} -- fileName = nom d'origine choisi par l'utilisateur. */
+    fun getCustomFileInfo(context: Context, groupKey: String): String {
+        val id = customIdFor(groupKey)
+        val f = getInstalledFile(context, id)
+        val name = context.getSharedPreferences(PREFS_NAME_CUSTOM, Context.MODE_PRIVATE)
+            .getString(PREF_NAME_PREFIX + groupKey, "") ?: ""
+        return JSONObject().apply {
+            put("hasFile", f != null && f.exists())
+            put("fileName", name)
+        }.toString()
+    }
+
+    fun clearCustomFile(context: Context, groupKey: String) {
+        val id = customIdFor(groupKey)
+        getBaseDir(context).listFiles { f -> f.isFile && f.nameWithoutExtension == id }?.forEach { it.delete() }
+        context.getSharedPreferences(PREFS_NAME_CUSTOM, Context.MODE_PRIVATE).edit()
+            .remove(PREF_NAME_PREFIX + groupKey)
+            .apply()
+        customImports.remove(groupKey)
     }
 }
