@@ -11,9 +11,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
+import android.os.SystemClock
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.webkit.ConsoleMessage
 import android.webkit.GeolocationPermissions
@@ -779,7 +781,45 @@ class MainActivity : AppCompatActivity() {
                 }
                 maybeShowAutoStartSetupPrompt(view)
                 maybeShowTvHomeLauncherPrompt(view)
+
+                // Boitier (aucun humain devant l'ecran pour toucher/cliquer une fois) :
+                // simule un geste utilisateur reel au niveau du systeme de saisie
+                // Android, cf. dispatchSyntheticUnlockTap() -- sans ca, la politique
+                // autoplay de Chromium (AudioContext suspendu tant qu'aucun geste
+                // "trusted" n'a eu lieu, cf. custom.js _installAudioUnlockFallback/
+                // _doAudioUnlock) restait bloquee apres chaque installation fraiche ou
+                // mise a jour silencieuse jusqu'a ce qu'un administrateur touche
+                // physiquement l'ecran -- reproduit le symptome "en attente de geste"
+                // signale par l'utilisateur (10/08/2026).
+                if (DeviceType.isAndroidTv(this@MainActivity)) {
+                    view.postDelayed({ dispatchSyntheticUnlockTap(view) }, 1500)
+                }
             }
+        }
+    }
+
+    /**
+     * Simule un veritable tap (ACTION_DOWN + ACTION_UP) directement via
+     * View.dispatchTouchEvent(), le meme chemin que suit un toucher physique
+     * de l'ecran -- contrairement a un evenement DOM synthetise cote JS
+     * (`new Event('click')`, isTrusted=false, ignore par la politique
+     * autoplay), un MotionEvent delivre ainsi traverse le vrai pipeline de
+     * saisie Android et est vu par Chromium comme un geste utilisateur
+     * legitime. Coordonnee (1,1) : coin hors de toute zone cliquable de
+     * l'UI, aucun risque de declencher un bouton par megarde.
+     */
+    private fun dispatchSyntheticUnlockTap(view: WebView) {
+        try {
+            val downTime = SystemClock.uptimeMillis()
+            val down = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 1f, 1f, 0)
+            val up   = MotionEvent.obtain(downTime, downTime + 50, MotionEvent.ACTION_UP, 1f, 1f, 0)
+            view.dispatchTouchEvent(down)
+            view.dispatchTouchEvent(up)
+            down.recycle()
+            up.recycle()
+            Log.d("TWKT", "Synthetic unlock tap dispatched")
+        } catch (e: Exception) {
+            Log.e("TWKT", "dispatchSyntheticUnlockTap failed: ${e.message}")
         }
     }
 
