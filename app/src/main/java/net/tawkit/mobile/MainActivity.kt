@@ -805,19 +805,29 @@ class MainActivity : AppCompatActivity() {
      * (`new Event('click')`, isTrusted=false, ignore par la politique
      * autoplay), un MotionEvent delivre ainsi traverse le vrai pipeline de
      * saisie Android et est vu par Chromium comme un geste utilisateur
-     * legitime. Coordonnee (1,1) : coin hors de toute zone cliquable de
-     * l'UI, aucun risque de declencher un bouton par megarde.
+     * legitime. Coin (1,1) initialement choisi comme "hors de toute zone
+     * cliquable" ouvrait en realite le menu (bouton hamburger en haut a
+     * gauche, retour utilisateur 10/08/2026) -- coin haut-droit utilise a la
+     * place (x = largeur de la vue - 1). Choisir une coordonnee "vide" reste
+     * fragile en soi (une modale ouverte au moment du tap peut occuper ce
+     * pixel -- reproduit en direct le 10/08/2026 sur box .68 : azanCatalogOverlay
+     * se fermait tout seul ~1.5s apres un rechargement de page si elle etait
+     * ouverte a ce moment) -- cf. spec/custom.js _installSyntheticUnlockTapTarget,
+     * qui garantit desormais un element dedie (z-index max, aucun handler) a
+     * exactement ce coin, quoi qu'il y ait par-dessus le reste de la page.
      */
     private fun dispatchSyntheticUnlockTap(view: WebView) {
         try {
+            val x = if (view.width > 1) (view.width - 1).toFloat() else 1f
+            val y = 1f
             val downTime = SystemClock.uptimeMillis()
-            val down = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 1f, 1f, 0)
-            val up   = MotionEvent.obtain(downTime, downTime + 50, MotionEvent.ACTION_UP, 1f, 1f, 0)
+            val down = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, x, y, 0)
+            val up   = MotionEvent.obtain(downTime, downTime + 50, MotionEvent.ACTION_UP, x, y, 0)
             view.dispatchTouchEvent(down)
             view.dispatchTouchEvent(up)
             down.recycle()
             up.recycle()
-            Log.d("TWKT", "Synthetic unlock tap dispatched")
+            Log.d("TWKT", "Synthetic unlock tap dispatched at ($x, $y)")
         } catch (e: Exception) {
             Log.e("TWKT", "dispatchSyntheticUnlockTap failed: ${e.message}")
         }
