@@ -280,6 +280,30 @@ class AzanPlaybackService : Service() {
     }
 
     private fun playAzan(isFajr: Boolean, voiceMode: Boolean, shortAzan: Boolean) {
+        // Empeche tout chevauchement : si un MediaPlayer est deja en cours
+        // (nouvel appel a onStartCommand pendant qu'une lecture precedente
+        // tourne encore -- constate en pratique 11/08/2026, boitier KM22,
+        // rapport debug : 5 alarmes prieres livrees par AlarmManager a la
+        // MEME seconde apres un reveil/redemarrage, tres probablement une
+        // correction d'horloge systeme post-demarrage qui a rendu plusieurs
+        // alarmes "en retard" d'un coup), l'arreter/liberer AVANT d'en creer
+        // un nouveau. Sans ce garde-fou, l'ancien lecteur devient orphelin
+        // (la reference mediaPlayer est ecrasee) et continue de jouer jusqu'a
+        // la fin de son fichier sans qu'aucun mecanisme d'arret (notification,
+        // popup, switch catalogue -- tous n'agissent que sur la reference
+        // COURANTE) ne puisse plus l'atteindre : plusieurs azans se
+        // superposaient, seul un kill complet du process (reload/redemarrage
+        // de l'appli, qui tue tous les MediaPlayer avec lui) les arretait.
+        try {
+            mediaPlayer?.let {
+                if (it.isPlaying) it.stop()
+                it.release()
+            }
+        } catch (e: Exception) {
+            Log.e("TWKT", "AzanPlaybackService: previous player cleanup error: ${e.message}")
+        }
+        mediaPlayer = null
+
         try {
             // Reproduit exactement le choix de fichier de playAzanSoundFunction()
             // (m2body.js) : bip si le mode vocal est desactive (ucAzanIqamaByVoice
