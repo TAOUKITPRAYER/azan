@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.SystemClock
 import android.util.Log
 
 /**
@@ -42,7 +43,22 @@ class BootReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action !in ACCEPTED_ACTIONS) return
-        Log.d("TWKT", "Boot receiver triggered by action=${intent.action}")
+
+        // Journalisation persistante (demande explicite du 14/08/2026, suite a
+        // un rapport de debug ou l'absence totale d'azan Dhuhr/Jomoa un
+        // vendredi restait inexpliquee faute de savoir si la box avait
+        // reellement redemarre ce jour-la). elapsedRealtime() repart TOUJOURS
+        // de 0 a un vrai redemarrage materiel -- une valeur faible ici prouve
+        // un redemarrage reel ; une valeur elevee avec action=MY_PACKAGE_REPLACED
+        // indique au contraire une mise a jour silencieuse de l'appli SANS
+        // redemarrage de la box (les deux causent ce meme BroadcastReceiver,
+        // mais seul le vrai redemarrage efface les alarmes AlarmManager deja
+        // programmees -- cf. _sendToNative/schedulePrayerNotifications, custom.js).
+        val uptimeMs = SystemClock.elapsedRealtime()
+        val bootMsg = "BOOT_RECEIVER action=${intent.action} uptimeMs=$uptimeMs" +
+            " likelyRealReboot=${uptimeMs < 120000}"
+        Log.d("TWKT", bootMsg)
+        NativeEventLog.log(context, "SYS", bootMsg)
 
         if (DeviceType.isAndroidTv(context)) {
             if (MainActivity.isAppInForeground) {
