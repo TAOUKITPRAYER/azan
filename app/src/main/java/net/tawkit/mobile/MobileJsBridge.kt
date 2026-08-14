@@ -4,6 +4,8 @@ import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
@@ -981,6 +983,90 @@ class MobileJsBridge(
 
     @JavascriptInterface
     fun isAndroidTv(): Boolean = DeviceType.isAndroidTv(context)
+
+    /**
+     * Detection horloge systeme incoherente (boitiers sans RTC a batterie
+     * fiable) + reprise Wi-Fi -- cf. WifiRecoveryHelper pour le detail (plan
+     * du 11/08/2026). Reserve aux boitiers cote appelant (custom.js verifie
+     * isAndroidTv() avant d'utiliser ces methodes) ; ces methodes elles-memes
+     * restent inoffensives si appelees depuis un telephone.
+     */
+    @JavascriptInterface
+    fun isSystemClockPlausible(): Boolean = WifiRecoveryHelper.isSystemClockPlausible(context)
+
+    @JavascriptInterface
+    fun startWifiRecovery() {
+        WifiRecoveryHelper.startRecovery(context)
+    }
+
+    /** Pollee par custom.js (meme pattern "pull" que getImportStatus/getDownloadProgress). */
+    @JavascriptInterface
+    fun getWifiRecoveryStatus(): String = WifiRecoveryHelper.getStatus()
+
+    /** SSID (sans guillemets) actuellement teste -- permet a custom.js d'afficher
+     *  une progression reseau par reseau pendant la reprise Wi-Fi. */
+    @JavascriptInterface
+    fun getWifiRecoveryCurrentSsid(): String = WifiRecoveryHelper.getCurrentSsid()
+
+    /** SSID sur lequel la reprise Wi-Fi a reussi (vide si connexion deja
+     *  presente au demarrage -- pas de reseau specifique a afficher dans ce cas). */
+    @JavascriptInterface
+    fun getWifiRecoveryConnectedSsid(): String = WifiRecoveryHelper.getConnectedSsid()
+
+    @JavascriptInterface
+    fun openWifiSettings() {
+        WifiRecoveryHelper.openWifiSettings(context)
+    }
+
+    /** JSON {connected, type, ssid, ip} -- cf. icone Wi-Fi (remplace l'étoile
+     *  coeur internetStatusIndicator*, index.html) dans custom.js. */
+    @JavascriptInterface
+    fun getNetworkInfo(): String = WifiRecoveryHelper.getNetworkInfo(context)
+
+    /**
+     * Force le fuseau horaire systeme (Device Owner uniquement, no-op sinon
+     * -- meme garde que les methodes ci-dessus). Utilise par custom.js pour
+     * epingler Africa/Brazzaville sur les box dont MOSQUE_CONFIG.
+     * LOCATION_CODE indique la Tunisie (demande explicite du 11/08/2026,
+     * cf. WifiRecoveryHelper.applyTimeZoneOverride).
+     */
+    @JavascriptInterface
+    fun applyTimeZoneOverride(tzId: String): Boolean =
+        WifiRecoveryHelper.applyTimeZoneOverride(context, tzId)
+
+    /**
+     * Copier/coller natif (ClipboardManager) -- necessaire sur boitier TV
+     * (telecommande, pas d'ecran tactile) : le menu contextuel
+     * couper/copier/coller/tout selectionner d'Android ne se declenche
+     * normalement qu'au appui-long tactile, absent sans ecran tactile.
+     * document.execCommand('paste') est bloque par la politique de securite
+     * des navigateurs modernes -- passer par le presse-papiers natif
+     * contourne totalement cette restriction (copy/cut/select restent geres
+     * cote JS via execCommand, qui fonctionne bien pour ces 3-la).
+     */
+    @JavascriptInterface
+    fun setClipboardText(text: String) {
+        try {
+            val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            cm.setPrimaryClip(ClipData.newPlainText("tawkit", text))
+        } catch (e: Exception) {
+            Log.e("TWKT", "setClipboardText error: ${e.message}")
+        }
+    }
+
+    @JavascriptInterface
+    fun getClipboardText(): String {
+        return try {
+            val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = cm.primaryClip
+            if (clip != null && clip.itemCount > 0) {
+                clip.getItemAt(0).coerceToText(context)?.toString() ?: ""
+            } else ""
+        } catch (e: Exception) {
+            Log.e("TWKT", "getClipboardText error: ${e.message}")
+            ""
+        }
+    }
 
     /**
      * Ouvre (au mieux) l'ecran constructeur de gestion du demarrage

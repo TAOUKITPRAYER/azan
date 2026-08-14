@@ -37,6 +37,11 @@
     <!-- Requis pour installer l'APK de mise à jour téléchargé par l'app elle-même
          (AppUpdateDownloader) via ACTION_VIEW -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- Detection horloge systeme incoherente + reprise Wi-Fi (boitiers TV
+         uniquement, cf. WifiRecoveryHelper) -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="false"
@@ -114,6 +119,18 @@
                 <!-- Filet de relance apres une mise a jour silencieuse a distance
                      (cf. BootReceiver.ACCEPTED_ACTIONS) -->
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Diagnostic (11/08/2026) : journalise chaque correction de l'horloge
+             systeme (ex. synchro NTP au demarrage), cf. TimeChangeReceiver.
+             Ne reprogramme rien pour l'instant, sert a confirmer l'hypothese
+             d'un lien avec les alarmes azan livrees en rafale. -->
+        <receiver
+            android:name=".TimeChangeReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.TIME_SET" />
             </intent-filter>
         </receiver>
 
