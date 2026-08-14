@@ -7,10 +7,11 @@ import android.media.AudioManager
 import android.util.Log
 
 /**
- * Monte le volume de la box au maximum juste avant l'azan de chaque prière
- * (onglet "تعديل الأذان" — custom.js, _ucScheduleVolumeBoostAlarms()).
+ * Monte le volume de la box au maximum juste avant chaque échéance sonore
+ * (azan, récitation du Coran avant l'azan, takbir avant l'azan du Maghreb --
+ * onglet "تعديل الأذان" — custom.js, _ucScheduleVolumeBoostAlarms()).
  * Contrairement à SilentModeReceiver (coupe puis remet), ce receiver ne fait
- * qu'AUGMENTER le volume, une seule fois par prière — pas de restauration
+ * qu'AUGMENTER le volume, une seule fois par échéance — pas de restauration
  * après coup, conformément au réglage demandé ("systématiquement au
  * maximum").
  *

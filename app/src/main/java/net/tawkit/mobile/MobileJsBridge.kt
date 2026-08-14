@@ -104,6 +104,15 @@ class MobileJsBridge(
             return 100 + idx * 2 + (if (minutesBefore > 0) 1 else 0)
         }
 
+        /** Nombre max d'echeances volume-boost programmables en une fois (cf.
+         *  scheduleVolumeBoostAlarms/cancelVolumeBoostAlarms) : 5 azan + 5
+         *  recitations Coran avant l'azan + 1 takbir avant l'azan du Maghreb.
+         *  Les deux fonctions DOIVENT utiliser la meme valeur -- sinon une
+         *  echeance au-dela de la portee de cancelVolumeBoostAlarms resterait
+         *  armee indefiniment avec une heure perimee si le nombre d'echeances
+         *  actives diminue d'un jour a l'autre. */
+        const val MAX_VOLUME_BOOST_SLOTS = 11
+
         fun createNotificationChannel(context: Context) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val channel = NotificationChannel(
@@ -645,10 +654,16 @@ class MobileJsBridge(
     fun isSilentModeActive(): Boolean = SilentModeReceiver.isAppSilencing(context)
 
     /**
-     * Programme, une fois par prière, une alarme qui monte le volume (musique
-     * + alarme) au maximum peu avant l'azan (onglet "تعديل الأذان" —
-     * custom.js, _ucScheduleVolumeBoostAlarms()). Alarme unique par prière,
-     * pas de restauration ensuite (cf. VolumeBoostReceiver).
+     * Programme, une fois par échéance sonore (azan, récitation du Coran
+     * avant l'azan, takbir avant l'azan du Maghreb -- demande explicite du
+     * 14/08/2026, custom.js _ucScheduleVolumeBoostAlarms()), une alarme qui
+     * monte le volume (musique + alarme) au maximum peu avant. Alarme unique
+     * par échéance, pas de restauration ensuite (cf. VolumeBoostReceiver).
+     * Jusqu'à MAX_VOLUME_BOOST_SLOTS échéances par jour (5 azan + 5 Coran +
+     * 1 takbir = 11 au maximum) -- cf. cancelVolumeBoostAlarms, qui doit
+     * couvrir le même nombre de requestCodes pour ne jamais laisser une
+     * ancienne alarme orpheline si le nombre d'échéances actives diminue
+     * d'un jour à l'autre (ex. réglage désactivé entre-temps).
      *
      * @param jsonArray JSON: [{ prayer, hour, minute, dayOffset }]
      */
@@ -659,7 +674,7 @@ class MobileJsBridge(
             val items = JSONArray(jsonArray)
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-            for (i in 0 until items.length()) {
+            for (i in 0 until minOf(items.length(), MAX_VOLUME_BOOST_SLOTS)) {
                 val obj = items.getJSONObject(i)
                 val prayer = obj.getString("prayer")
                 val cal = Calendar.getInstance().apply {
@@ -698,11 +713,11 @@ class MobileJsBridge(
         }
     }
 
-    /** Annule toutes les alarmes de volume-boost en attente (requestCodes 900-904). */
+    /** Annule toutes les alarmes de volume-boost en attente (requestCodes 900-910). */
     @JavascriptInterface
     fun cancelVolumeBoostAlarms() {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        for (i in 0 until 5) {
+        for (i in 0 until MAX_VOLUME_BOOST_SLOTS) {
             val intent = Intent(context, VolumeBoostReceiver::class.java)
             val pi = PendingIntent.getBroadcast(
                 context, 900 + i, intent,
