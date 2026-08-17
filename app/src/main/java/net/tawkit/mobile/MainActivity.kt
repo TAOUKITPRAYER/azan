@@ -19,6 +19,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.webkit.ConsoleMessage
 import android.webkit.GeolocationPermissions
+import android.webkit.JsResult
 import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -542,6 +543,30 @@ class MainActivity : AppCompatActivity() {
         Log.d("TWKT", "Dispatched ucMosqueDeepLink for $mosqueId")
     }
 
+    // Lit la langue courante côté JS (_ucLang(), custom.js) pour les boutons
+    // OK/Annuler des dialogues alert()/confirm() natifs -- cf. onJsAlert/
+    // onJsConfirm ci-dessous. evaluateJavascript() est asynchrone mais son
+    // callback est déjà garanti sur le thread UI (contrat WebView standard),
+    // donc l'AlertDialog peut être construite directement dedans.
+    private fun fetchUcLangThen(then: (String) -> Unit) {
+        webView.evaluateJavascript(
+            "(function(){try{return (typeof _ucLang==='function')?_ucLang():'EN';}catch(e){return 'EN';}})()"
+        ) { raw ->
+            then(raw?.trim('"') ?: "EN")
+        }
+    }
+
+    // AR/FR/EN uniquement : mêmes 3 langues garanties par tout dictionnaire de
+    // custom.js (cf. le commentaire au-dessus de _ucLang() dans ce fichier) --
+    // repli sur EN pour les 44 autres langues proposées côté appli.
+    private fun dialogLabel(key: String, lang: String): String {
+        val table = mapOf(
+            "ok" to mapOf("AR" to "موافق", "FR" to "OK", "EN" to "OK"),
+            "cancel" to mapOf("AR" to "إلغاء", "FR" to "Annuler", "EN" to "Cancel")
+        )
+        return table[key]?.get(lang) ?: table[key]?.get("EN") ?: key
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     @Suppress("DEPRECATION")
     private fun setupWebView() {
@@ -725,6 +750,37 @@ class MainActivity : AppCompatActivity() {
                     pendingGeoCallback = callback
                     locationPermLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                 }
+            }
+            // Sans ces deux overrides, alert()/confirm() (custom.js) passent par
+            // l'implémentation par défaut du WebView, qui affiche un titre
+            // parasite "La page à l'adresse 'file://...' indique :" au-dessus du
+            // message — retour utilisateur explicite (17/08/2026). On reprend le
+            // message tel quel dans une AlertDialog sans titre ; les libellés des
+            // boutons suivent la langue courante de l'appli (JS_DATA.ucLangNOW,
+            // lue côté JS via _ucLang() — cf. custom.js) plutôt que la locale
+            // système, pour rester cohérent avec le reste de l'UI.
+            override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
+                fetchUcLangThen { lang ->
+                    if (isFinishing || isDestroyed) { result.confirm(); return@fetchUcLangThen }
+                    AlertDialog.Builder(this@MainActivity)
+                        .setMessage(message)
+                        .setCancelable(false)
+                        .setPositiveButton(dialogLabel("ok", lang)) { _, _ -> result.confirm() }
+                        .show()
+                }
+                return true
+            }
+            override fun onJsConfirm(view: WebView, url: String, message: String, result: JsResult): Boolean {
+                fetchUcLangThen { lang ->
+                    if (isFinishing || isDestroyed) { result.cancel(); return@fetchUcLangThen }
+                    AlertDialog.Builder(this@MainActivity)
+                        .setMessage(message)
+                        .setCancelable(false)
+                        .setPositiveButton(dialogLabel("ok", lang)) { _, _ -> result.confirm() }
+                        .setNegativeButton(dialogLabel("cancel", lang)) { _, _ -> result.cancel() }
+                        .show()
+                }
+                return true
             }
         }
 
