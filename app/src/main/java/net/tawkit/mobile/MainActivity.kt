@@ -545,6 +545,29 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     @Suppress("DEPRECATION")
     private fun setupWebView() {
+        // Test diagnostic (17/08/2026, retour utilisateur -- boîtier TV,
+        // artefact visuel : petit carré/point vert qui apparaît près de
+        // l'horloge et change de position/forme à chaque seconde, propre au
+        // redessin fréquent de #countdownDisplayVertical). Piste retenue :
+        // bug du compositeur GPU du pilote SoC bon marché (Allwinner/
+        // Amlogic/Rockchip), PAS un bug applicatif -- ni permission CAMERA/
+        // RECORD_AUDIO (aucune des deux déclarée, indicateur de vie privée
+        // Android exclu), ni contenu vidéo/EME (aucun <video>/DRM dans les
+        // assets), ni flag de debug de rendu (seul setWebContentsDebuggingEnabled
+        // ci-dessous est actif, sans effet visuel). Même famille de bug déjà
+        // rencontrée sur ce projet pour #quranPlayerOverlay (cf. custom.css,
+        // compositeur GPU qui échoue à peindre un overlay position:fixed sur
+        // certains boîtiers bon marché) -- ici LAYER_TYPE_SOFTWARE fait
+        // l'inverse (retire le WebView du compositeur GPU au lieu de forcer
+        // une couche dédiée) pour vérifier si ça élimine l'artefact.
+        // Limité aux boîtiers TV (DeviceType.isAndroidTv) : sur téléphone,
+        // le rendu matériel n'est pas en cause et reste préférable
+        // (fluidité/consommation) -- à retirer si le test ne change rien,
+        // ou à garder si confirmé en conditions réelles sur le boîtier.
+        if (DeviceType.isAndroidTv(this)) {
+            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+        }
+
         // Active chrome://inspect (Chrome DevTools distant) sur ce WebView --
         // permet de brancher un vrai eval JS/console/DOM inspector via un
         // téléphone connecté en USB (adb), sans quoi le diagnostic de bugs
