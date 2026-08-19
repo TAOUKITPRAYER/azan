@@ -11,6 +11,13 @@ import androidx.core.content.ContextCompat
 
 class PrayerAlarmReceiver : BroadcastReceiver() {
 
+    companion object {
+        /** Au-delà de ce retard par rapport à l'heure prévue, une alarme est
+         *  considérée périmée (rattrapage suite à horloge figée) et ignorée
+         *  plutôt que rejouée en retard. */
+        private const val STALE_ALARM_THRESHOLD_MS = 10 * 60 * 1000L
+    }
+
     override fun onReceive(context: Context, intent: Intent) {
         val prayer        = intent.getStringExtra("prayer") ?: "Salat"
         val prayerHour    = intent.getIntExtra("prayerHour", 0)
@@ -18,8 +25,31 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
         val minutesBefore = intent.getIntExtra("minutesBefore", 0)
         val shortAzan     = intent.getBooleanExtra("shortAzan", false)
         val voiceMode     = intent.getBooleanExtra("voiceMode", true)
+        val scheduledAtMillis = intent.getLongExtra("scheduledAtMillis", -1L)
 
         Log.d("TWKT", "Alerte $prayer dans $minutesBefore min — azan à $prayerHour:$prayerMinute")
+
+        // Garde-fou anti-rafale : si l'horloge système est restée figée (perte
+        // WiFi/NTP prolongée) puis se corrige d'un coup, AlarmManager déclenche
+        // TOUTES les alarmes en attente à la suite en quelques secondes -- sans
+        // ce contrôle, ça rejoue l'azan complet de plusieurs prières déjà
+        // passées d'un coup (constaté : 5 azans lancés dans la même seconde,
+        // mosquée Mediouni, 18/08/2026, après 15h d'horloge figée). On compare
+        // l'heure réelle au moment du déclenchement à l'heure prévue
+        // (scheduledAtMillis, posée par MobileJsBridge.scheduleSinglePrayer) :
+        // au-delà de STALE_ALARM_THRESHOLD_MS de retard, on considère
+        // l'alarme périmée et on l'ignore entièrement (pas de son, pas de
+        // notification) plutôt que de rejouer un azan des heures en retard.
+        if (scheduledAtMillis > 0) {
+            val lagMs = System.currentTimeMillis() - scheduledAtMillis
+            if (lagMs > STALE_ALARM_THRESHOLD_MS) {
+                NativeEventLog.log(
+                    context, "AZAN",
+                    "ALARM_SKIP_STALE prayer=$prayer minutesBefore=$minutesBefore lagMin=" + (lagMs / 60000)
+                )
+                return
+            }
+        }
 
         if (minutesBefore == 0) {
             NativeEventLog.log(

@@ -268,6 +268,13 @@ class MobileJsBridge(
             putExtra("minutesBefore", minutesBefore)
             putExtra("shortAzan", shortAzan)
             putExtra("voiceMode", voiceMode)
+            // Horodatage exact du déclenchement prévu (epoch ms) : permet à
+            // PrayerAlarmReceiver de détecter un déclenchement tardif (horloge
+            // système restée figée puis corrigée d'un coup -> rafale d'alarmes
+            // en attente qui se déclenchent toutes ensemble, cf. incident
+            // mosquée Mediouni du 18/08/2026) et d'ignorer la lecture au lieu
+            // de jouer un azan des heures après son heure réelle.
+            putExtra("scheduledAtMillis", cal.timeInMillis)
         }
 
         val pendingIntent = PendingIntent.getBroadcast(
