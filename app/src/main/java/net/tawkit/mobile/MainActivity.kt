@@ -17,6 +17,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.widget.TextView
 import android.webkit.ConsoleMessage
 import android.webkit.GeolocationPermissions
 import android.webkit.JsResult
@@ -49,6 +50,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
+import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity() {
 
@@ -70,15 +72,79 @@ class MainActivity : AppCompatActivity() {
 
         private const val SILENT_BOOT_FINISH_DELAY_MS = 8000L
 
-        /** Filet de securite : si onPageFinished/onReceivedError ne
-         *  declenchent jamais (webView bloque), on masque quand meme
+        /** Filet de securite ultime : si MobileJsBridge.notifyAppFullyReady()
+         *  ne se declenche jamais (JS bloque/crash), on masque quand meme
          *  l'ecran de chargement plutot que de laisser l'appli figee dessus
-         *  indefiniment. */
-        private const val SPLASH_FALLBACK_TIMEOUT_MS = 12000L
+         *  indefiniment. Valeur mesuree en conditions reelles (logcat,
+         *  20/08/2026, boitier Mediouni) : le chargement complet reel
+         *  (evenement 'load' de la fenetre, qui attend entre autres la
+         *  cinquantaine de probes d'images de themes absentes et une
+         *  tentative de connexion au serveur audio local de la box) prend
+         *  ~18-20s sur ce boitier -- l'ancienne valeur de 12s (calibree a
+         *  l'epoque pour onPageFinished, un signal beaucoup plus precoce)
+         *  faisait donc declencher ce filet de secours SYSTEMATIQUEMENT avant
+         *  le vrai signal JS, masquant totalement le nouveau mecanisme.
+         *  Remontee a 30s : large marge au-dessus du cas reel observe... mais
+         *  ce cas reel avait ete mesure via un simple kill -9 + respawn du
+         *  process (reste du systeme deja demarre et inactif). Sur un VRAI
+         *  redemarrage a froid du boitier (mise sous tension), constate le
+         *  20/08/2026 via reboot complet + logcat : tout le systeme Android
+         *  demarre en meme temps (autres apps/services, I/O disque en
+         *  contention), et le chargement reel de la page a pris ~35s au lieu
+         *  de ~18-20s -- ce filet de 30s se declenchait donc a nouveau AVANT
+         *  le vrai signal JS (hideSplash() a 22:57:03.846, alors que
+         *  _LOAD_COMPLETED_ n'est arrive qu'a 22:57:07.963, soit 4s trop
+         *  tard), reproduisant exactement le bug que ce filet est cense
+         *  eviter. Remontee a 60s pour couvrir ce cas de demarrage a froid
+         *  reel avec marge, tout en restant un delai fini en cas de blocage
+         *  genuine. */
+        private const val SPLASH_FALLBACK_TIMEOUT_MS = 60000L
+
+        /** Reference faible vers l'instance vivante (posee dans onCreate) --
+         *  permet a un BroadcastReceiver independant (TimeChangeReceiver) de
+         *  declencher un appel JS sans dependre du cycle de vie de l'Activity.
+         *  WeakReference : pas besoin de la nettoyer explicitement dans
+         *  onDestroy, elle ne peut pas retenir l'Activity en memoire. */
+        @Volatile
+        private var instanceRef: WeakReference<MainActivity>? = null
+
+        /**
+         * Reprogramme les alarmes azan natives cote JS (_ucRescheduleNativeAzanAlarms,
+         * cf. custom.js _installNativeAzanAlarms -> _sendToNative) -- appelee par
+         * TimeChangeReceiver quand ACTION_TIME_CHANGED est recu (typiquement la
+         * synchronisation NTP automatique juste apres l'obtention d'une connexion
+         * internet, notamment au demarrage a froid apres coupure electrique).
+         *
+         * Necessaire car schedulePrayerNotifications() capture scheduledAtMillis
+         * au moment de la programmation en se basant sur l'horloge systeme ALORS
+         * courante -- si cette programmation a eu lieu juste apres le boot, AVANT
+         * que NTP corrige une horloge fausse (boitiers sans RTC a batterie
+         * fiable), l'alarme suivante est armee avec un scheduledAtMillis perime.
+         * Quand NTP corrige ensuite l'horloge, PrayerAlarmReceiver.
+         * STALE_ALARM_THRESHOLD_MS (garde-fou anti-rafale ajoute le 18/08/2026
+         * pour un incident different) compare l'heure reelle a ce
+         * scheduledAtMillis perime et ignore silencieusement l'azan -- constate
+         * en pratique : azan de la toute premiere priere suivant un redemarrage
+         * apres coupure electrique jamais joue, alors que les prieres suivantes
+         * (reprogrammees le lendemain avec une horloge deja correcte) fonctionnent
+         * normalement. Sans effet si aucune instance vivante ou page pas encore
+         * chargee (fallback : la reprogrammation quotidienne UC_EVT.AZAN_TIME
+         * reste le seul filet, comme avant ce correctif).
+         */
+        fun rescheduleNativeAzanAlarmsIfReady() {
+            val activity = instanceRef?.get() ?: return
+            if (!activity.isPageLoaded) return
+            activity.webView.evaluateJavascript(
+                "if (window._ucRescheduleNativeAzanAlarms) window._ucRescheduleNativeAzanAlarms();",
+                null
+            )
+        }
     }
 
     private lateinit var webView: WebView
     private lateinit var splashOverlay: View
+    private lateinit var splashProgress: CircularProgressView
+    private lateinit var splashProgressText: TextView
     private val mainHandler = Handler(Looper.getMainLooper())
     private var splashHidden = false
 
@@ -211,6 +277,7 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
+        instanceRef = WeakReference(this)
         isSilentBoot = intent?.getBooleanExtra(EXTRA_SILENT_BOOT, false) ?: false
         // Doit etre appele AVANT super.onCreate()/setContentView() pour que la
         // fenetre se cree directement invisible (aucun flash visuel possible).
@@ -221,6 +288,8 @@ class MainActivity : AppCompatActivity() {
 
         webView = findViewById(R.id.webView)
         splashOverlay = findViewById(R.id.splashOverlay)
+        splashProgress = findViewById(R.id.splashProgress)
+        splashProgressText = findViewById(R.id.splashProgressText)
 
         if (isSilentBoot) {
             // Fenetre deja invisible (theme) : l'ecran de chargement natif
@@ -589,6 +658,24 @@ class MainActivity : AppCompatActivity() {
         // le rendu matériel n'est pas en cause et reste préférable
         // (fluidité/consommation) -- à retirer si le test ne change rien,
         // ou à garder si confirmé en conditions réelles sur le boîtier.
+        //
+        // TODO (20/08/2026) -- COMPROMIS À TRANCHER PLUS TARD : ce
+        // LAYER_TYPE_SOFTWARE sort tout le WebView du compositeur GPU sur
+        // boîtier TV, ce qui plafonne le rendu de TOUTE animation CSS
+        // (marquee, blink, glow...) à ~10 img/s sur les boîtiers à CPU
+        // faible (mesuré objectivement : capture écran + corrélation
+        // croisée des frames, cf. session marquee du 19-20/08/2026 --
+        // saccade confirmée identique même avec toutes les autres
+        // animations de la page désactivées, donc bien liée au layer type
+        // et non à une contention CSS/JS). Le marquee du bandeau du bas en
+        // particulier reste saccadé tant que ce compromis est en place --
+        // aucun réglage CSS/JS ne peut lever ce plafond pendant que
+        // LAYER_TYPE_SOFTWARE est actif. Pistes pour plus tard : revenir
+        // en LAYER_TYPE_HARDWARE et re-vérifier en conditions réelles si
+        // l'artefact vert de l'horloge revient vraiment sur ce boîtier, ou
+        // chercher un correctif ciblé uniquement sur
+        // #countdownDisplayVertical pour ne pas sacrifier le rendu GPU du
+        // reste de la page.
         if (DeviceType.isAndroidTv(this)) {
             webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
         }
@@ -673,6 +760,15 @@ class MainActivity : AppCompatActivity() {
                 onPickCustomAzanFile = { groupKey ->
                     pendingCustomAzanGroup = groupKey
                     pickAudioLauncher.launch(arrayOf("audio/mpeg", "audio/ogg", "audio/mp4", "audio/x-wav", "audio/*"))
+                },
+                onReportLoadProgress = { percent ->
+                    runOnUiThread {
+                        splashProgress.progress = percent
+                        splashProgressText.text = "$percent%"
+                    }
+                },
+                onAppFullyReady = {
+                    runOnUiThread { hideSplash() }
                 }
             ),
             "AndroidMobile"
@@ -808,12 +904,31 @@ class MainActivity : AppCompatActivity() {
             }
             override fun onReceivedError(view: WebView, req: WebResourceRequest, err: WebResourceError) {
                 Log.e("TWKT", "Error: ${err.description} for ${req.url}")
-                if (req.isForMainFrame) hideSplash()
+                // NE MASQUE PLUS le splash ici (retire le 19/08/2026) : bug
+                // trouve en direct (logcat, boitier Mediouni) -- req.isForMainFrame
+                // remonte vrai sur ce WebView (Chrome/91) pour de simples
+                // ressources manquantes routinieres et attendues (ex. fichier
+                // d'horaires par ville absent pour cette mosquee,
+                // wtimes-tn.ksibet-el-mediouni_.js -> ERR_FILE_NOT_FOUND, gere
+                // cote JS avec repli), pas seulement pour un vrai echec du
+                // document principal. Ca revelait l'appli des la premiere
+                // erreur benigne (~4% de progression constate), bien avant la
+                // fin reelle du chargement. Le splash ne se ferme plus que via
+                // MobileJsBridge.notifyAppFullyReady() (signal JS explicite de
+                // fin de chargement) ou SPLASH_FALLBACK_TIMEOUT_MS (filet de
+                // securite si index.html lui-meme ne charge jamais).
             }
             // Cold-start via tap notification : dispatch ucConfigSync après chargement complet
+            // NE MASQUE PLUS l'ecran de chargement ici (retire le 19/08/2026) :
+            // onPageFinished ne signale que la fin du parsing HTML/des scripts
+            // synchrones, bien avant que custom.js ait fini de construire le
+            // DOM/CSS final -- l'utilisateur voyait cette construction
+            // progressive juste apres la disparition du splash (retour
+            // explicite). hideSplash() n'est plus declenche que par
+            // MobileJsBridge.notifyAppFullyReady() (cf. custom.js, tout en
+            // bas du fichier) ou par le filet de securite SPLASH_FALLBACK_TIMEOUT_MS.
             override fun onPageFinished(view: WebView, url: String) {
                 isPageLoaded = true
-                hideSplash()
                 val mid = pendingConfigSync
                 if (mid != null) {
                     pendingConfigSync = null
@@ -913,14 +1028,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Masque l'ecran de chargement natif (logo + basmala + spinner) affiche
-     * par-dessus le WebView pendant l'analyse des scripts et le premier
-     * rendu. Idempotent (isPageLoaded/onReceivedError/le filet de securite
-     * peuvent chacun l'appeler) : ne joue le fondu qu'une seule fois.
+     * Masque l'ecran de chargement natif (logo + basmala + cercle de
+     * progression) affiche par-dessus le WebView. Declenche par
+     * MobileJsBridge.notifyAppFullyReady() (custom.js signale la fin reelle
+     * de la construction du DOM/CSS ET l'evenement 'load' de la fenetre, cf.
+     * tout en bas de custom.js) -- le filet de securite
+     * SPLASH_FALLBACK_TIMEOUT_MS peut aussi l'appeler (signal JS jamais recu).
+     * Idempotent : ne joue le fondu qu'une seule fois.
      */
     private fun hideSplash() {
         if (splashHidden) return
         splashHidden = true
+        Log.d("TWKT", "hideSplash() at uptimeMs=${SystemClock.uptimeMillis()}")
         mainHandler.removeCallbacksAndMessages(null)
         splashOverlay.animate()
             .alpha(0f)

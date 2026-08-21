@@ -7,17 +7,27 @@ import android.os.SystemClock
 import android.util.Log
 
 /**
- * Journalise (sans rien reprogrammer) chaque correction de l'horloge systeme
- * (ACTION_TIME_CHANGED -- diffuse par Android quand l'heure est modifiee,
- * notamment par la synchronisation NTP automatique juste apres l'obtention
- * d'une connexion internet). Purement diagnostique pour l'instant : sert a
- * confirmer ou infirmer l'hypothese d'un lien entre horloge fausse au
- * demarrage (boitiers sans RTC a batterie fiable, ex. KM22) et alarmes
- * AlarmManager livrees en rafale au reveil de la synchro (cf. rapport debug
- * 11/08/2026, plusieurs azans simultanes -- corrige cote AzanPlaybackService,
- * mais la cause du timing des alarmes elle-meme reste a confirmer avant de
- * toucher a la logique de programmation). Si ce log confirme l'hypothese,
- * l'etape suivante serait de reprogrammer les alarmes prieres ici.
+ * Reagit a chaque correction de l'horloge systeme (ACTION_TIME_CHANGED --
+ * diffuse par Android quand l'heure est modifiee, notamment par la
+ * synchronisation NTP automatique juste apres l'obtention d'une connexion
+ * internet).
+ *
+ * Confirme (20-21/08/2026, mosquee Mediouni) : hypothese initiale d'un lien
+ * entre horloge fausse au demarrage (boitiers sans RTC a batterie fiable) et
+ * alarmes AlarmManager livrees en rafale/ignorees. Chaine complete : au
+ * demarrage a froid (coupure electrique), l'horloge systeme peut etre fausse
+ * le temps que NTP la corrige -- si schedulePrayerNotifications() programme
+ * la toute prochaine priere AVANT cette correction, l'alarme est armee avec
+ * un scheduledAtMillis perime (cf. MobileJsBridge.scheduleSinglePrayer). Une
+ * fois l'horloge corrigee, PrayerAlarmReceiver.STALE_ALARM_THRESHOLD_MS
+ * (garde-fou anti-rafale ajoute le 18/08/2026 pour un incident different) la
+ * compare a ce scheduledAtMillis perime et ignore silencieusement l'azan --
+ * exactement le rapport utilisateur "l'azan de la prochaine priere suivant
+ * une coupure electrique ne sonne pas". On reprogramme donc ici (via le meme
+ * chemin JS que tout autre changement affectant les alarmes, cf.
+ * MainActivity.rescheduleNativeAzanAlarmsIfReady -> custom.js
+ * _ucRescheduleNativeAzanAlarms) des que l'horloge bouge, avec un
+ * scheduledAtMillis desormais a jour.
  */
 class TimeChangeReceiver : BroadcastReceiver() {
 
@@ -29,5 +39,7 @@ class TimeChangeReceiver : BroadcastReceiver() {
         val msg = "SYSTEM_TIME_CHANGED newTime=$newTime uptimeMs=$uptimeMs"
         Log.d("TWKT", msg)
         NativeEventLog.log(context, "SYS", msg)
+
+        MainActivity.rescheduleNativeAzanAlarmsIfReady()
     }
 }

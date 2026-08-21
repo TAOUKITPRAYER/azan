@@ -6,6 +6,7 @@ import android.provider.OpenableColumns
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
@@ -86,36 +87,90 @@ object AzanCatalogManager {
         }.toString()
     }
 
-    /** Télécharge en tâche de fond (coroutine IO) ; l'état est ensuite lu via getDownloadStatus(id). */
+    // Nombre de tentatives avant d'abandonner et de renvoyer "error" au JS, et
+    // delai entre deux tentatives. Ajoute suite a un rapport utilisateur
+    // (mosquee Mediouni, 21/08/2026) : "parfois impossible de telecharger
+    // l'azan, mais la lecture en ligne (streaming) fonctionne au meme moment"
+    // -- la lecture en ligne (<audio> HTML, buffering tolerant aux coupures
+    // brèves) n'a pas besoin d'une seule connexion ininterrompue de bout en
+    // bout comme ce telechargement (HttpURLConnection + copyTo en un seul
+    // passage) : un wifi de mosquee instable/partage suffit a faire echouer
+    // ce dernier sans qu'aucune erreur reseau "dure" ne soit en cause -- un
+    // simple retry suffit generalement. Avant ce correctif, un seul echec
+    // (meme transitoire) obligeait l'utilisateur a relancer manuellement.
+    private const val MAX_DOWNLOAD_ATTEMPTS = 3
+    private const val RETRY_DELAY_MS = 3000L
+    // Filet de sécurité par tentative, EN PLUS de connectTimeout/readTimeout
+    // ci-dessous. Confirmé sur les vrais logs Supabase (mosquée Mediouni,
+    // debug_reports id=47, 18/08/2026) : dans CHAQUE échec observé, le natif
+    // n'a jamais levé d'exception (ni HTTP, ni timeout socket) -- seul le
+    // filet JS de 45s côté custom.js (_AC_DOWNLOAD_TIMEOUT_MS d'alors) a fini
+    // par abandonner. readTimeout ne couvre que le délai ENTRE deux lectures
+    // individuelles : un flux qui continue de délivrer quelques octets toutes
+    // les 15-19s (wifi de mosquée congestionné) le maintient indéfiniment en
+    // vie sans jamais dépasser readTimeout, tout en ne finissant jamais le
+    // fichier. ATTEMPT_DEADLINE_MS borne donc la tentative dans son ensemble,
+    // horloge murale, indépendamment du rythme des lectures individuelles --
+    // HttpURLConnection.disconnect() est documenté comme sûr à appeler depuis
+    // un autre thread et débloque immédiatement toute lecture en cours.
+    private const val ATTEMPT_DEADLINE_MS = 25000L
+
+    /** Télécharge en tâche de fond (coroutine IO) ; l'état est ensuite lu via
+     *  getDownloadStatus(id). Reessaie automatiquement jusqu'à
+     *  MAX_DOWNLOAD_ATTEMPTS fois (cf. commentaire ci-dessus) et verifie la
+     *  taille reelle du fichier telechargee contre Content-Length quand cet
+     *  en-tete est fourni -- sans cette verification, une connexion coupee en
+     *  cours de copie SANS lever d'IOException (constate possible selon
+     *  l'implementation du flux) aurait marque "done" un fichier tronque,
+     *  injouable ou corrompu au lieu d'echouer/reessayer proprement. */
     fun startDownload(context: Context, id: String, url: String) {
         if (downloads[id]?.status == "downloading") return
         downloads[id] = DlState("downloading")
         CoroutineScope(Dispatchers.IO).launch {
-            var conn: HttpURLConnection? = null
-            try {
-                val ext = url.substringAfterLast('.', "ogg").substringBefore('?').take(4).ifEmpty { "ogg" }
-                val baseDir = getBaseDir(context)
-                val target = java.io.File(baseDir, "$id.$ext")
-                val part = java.io.File(baseDir, "$id.$ext.part")
+            val ext = url.substringAfterLast('.', "ogg").substringBefore('?').take(4).ifEmpty { "ogg" }
+            val baseDir = getBaseDir(context)
+            val target = java.io.File(baseDir, "$id.$ext")
+            val part = java.io.File(baseDir, "$id.$ext.part")
 
-                conn = (URL(url).openConnection() as HttpURLConnection).apply {
-                    connectTimeout = 15000
-                    readTimeout = 20000
-                    connect()
+            var lastError = "erreur réseau"
+            for (attempt in 1..MAX_DOWNLOAD_ATTEMPTS) {
+                var conn: HttpURLConnection? = null
+                val outcome = withTimeoutOrNull(ATTEMPT_DEADLINE_MS) {
+                    try {
+                        conn = (URL(url).openConnection() as HttpURLConnection).apply {
+                            connectTimeout = 15000
+                            readTimeout = 20000
+                            connect()
+                        }
+                        val c = conn!!
+                        if (c.responseCode != HttpURLConnection.HTTP_OK) {
+                            lastError = "HTTP ${c.responseCode}"
+                            return@withTimeoutOrNull false
+                        }
+                        val expectedLength = c.contentLengthLong // -1 si absent/inconnu
+                        val copiedBytes = part.outputStream().use { out -> c.inputStream.use { it.copyTo(out) } }
+                        if (expectedLength > 0 && copiedBytes != expectedLength) {
+                            lastError = "fichier tronqué ($copiedBytes/$expectedLength octets)"
+                            return@withTimeoutOrNull false
+                        }
+                        true
+                    } catch (e: Exception) {
+                        lastError = e.message ?: "erreur réseau"
+                        false
+                    }
                 }
-                if (conn.responseCode != HttpURLConnection.HTTP_OK) {
-                    downloads[id] = DlState("error", "HTTP ${conn.responseCode}")
+                conn?.disconnect()
+                if (outcome == null) lastError = "délai dépassé (tentative $attempt)"
+                if (outcome == true) {
+                    if (target.exists()) target.delete()
+                    part.renameTo(target)
+                    downloads[id] = DlState("done")
                     return@launch
                 }
-                part.outputStream().use { out -> conn.inputStream.use { it.copyTo(out) } }
-                if (target.exists()) target.delete()
-                part.renameTo(target)
-                downloads[id] = DlState("done")
-            } catch (e: Exception) {
-                downloads[id] = DlState("error", e.message ?: "erreur réseau")
-            } finally {
-                conn?.disconnect()
+                if (attempt < MAX_DOWNLOAD_ATTEMPTS) kotlinx.coroutines.delay(RETRY_DELAY_MS)
             }
+            part.delete()
+            downloads[id] = DlState("error", lastError)
         }
     }
 

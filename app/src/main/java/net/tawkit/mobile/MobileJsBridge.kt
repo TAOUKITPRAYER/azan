@@ -62,7 +62,13 @@ class MobileJsBridge(
     /** Declenche le picker SAF (ActivityResultContracts.OpenDocument, filtre
      *  audio) pour choisir un fichier azan personnalise -- cf. MainActivity
      *  pickAudioLauncher, custom.js _acPickCustomFile. groupKey: "fajr" | "general". */
-    private val onPickCustomAzanFile: (String) -> Unit = {}
+    private val onPickCustomAzanFile: (String) -> Unit = {},
+    /** Avancement (0-100) du chargement JS, pour le cercle de progression de
+     *  l'ecran de demarrage natif -- cf. custom.js _L('CUSTOM','INIT',...). */
+    private val onReportLoadProgress: (Int) -> Unit = {},
+    /** Signal unique : plus rien a executer en synchrone dans custom.js, DOM/
+     *  CSS final en place -- cf. MainActivity.hideSplash(). */
+    private val onAppFullyReady: () -> Unit = {}
 ) {
 
     companion object {
@@ -172,6 +178,18 @@ class MobileJsBridge(
     @JavascriptInterface
     fun clearNativeEventLog() {
         NativeEventLog.clear(context)
+    }
+
+    /** Ecran de demarrage natif : avancement 0-100 du chargement JS. */
+    @JavascriptInterface
+    fun reportLoadProgress(percent: Int) {
+        onReportLoadProgress(percent.coerceIn(0, 100))
+    }
+
+    /** Ecran de demarrage natif : plus rien a charger, safe a reveler. */
+    @JavascriptInterface
+    fun notifyAppFullyReady() {
+        onAppFullyReady()
     }
 
     /**

@@ -42,12 +42,26 @@
             android:textColor="#DFCDB1"
             android:textSize="20sp" />
 
-        <ProgressBar
-            android:id="@+id/splashProgress"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginTop="28dp"
-            android:indeterminateTint="#DFCDB1" />
+        <FrameLayout
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginTop="28dp">
+
+            <net.tawkit.mobile.CircularProgressView
+                android:id="@+id/splashProgress"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:id="@+id/splashProgressText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="0%"
+                android:textColor="#DFCDB1"
+                android:textSize="11sp" />
+
+        </FrameLayout>
 
     </LinearLayout>
 
