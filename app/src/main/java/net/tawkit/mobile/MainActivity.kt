@@ -313,31 +313,37 @@ class MainActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // Vérification DIRECTE de l'état réel du menu principal côté JS,
-                // avant de se fier à webView.canGoBack() -- retour utilisateur
-                // (22/08/2026, téléphone en mode vertical) : la boîte "Quitter
-                // l'application ?" s'affichait quand même alors que le menu
-                // (#mainMenuContainer) était ouvert. Le mécanisme JS existant
-                // (history.pushState()/popstate, cf. _installBackManager dans
-                // custom.js) est censé faire en sorte que webView.canGoBack()
+                // Vérification DIRECTE de l'état réel des modales côté JS, avant de
+                // se fier à webView.canGoBack() -- retour utilisateur (22/08/2026,
+                // téléphone en mode vertical, menu principal ouvert) : la boîte
+                // "Quitter l'application ?" s'affichait quand même. Le mécanisme JS
+                // existant (history.pushState()/popstate, cf. _installBackManager
+                // dans custom.js) est censé faire en sorte que webView.canGoBack()
                 // devienne true dans ce cas -- déjà en place pour une demande
-                // similaire précédente, mais constaté insuffisant/désynchronisé
-                // sur cet appareil. Ce garde-fou natif ne dépend d'aucun état
-                // d'historique WebView : il interroge le DOM directement et
-                // ferme le menu lui-même si besoin, AVANT tout recours à
-                // canGoBack()/la boîte de dialogue -- fonctionne donc même si
-                // le mécanisme JS pushState n'a pas armé l'historique pour une
-                // raison quelconque.
+                // similaire précédente, mais constaté insuffisant/désynchronisé sur
+                // cet appareil. Ce garde-fou natif ne dépend d'aucun état
+                // d'historique WebView : il appelle DIRECTEMENT
+                // window._ucNativeBackClose() (custom.js), qui ferme la modale de
+                // premier plan côté DOM si besoin, AVANT tout recours à
+                // canGoBack()/la boîte de dialogue -- fonctionne donc même si le
+                // mécanisme JS pushState n'a pas armé l'historique pour une raison
+                // quelconque.
+                // GÉNÉRALISÉ (23/08/2026, demande explicite : ne plus traiter une
+                // modale à la fois) : _ucNativeBackClose() couvre TOUTES les
+                // modales de _installBackManager (menu principal, sections de
+                // réglages, lecteur Coran, catalogue azan, Qibla, carte, QR code,
+                // infos mosquée...) -- ce code natif n'a plus besoin de connaître
+                // la liste, ni d'être modifié pour une future modale : l'ajouter au
+                // seul endroit qui les connaît déjà (_ucCloseTopmostBackTarget,
+                // custom.js) suffit.
                 webView.evaluateJavascript(
                     "(function(){try{" +
-                        "var m=document.getElementById('mainMenuContainer');" +
-                        "if(m&&m.style.visibility==='visible'){" +
-                        "if(typeof closeMenuFunction==='function'){closeMenuFunction();}" +
-                        "return 'menu_closed';" +
-                        "}return 'no_menu';" +
-                    "}catch(e){return 'no_menu';}})()"
+                        "if(typeof window._ucNativeBackClose==='function'&&window._ucNativeBackClose()){" +
+                        "return 'closed';" +
+                        "}return 'nothing_open';" +
+                    "}catch(e){return 'nothing_open';}})()"
                 ) { result ->
-                    if (result == "\"menu_closed\"") {
+                    if (result == "\"closed\"") {
                         return@evaluateJavascript
                     }
                     if (webView.canGoBack()) {
