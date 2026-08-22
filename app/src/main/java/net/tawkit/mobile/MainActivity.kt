@@ -313,39 +313,67 @@ class MainActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (webView.canGoBack()) {
-                    webView.goBack()
-                } else {
-                    // Sécurité boîtier TV : sur certains boîtiers, un simple clic droit
-                    // de souris (mappé sur "retour") suffit à déclencher cet appel, souvent
-                    // par inadvertance. Puisqu'aucune modale JS n'est plus ouverte à ce
-                    // stade (webView.canGoBack() == false, cf. _installBackManager dans
-                    // custom.js qui gère déjà la fermeture des modales), une confirmation
-                    // explicite évite de fermer l'app par erreur.
-                    // Neutre "Paramètres Android" : quand Tawkit est le launcher (boîtier
-                    // TV configuré en app par défaut de l'écran d'accueil), quitter relance
-                    // simplement l'app (comportement normal d'un launcher, laissé tel quel)
-                    // et il n'existe alors plus aucun autre moyen d'atteindre les réglages
-                    // système — ce bouton reste la seule porte de sortie vers Android.
-                    AlertDialog.Builder(this@MainActivity)
-                        .setTitle("Quitter l'application ?")
-                        .setMessage("Voulez-vous vraiment fermer Tawkit ?")
-                        .setNegativeButton("Annuler", null)
-                        .setNeutralButton("Paramètres Android") { _, _ ->
-                            try {
-                                startActivity(
-                                    Intent(Settings.ACTION_SETTINGS)
-                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                )
-                            } catch (e: Exception) {
-                                Log.e("TWKT", "Unable to open Android settings", e)
+                // Vérification DIRECTE de l'état réel du menu principal côté JS,
+                // avant de se fier à webView.canGoBack() -- retour utilisateur
+                // (22/08/2026, téléphone en mode vertical) : la boîte "Quitter
+                // l'application ?" s'affichait quand même alors que le menu
+                // (#mainMenuContainer) était ouvert. Le mécanisme JS existant
+                // (history.pushState()/popstate, cf. _installBackManager dans
+                // custom.js) est censé faire en sorte que webView.canGoBack()
+                // devienne true dans ce cas -- déjà en place pour une demande
+                // similaire précédente, mais constaté insuffisant/désynchronisé
+                // sur cet appareil. Ce garde-fou natif ne dépend d'aucun état
+                // d'historique WebView : il interroge le DOM directement et
+                // ferme le menu lui-même si besoin, AVANT tout recours à
+                // canGoBack()/la boîte de dialogue -- fonctionne donc même si
+                // le mécanisme JS pushState n'a pas armé l'historique pour une
+                // raison quelconque.
+                webView.evaluateJavascript(
+                    "(function(){try{" +
+                        "var m=document.getElementById('mainMenuContainer');" +
+                        "if(m&&m.style.visibility==='visible'){" +
+                        "if(typeof closeMenuFunction==='function'){closeMenuFunction();}" +
+                        "return 'menu_closed';" +
+                        "}return 'no_menu';" +
+                    "}catch(e){return 'no_menu';}})()"
+                ) { result ->
+                    if (result == "\"menu_closed\"") {
+                        return@evaluateJavascript
+                    }
+                    if (webView.canGoBack()) {
+                        webView.goBack()
+                    } else {
+                        // Sécurité boîtier TV : sur certains boîtiers, un simple clic droit
+                        // de souris (mappé sur "retour") suffit à déclencher cet appel, souvent
+                        // par inadvertance. Puisqu'aucune modale JS n'est plus ouverte à ce
+                        // stade (webView.canGoBack() == false, cf. _installBackManager dans
+                        // custom.js qui gère déjà la fermeture des modales), une confirmation
+                        // explicite évite de fermer l'app par erreur.
+                        // Neutre "Paramètres Android" : quand Tawkit est le launcher (boîtier
+                        // TV configuré en app par défaut de l'écran d'accueil), quitter relance
+                        // simplement l'app (comportement normal d'un launcher, laissé tel quel)
+                        // et il n'existe alors plus aucun autre moyen d'atteindre les réglages
+                        // système — ce bouton reste la seule porte de sortie vers Android.
+                        AlertDialog.Builder(this@MainActivity)
+                            .setTitle("Quitter l'application ?")
+                            .setMessage("Voulez-vous vraiment fermer Tawkit ?")
+                            .setNegativeButton("Annuler", null)
+                            .setNeutralButton("Paramètres Android") { _, _ ->
+                                try {
+                                    startActivity(
+                                        Intent(Settings.ACTION_SETTINGS)
+                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    )
+                                } catch (e: Exception) {
+                                    Log.e("TWKT", "Unable to open Android settings", e)
+                                }
                             }
-                        }
-                        .setPositiveButton("Quitter") { _, _ ->
-                            isEnabled = false
-                            onBackPressedDispatcher.onBackPressed()
-                        }
-                        .show()
+                            .setPositiveButton("Quitter") { _, _ ->
+                                isEnabled = false
+                                onBackPressedDispatcher.onBackPressed()
+                            }
+                            .show()
+                    }
                 }
             }
         })
@@ -659,26 +687,36 @@ class MainActivity : AppCompatActivity() {
         // (fluidité/consommation) -- à retirer si le test ne change rien,
         // ou à garder si confirmé en conditions réelles sur le boîtier.
         //
-        // TODO (20/08/2026) -- COMPROMIS À TRANCHER PLUS TARD : ce
-        // LAYER_TYPE_SOFTWARE sort tout le WebView du compositeur GPU sur
-        // boîtier TV, ce qui plafonne le rendu de TOUTE animation CSS
-        // (marquee, blink, glow...) à ~10 img/s sur les boîtiers à CPU
-        // faible (mesuré objectivement : capture écran + corrélation
-        // croisée des frames, cf. session marquee du 19-20/08/2026 --
-        // saccade confirmée identique même avec toutes les autres
-        // animations de la page désactivées, donc bien liée au layer type
-        // et non à une contention CSS/JS). Le marquee du bandeau du bas en
-        // particulier reste saccadé tant que ce compromis est en place --
-        // aucun réglage CSS/JS ne peut lever ce plafond pendant que
-        // LAYER_TYPE_SOFTWARE est actif. Pistes pour plus tard : revenir
-        // en LAYER_TYPE_HARDWARE et re-vérifier en conditions réelles si
-        // l'artefact vert de l'horloge revient vraiment sur ce boîtier, ou
-        // chercher un correctif ciblé uniquement sur
-        // #countdownDisplayVertical pour ne pas sacrifier le rendu GPU du
-        // reste de la page.
-        if (DeviceType.isAndroidTv(this)) {
-            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
-        }
+        // RESOLU (22/08/2026, retour utilisateur -- marquee saccade ~10 img/s
+        // sur boitier TV, cf. TODO du 20/08/2026 ci-dessus dans l'historique
+        // git) : on reprend la 2e piste envisagee plutot que de sacrifier le
+        // rendu GPU de toute la page. LAYER_TYPE_SOFTWARE supprime, le
+        // WebView reste en LAYER_TYPE_HARDWARE (comportement par defaut) sur
+        // TOUS les appareils, y compris boitier TV -- le marquee et toutes
+        // les autres animations CSS retrouvent le compositeur GPU. En
+        // echange, l'element horloge/compteur suspecte d'origine (redessine
+        // chaque seconde, cf. artefact vert du 17/08/2026) est isole sur sa
+        // propre couche de composition cote CSS (transform:translateZ(0) +
+        // backface-visibility:hidden sur #fullClockTimeVertical/Horizontal,
+        // #miniClockTimeVertical/Horizontal, #secondCounterVertical/
+        // Horizontal -- cf. custom.css, meme technique deja validee dans ce
+        // projet pour #quranPlayerOverlay, meme famille de bug pilote GPU
+        // boitier bon marche). Id exact de l'epoque (#countdownDisplayVertical,
+        // TODO ci-dessus) introuvable dans les assets actuels au moment de ce
+        // changement -- cible donc l'ensemble des elements horloge/compteur
+        // mis a jour chaque seconde plutot qu'un seul id incertain.
+        // A VERIFIER EN CONDITIONS REELLES sur boitier TV (l'artefact ne se
+        // constate qu'a l'oeil, pas via les logs) : si le petit carre/point
+        // vert revient malgre l'isolation CSS ci-dessus, revenir a
+        // LAYER_TYPE_SOFTWARE (git revert) en attendant une autre piste.
+        //
+        // PRECISION (22/08/2026, retour utilisateur : bug constate UNIQUEMENT
+        // sur boitier en mode HORIZONTAL) : #countdownDisplayVertical
+        // (mentionne plus haut) est introuvable dans les assets et un bug
+        // horizontal-only ne peut de toute facon pas venir d'un id
+        // "...Vertical" -- coupable corrige dans custom.css :
+        // #fullScreenCounterMiniClockHorizontal (mini horloge du compteur
+        // plein ecran, HORIZONTAL UNIQUEMENT, aucun equivalent Vertical).
 
         // Active chrome://inspect (Chrome DevTools distant) sur ce WebView --
         // permet de brancher un vrai eval JS/console/DOM inspector via un
