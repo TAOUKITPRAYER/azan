@@ -180,6 +180,30 @@ class MobileJsBridge(
         NativeEventLog.clear(context)
     }
 
+    /**
+     * Point d'entree generique pour persister un evenement JS dans le meme
+     * journal natif (NativeEventLog, SharedPreferences) que AZAN/SYS/HADITH
+     * ci-dessus -- appele depuis _L() (custom.js) pour les jalons du cycle
+     * de priere qui n'avaient jusqu'ici aucune trace survivant a un
+     * crash/reboot (lumieres, compte a rebours iqama, rideau noir, hadith de
+     * repli...), contrairement a AZAN qui est deja natif. La selection de ce
+     * qui merite d'etre persiste (par categorie/verbe) se fait entierement
+     * cote JS (table _UC_PERSIST_RULES dans _L(), custom.js) : ce point
+     * d'entree natif reste generique, sans whitelist ni logique propre.
+     * Incident declencheur (22/08/2026, mosquee tn.monastir.aboubakr) :
+     * ampliIntOn declenche par du JS pur (console.log uniquement, jamais
+     * ecrit sur disque) -- impossible a distance de confirmer s'il s'etait
+     * declenche pour Fajr, la session ayant ete perdue dans un crash avant
+     * qu'un rapport ne soit envoye. Reutilise le meme MAX_ENTRIES=300 que
+     * AZAN/SYS/HADITH -- la table cote JS exclut deliberement les
+     * evenements a haute frequence (ex. par tick) pour ne pas evincer les
+     * entrees plus utiles.
+     */
+    @JavascriptInterface
+    fun logPrayerEvent(tag: String, text: String) {
+        NativeEventLog.log(context, tag, text)
+    }
+
     /** Ecran de demarrage natif : avancement 0-100 du chargement JS. */
     @JavascriptInterface
     fun reportLoadProgress(percent: Int) {
