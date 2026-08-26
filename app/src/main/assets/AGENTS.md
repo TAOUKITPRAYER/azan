@@ -8,9 +8,13 @@ Tawkit is a browser-based Islamic prayer times display application (tawkit.net).
 
 ## The Golden Rule: Custom Files Only
 
-**All local modifications must go exclusively in `spec/custom.js`, `spec/custom.css`, and `spec/mosquee.js`.** Never modify core files (`m2body.js`, `m1prime.js`, `style1.css`, `style2.css`, `style0.css`, `settings-defaults.js`, `languages/lang-*.js`, etc.). Core files are overwritten on every app update.
+**All local modifications must go exclusively in `spec/custom.js`, `spec/custom.css`, and `spec/mosques-registry.js`.** Never modify core files (`m2body.js`, `m1prime.js`, `style1.css`, `style2.css`, `style0.css`, `settings-defaults.js`, `languages/lang-*.js`, etc.). Core files are overwritten on every app update. Never edit `spec/mosquee.js` — it is a selector shim, not a config file (see below).
 
-`spec/mosquee.js` is the **only file that needs to change** when deploying to a new mosque. It is loaded before `spec/custom.js` and exposes `window.MOSQUE_CONFIG`.
+All real mosque configuration lives exclusively in Supabase (`mosques` + `mosque_config_backups` tables, editable anytime via the `mosque-admin` app), never in per-mosque `.js` files and never baked into the APK. This used to be split between an embedded `spec/mosques-registry.js` and Supabase, which caused real data-drift bugs (a stale embedded value silently winning over a corrected Supabase value after every APK release) — the embedded copy of real mosques was removed for that reason (August 2026).
+
+`spec/mosques-registry.js` now contains **only** the `anonymous.generic` entry — not a mosque, but the offline bootstrap template used on a brand-new install with zero network connectivity (see `_ucFirstRunFallbackAnonymous` in `custom.js`). Never add a real mosque back into this file.
+
+`spec/mosquee.js` is loaded before `spec/custom.js` and picks the right config into `window.MOSQUE_CONFIG` — from that one embedded entry for `anonymous.generic`, or from Supabase-restored data (already written into `localStorage` by `_restoreFromJson`) for every real mosque.
 
 ## Script Loading Order
 
@@ -23,7 +27,8 @@ ayats, ahadith, countries, messages, azkar files
 m1prime.js             → prayer time calculation engine
   └─ inlines: m2body.js    → main app logic; calls initUILabels() at line ~8749
               spec/custom.css
-              spec/mosquee.js  ← mosque-specific config (window.MOSQUE_CONFIG)
+              spec/mosques-registry.js  ← embedded mosque configs (all mosques)
+              spec/mosquee.js  ← selector shim, sets window.MOSQUE_CONFIG
               spec/custom.js   ← our code runs last
 ```
 
@@ -31,45 +36,13 @@ m1prime.js             → prayer time calculation engine
 - Overriding a `JS_eLang` string alone is not enough — the DOM has already been populated.
 - Always update both the JS object AND the DOM element directly in `custom.js`.
 
-## spec/mosquee.js — Mosque Configuration File
+## spec/mosques-registry.js — Offline Bootstrap Template Only
 
-This file is the **single source of truth** for mosque-specific settings. Edit only this file when deploying to a new mosque or updating parameters. After any change, increment `VERSION` to force re-application on next app start.
+This file holds a single entry, `anonymous.generic` (flagged `_UC_ANONYMOUS: true`) — a generic placeholder config, not a real mosque. It exists purely so a brand-new install with zero network connectivity can still boot into a working state (`_ucFirstRunFallbackAnonymous` in `custom.js` sets `UC_MOSQUE_ID` to this id with no network round-trip needed). `index.html` loads it as a blocking, synchronous `<script>` tag before `spec/mosquee.js`, guaranteeing it's available offline on first paint.
 
-```javascript
-window.MOSQUE_CONFIG = {
-    VERSION:       '1.2',          // increment to force re-apply
+**Never add a real mosque back into this file.** Real mosques used to be embedded here too, but that created a second, driftable copy of data already in Supabase — a stale embedded value could silently win over a corrected Supabase value after every APK release. All real mosque configuration is deployed exclusively via Supabase now (see below).
 
-    MOSQUE_NAME:   '...',          // displayed in the app header
-    LOCATION_CODE: 'tn.monastir', // lowercase city code (Settings > City)
-
-    IQAMA_DELAYS: {                // minutes after azan (used if IQAMA_FIXED is '')
-        FAJR: 30, DHUHR: 10, ASR: 10, MAGHREB: 10, ISHA: 15,
-    },
-    IQAMA_FIXED: {                 // fixed iqama time ('HH:mm') — overrides DELAYS
-        FAJR: '', DHUHR: '13:00', ASR: '', ISHA: '',
-    },
-
-    DOHR_XMIN_ASR: 0,             // show Dhuhr N min before Asr (0 = disabled)
-
-    WEATHER_COORDS: { latitude: 35.69, longitude: 10.85 },
-
-    JUMUA_ENABLED: 1,             // 0 = hidden, 1 = shown
-    JUMUA_TIME:    '13:15',       // 'AUTO' or fixed 'HH:mm'
-
-    QR_ENABLED:    1,             // 0 = disabled, 1 = show QR when PS flag is OFF
-    QR_URL:        '',            // URL to encode in QR (e.g. Google Maps link)
-
-    DISPLAY_OPTIONS: {
-        PS_FLAG: 1, USE_24H: 1, ...
-    },
-};
-```
-
-**Deployment procedure:**
-1. Edit `spec/mosquee.js` with the new mosque parameters
-2. Increment `VERSION`
-3. On first launch the app auto-reloads once to apply all settings
-4. Optionally run `powershell -ExecutionPolicy Bypass -File spec\genqr.ps1 -Url "https://..."` to pre-generate the QR PNG
+**Deployment procedure (any real mosque):** create/update its row in the Supabase `mosques` and `mosque_config_backups` tables (via the `mosque-admin` app). No APK release needed; every device picks it up via `_restoreFromJson` / the mosque selector in `custom.js`, and stays in sync afterward via the polling loop (`_installRemoteConfigPolling`, `custom.js`).
 
 ## _applyMosqueConfig() — Auto-reload on First Install
 
