@@ -1,0 +1,14 @@
+{
+  "name": "tawkit-tools",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Outils de contrôle du dépôt Tawkit (lint spec/custom.js, etc.)",
+  "type": "module",
+  "scripts": {
+    "check-custom-js": "node check-custom-js.mjs"
+  },
+  "dependencies": {
+    "eslint-scope": "^8.2.0",
+    "espree": "^10.3.0"
+  }
+}

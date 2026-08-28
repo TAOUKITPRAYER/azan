@@ -156,6 +156,35 @@ function Show-Help {
     Write-Host ""
 }
 
+function Invoke-CheckCustomJs {
+    # Garde-fou statique sur spec/custom.js (non minifie, jamais vu par le build) :
+    # detecte les references hors-portee qui levent un ReferenceError a l'execution
+    # (cf. regression azan v14.0 : _ucPrayerAtMinutes appele hors injectTechOptionsUI).
+    $checker = Join-Path $ProjectRoot 'tools\check-custom-js.mjs'
+    if (-not (Test-Path $checker)) { return }
+
+    $node = Get-Command node -ErrorAction SilentlyContinue
+    if (-not $node) {
+        Write-Info "==> check-custom-js ignore (node absent du PATH)"
+        return
+    }
+    if (-not (Test-Path (Join-Path $ProjectRoot 'tools\node_modules'))) {
+        Write-Info "==> check-custom-js : installation des deps (npm install dans tools\)..."
+        Push-Location (Join-Path $ProjectRoot 'tools')
+        try { & npm install --silent } finally { Pop-Location }
+    }
+
+    Write-Info "==> Verification spec/custom.js (references hors-portee)..."
+    & $node.Source $checker
+    $code = $LASTEXITCODE
+    if ($code -eq 1) {
+        throw "check-custom-js : spec/custom.js contient une reference qui plantera a l'execution (voir ci-dessus). Build annule."
+    }
+    if ($code -eq 2) {
+        Write-Info "==> check-custom-js non execute (deps indisponibles) -- build poursuivi"
+    }
+}
+
 function Invoke-BuildApk {
     if (-not (Test-Path $Keystore)) { throw "Keystore introuvable : $Keystore" }
     if (-not (Test-Path $GradlewBat)) { throw "gradlew.bat introuvable : $GradlewBat" }
@@ -167,6 +196,8 @@ function Invoke-BuildApk {
     $apksigner     = Join-Path $buildToolsDir 'apksigner.bat'
     if (-not (Test-Path $zipalign))  { throw "zipalign introuvable : $zipalign" }
     if (-not (Test-Path $apksigner)) { throw "apksigner introuvable : $apksigner" }
+
+    Invoke-CheckCustomJs
 
     Write-Info "==> Compilation release (gradlew assembleRelease)..."
     Push-Location $ProjectRoot

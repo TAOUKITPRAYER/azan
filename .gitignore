@@ -39,3 +39,7 @@ app/mushaf/
 # GitHub's file size limit and shouldn't be versioned; downloaded at
 # runtime by ReciterDownloader instead).
 reciters-catalog/*.zip
+
+# tools/ : deps du garde-fou check-custom-js (installées à la demande)
+tools/node_modules/
+tools/package-lock.json
