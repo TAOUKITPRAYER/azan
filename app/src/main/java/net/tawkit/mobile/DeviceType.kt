@@ -52,8 +52,35 @@ object DeviceType {
         }
     }
 
+    /** Lecture d'une propriete systeme (android.os.SystemProperties, @hide mais
+     *  API stable) sans dependance -- repli "" si indisponible. */
+    private fun sysProp(key: String): String = try {
+        @Suppress("PrivateApi")
+        Class.forName("android.os.SystemProperties")
+            .getMethod("get", String::class.java)
+            .invoke(null, key) as? String ?: ""
+    } catch (e: Exception) { "" }
+
+    // Surcharges manuelles (posees par adb sur un boitier precis, cf.
+    // z6-aboubaker : `setprop persist.tawkit.gpu_hw_ok 1`) :
+    //   persist.tawkit.gpu_hw_ok = 1  -> FORCE le rendu GPU (LAYER_TYPE_HARDWARE)
+    //     meme sur un Mali-G31. Certaines revisions firmware/pilote (ex. Allwinner
+    //     H618 Mali-G31 r0p0, pilote r20p0) n'ont PAS le hang JOB_READ_FAULT du
+    //     X96Q_PRO1 (H616) -- verifie stable en soak + cycle azan complet le
+    //     28/08/2026, gain marquee 200ms -> 29ms/frame. A poser uniquement apres
+    //     verification sur CE boitier.
+    //   persist.tawkit.gpu_force_sw = 1 -> FORCE le rendu logiciel (echappatoire
+    //     si un boitier hors Mali-G31 montre le meme hang).
+    private val overrideCache: Boolean? by lazy {
+        when {
+            sysProp("persist.tawkit.gpu_force_sw") == "1" -> true
+            sysProp("persist.tawkit.gpu_hw_ok")    == "1" -> false
+            else -> null
+        }
+    }
+
     // Resultat mis en cache (lazy, un seul acces disque par process) : appele
     // a la fois par MainActivity.setupWebView() et par MobileJsBridge cote JS
     // (custom.js, mode marquee fige), doit rester bon marche a chaque appel.
-    fun isKnownBuggyGpu(): Boolean = knownBuggyGpuCache
+    fun isKnownBuggyGpu(): Boolean = overrideCache ?: knownBuggyGpuCache
 }
