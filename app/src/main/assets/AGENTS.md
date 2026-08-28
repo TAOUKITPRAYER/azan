@@ -10,7 +10,7 @@ Tawkit is a browser-based Islamic prayer times display application (tawkit.net).
 
 **All local modifications must go exclusively in `spec/custom.js`, `spec/custom.css`, and `spec/mosques-registry.js`.** Never modify core files (`m2body.js`, `m1prime.js`, `style1.css`, `style2.css`, `style0.css`, `settings-defaults.js`, `languages/lang-*.js`, etc.). Core files are overwritten on every app update. Never edit `spec/mosquee.js` — it is a selector shim, not a config file (see below).
 
-All real mosque configuration lives exclusively in Supabase (`mosques` + `mosque_config_backups` tables, editable anytime via the `mosque-admin` app), never in per-mosque `.js` files and never baked into the APK. This used to be split between an embedded `spec/mosques-registry.js` and Supabase, which caused real data-drift bugs (a stale embedded value silently winning over a corrected Supabase value after every APK release) — the embedded copy of real mosques was removed for that reason (August 2026).
+All real mosque configuration lives exclusively in Supabase (single table `mosques`, editable anytime via the `mosque-admin` app — see the dedicated section below), never in per-mosque `.js` files and never baked into the APK. This used to be split between an embedded `spec/mosques-registry.js` and Supabase, which caused real data-drift bugs (a stale embedded value silently winning over a corrected Supabase value after every APK release) — the embedded copy of real mosques was removed for that reason (August 2026).
 
 `spec/mosques-registry.js` now contains **only** the `anonymous.generic` entry — not a mosque, but the offline bootstrap template used on a brand-new install with zero network connectivity (see `_ucFirstRunFallbackAnonymous` in `custom.js`). Never add a real mosque back into this file.
 
@@ -42,7 +42,31 @@ This file holds a single entry, `anonymous.generic` (flagged `_UC_ANONYMOUS: tru
 
 **Never add a real mosque back into this file.** Real mosques used to be embedded here too, but that created a second, driftable copy of data already in Supabase — a stale embedded value could silently win over a corrected Supabase value after every APK release. All real mosque configuration is deployed exclusively via Supabase now (see below).
 
-**Deployment procedure (any real mosque):** create/update its row in the Supabase `mosques` and `mosque_config_backups` tables (via the `mosque-admin` app). No APK release needed; every device picks it up via `_restoreFromJson` / the mosque selector in `custom.js`, and stays in sync afterward via the polling loop (`_installRemoteConfigPolling`, `custom.js`).
+**Deployment procedure (any real mosque):** create/update its row in the single Supabase table `mosques` (via the `mosque-admin` app). No APK release needed; every device picks it up via the mosque selector in `custom.js` (`_ucSyncFromSupabase` → `_applyRow`), and stays in sync afterward via the polling loop (`_installRemoteConfigPolling`, `custom.js`).
+
+## Supabase `mosques` — the single mosque referential (consolidation 27/08/2026)
+
+There used to be **two** tables: `mosques` (structured columns) and
+`mosque_config_backups` (the full serialized config blob + the new-mosque
+proposal queue). They overlapped and drifted. `mosque_config_backups` has been
+**dropped**; everything lives in `mosques` now:
+
+- **Structured columns** (`jumua`, `iqama_delay`, `iqama_fixed`, `azan_offsets`,
+  `time_flags`, `eid`, `profile`, `automation`, `quran_settings`, `pin_hash`,
+  `image_url`, lat/lng, `mosque_name`, `location_code`, `status`) — authoritative
+  for remote admin + the 18 s polling sync (`_applyRow` in `custom.js`).
+- **`backup_json`** (jsonb) — the full device-config blob (same shape as
+  `_buildBackup()`), used as the defensive full-restore fallback on import
+  (`_pullRemoteBackup` → `_restoreFromJson`) and to carry an imam's complete
+  config on a new-mosque proposal.
+- **`status`** — `approved` (live, ~1814 rows: 9 administered + the whole Tunisia
+  catalog promoted from `spec/mosquee/liste/osm_tunisia.json`) / `pending` (a
+  proposal awaiting review in `mosque-admin`) / `rejected`.
+
+custom.js reads/writes only `mosques`: `_fetchRemoteListByCity` &
+`_fetchRemoteList` (selector list), `_pullRemoteBackup` (`backup_json`),
+`_pushRemoteBackup` (single upsert: identity + profile + image + `backup_json`,
+`status='pending'` only for a proposal), `_ucSyncFromSupabase` (`select=*`).
 
 ## _applyMosqueConfig() — Auto-reload on First Install
 

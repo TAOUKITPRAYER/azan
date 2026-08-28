@@ -42,6 +42,7 @@ class ReciterDownloadWorker(appContext: Context, params: WorkerParameters) :
     override suspend fun doWork(): Result {
         val id = inputData.getString(KEY_ID) ?: return Result.failure()
         val url = inputData.getString(KEY_URL) ?: return Result.failure()
+        val name = inputData.getString(KEY_NAME) ?: ""
 
         val baseDir = ReciterManager.getBaseDir(applicationContext)
         val partFile = File(baseDir, "$id.zip.part")
@@ -88,7 +89,7 @@ class ReciterDownloadWorker(appContext: Context, params: WorkerParameters) :
                     conn.disconnect()
                     writeProgress(progressFile, "extracting", downloaded, remoteTotal)
                     setForeground(buildForegroundInfo(id, "extraction", 100))
-                    return finalizeDownload(id, baseDir, partFile, progressFile, downloaded, remoteTotal)
+                    return finalizeDownload(id, name, baseDir, partFile, progressFile, downloaded, remoteTotal)
                 }
                 // Taille reelle inconnue ou .part visiblement incoherent (plus
                 // petit que prevu mais range quand meme refusee) : etat non
@@ -200,7 +201,7 @@ class ReciterDownloadWorker(appContext: Context, params: WorkerParameters) :
                 return Result.failure()
             }
 
-            return finalizeDownload(id, baseDir, partFile, progressFile, downloaded, totalBytes)
+            return finalizeDownload(id, name, baseDir, partFile, progressFile, downloaded, totalBytes)
         } catch (e: Exception) {
             // Toute IOException (SocketTimeoutException, connexion reinitialisee,
             // hote injoignable...) est par nature transitoire sur mobile -> on
@@ -230,7 +231,7 @@ class ReciterDownloadWorker(appContext: Context, params: WorkerParameters) :
      * finalise, cf. commentaire plus haut) pour ne pas dupliquer cette logique.
      */
     private fun finalizeDownload(
-        id: String, baseDir: File, partFile: File, progressFile: File,
+        id: String, name: String, baseDir: File, partFile: File, progressFile: File,
         downloaded: Long, totalBytes: Long
     ): Result {
         val extractResult: ExtractResult
@@ -245,6 +246,19 @@ class ReciterDownloadWorker(appContext: Context, params: WorkerParameters) :
             return Result.failure()
         }
         partFile.delete()
+        // Filet de securite : certaines archives du catalogue distant n'embarquent
+        // pas de meta.json (constate en pratique, ex. tablawi.zip -> nom affiche
+        // ensuite = id brut "tablawi" au lieu du nom localise du catalogue,
+        // cf. ReciterManager.listReciters() qui ne lit QUE ce fichier local).
+        // On l'ecrit nous-memes ici avec le nom transmis par JS (item.name du
+        // catalogue, cf. MobileJsBridge.startReciterDownload/resumeDownload) --
+        // jamais ecrase si l'archive avait deja fourni le sien (hasMeta=true).
+        if (!extractResult.hasMeta && name.isNotBlank()) {
+            try {
+                File(baseDir, id).resolve("meta.json")
+                    .writeText(JSONObject().put("name", name).toString())
+            } catch (e: Exception) { /* best-effort : au pire on retombe sur l'id brut, comme avant */ }
+        }
         // DIAGNOSTIC : entryCount/hasMeta permettent de verifier, sans avoir
         // besoin d'aller fouiller sur le telephone, que l'archive contenait
         // bien les 114 pistes + meta.json attendus (cf. nom affiche = id au
@@ -322,6 +336,7 @@ class ReciterDownloadWorker(appContext: Context, params: WorkerParameters) :
         private const val NOTIF_ID_BASE = 90000
         private const val KEY_ID = "id"
         private const val KEY_URL = "url"
+        private const val KEY_NAME = "name"
 
         /** Nombre de tentatives auto (Result.retry()) avant abandon definitif sur
          *  erreur transitoire (timeout reseau, HTTP 5xx, flux tronque) — au-dela,
@@ -330,9 +345,11 @@ class ReciterDownloadWorker(appContext: Context, params: WorkerParameters) :
 
         private fun workName(id: String) = "reciter_download_$id"
 
-        fun enqueue(context: Context, id: String, url: String) {
+        /** name : nom localise du catalogue (cf. doWork/finalizeDownload -- ecrit
+         *  dans meta.json si l'archive telechargee n'en fournit pas elle-meme). */
+        fun enqueue(context: Context, id: String, url: String, name: String = "") {
             val req = OneTimeWorkRequestBuilder<ReciterDownloadWorker>()
-                .setInputData(workDataOf(KEY_ID to id, KEY_URL to url))
+                .setInputData(workDataOf(KEY_ID to id, KEY_URL to url, KEY_NAME to name))
                 // Pas la peine de tourner (et de retenter) sans connexion du tout ;
                 // WorkManager attendra qu'un reseau soit disponible pour demarrer/
                 // relancer le worker.

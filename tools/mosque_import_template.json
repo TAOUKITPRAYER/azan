@@ -1,0 +1,33 @@
+[
+  {
+    "name_ar": "جامع مثال",
+    "label": "Mosquée Exemple — Ville",
+
+    "latitude": 36.80021,
+    "longitude": 10.18578,
+
+    "address": "Rue Exemple, Quartier X",
+    "phone": "",
+    "email": "",
+    "website": "",
+    "image": "",
+
+    "jumua_time": "AUTO",
+
+    "iqama_fajr": 30,
+    "iqama_dhuhr": 10,
+    "iqama_asr": 10,
+    "iqama_maghreb": 10,
+    "iqama_isha": 15,
+
+    "iqama_fixed_dhuhr": "",
+
+    "women_allowed": true,
+    "women_ablution": false,
+    "janaza": false,
+    "kottab": false,
+    "parking": false,
+
+    "notes": ""
+  }
+]

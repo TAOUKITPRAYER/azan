@@ -1,0 +1,51 @@
+
+Villes acceptees (parametre --ville) :
+
+   1 * تونس
+   2   نابل
+   3   قليبية
+   4   زغوان
+   5   بنزرت
+   6   ماطر
+   7   باجة
+   8   جندوبة
+   9   طبرقة
+  10   عين دراهم
+  11   الكاف
+  12   سليانة
+  13   قعفور
+  14   مكثر
+  15   سوسة
+  16 * المنستير
+  17   القيروان
+  18   سيدي بوزيد
+  19   المكناسي
+  20   القصرين
+  21   تالة
+  22   المهدية
+  23   الجم
+  24   الشابة
+  25   السوسي
+  26   هبيرة
+  27   صفاقس
+  28   جبنياية
+  29   قرقنة
+  30   الصخيرة
+  31   قابس
+  32   مدنين
+  33   جربة
+  34   قفصة
+  35   مولارس
+  36   توزر
+  37   نفطة
+  38   قبلي
+  39   تطاوين
+  40   رمادة
+  41   بن قردان
+  42   البرمة
+
+(*) = fichier(s) local/locaux connu(s) pour cette ville, comparaison possible.
+Pour les autres villes, ajouter une entree dans LOCAL_FILE_MAP en tete de script.
+
+Exemple : python tools/compare_affaires_religieuses.py --ville 16
+

@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp"
-        android:text="Mosque Admin — mosque_config_backups"
+        android:text="Mosque Admin — propositions (table mosques)"
         android:textColor="#c8a84b"
         android:textSize="18sp"
         android:textStyle="bold" />

@@ -152,6 +152,18 @@ class MainActivity : AppCompatActivity() {
     private var pendingConfigSync: String? = null
     /** mosque_id reçu via deep link tawkit://mosque/<id> avant que la page soit chargée */
     private var pendingMosqueDeepLink: String? = null
+
+    /** Langue courante de la page (JS_DATA.ucLangNOW), mise en cache à chaque
+     *  onPageFinished (cf. setupWebView) -- lue par onJsAlert/onJsConfirm SANS
+     *  appeler evaluateJavascript à cet instant précis : le faire depuis ces
+     *  callbacks ré-entre dans le thread JS de la page pendant qu'il est
+     *  justement bloqué en attente du résultat du confirm()/alert() en cours
+     *  -- deadlock constaté (25/08/2026) : le WebView restait figé indéfiniment
+     *  car evaluateJavascript() ne pouvait jamais s'exécuter (thread JS déjà
+     *  suspendu par le confirm() qui l'a déclenché), donc son callback ne
+     *  revenait jamais, et le JsResult n'était donc jamais confirmé/annulé.
+     */
+    private var cachedUcLang: String = "EN"
     private var isPageLoaded = false
     private var automaticUpdateCheckStarted = false
 
@@ -300,13 +312,28 @@ class MainActivity : AppCompatActivity() {
             mainHandler.postDelayed({ hideSplash() }, SPLASH_FALLBACK_TIMEOUT_MS)
         }
 
-        // Ces trois appels affichent des popups systeme (permissions, OneSignal) :
+        // Ces appels affichent des popups systeme (permissions, OneSignal) :
         // sauter en lancement silencieux, sinon on recree exactement le probleme
         // qu'EXTRA_SILENT_BOOT est censee eviter.
+        //
+        // TV vs telephone (25/08/2026, decision produit -- ameliorer le premier
+        // lancement telephone) : sur boitier TV (ecran mural mosquee, installe
+        // par un administrateur qui sait a quoi s'attendre), ces popups
+        // immediates au tout premier ecran restent justifiees. Sur telephone
+        // (nouvel utilisateur individuel qui n'a encore rien vu de l'appli),
+        // demander batterie/notifications avant meme d'avoir montre la valeur
+        // de l'appli nuit au taux d'acceptation -- reporte au moment ou
+        // l'utilisateur active une fonctionnalite qui en a reellement besoin
+        // (cf. MobileJsBridge.requestNotificationPermission/
+        // requestBatteryOptimizationExemption, appelees depuis custom.js
+        // _ucToggleAzanAlert/_ucToggleHadithReminder/_ucToggleAutoStart).
+        val isTvLaunch = DeviceType.isAndroidTv(this)
         if (!isSilentBoot) {
-            initOneSignal()
-            requestNotificationPermission()
-            requestIgnoreBatteryOptimizations()
+            initOneSignal(requestPushPermissionNow = isTvLaunch)
+            if (isTvLaunch) {
+                requestNotificationPermission()
+                requestIgnoreBatteryOptimizations()
+            }
         }
         setupWebView()
         handleMosqueDeepLinkIntent(intent)
@@ -401,12 +428,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initOneSignal() {
+    private fun initOneSignal(requestPushPermissionNow: Boolean) {
         OneSignal.Debug.logLevel = LogLevel.WARN
         OneSignal.initWithContext(this, "a7656f67-9573-4593-97a8-871ac6550731")
-        // Demande la permission push de façon non-bloquante
-        CoroutineScope(Dispatchers.IO).launch {
-            OneSignal.Notifications.requestPermission(true)
+        // Demande la permission push de façon non-bloquante -- uniquement sur
+        // TV (cf. onCreate) ; sur téléphone, differee jusqu'a ce que
+        // l'utilisateur active une fonctionnalite de notification (cf.
+        // requestNotificationPermission() plus bas, appelee via le bridge JS).
+        // OneSignal detecte tout seul l'octroi de POST_NOTIFICATIONS des que la
+        // permission systeme change, quel que soit le chemin par lequel elle a
+        // ete accordee -- pas besoin d'un second appel a ce moment-la.
+        if (requestPushPermissionNow) {
+            CoroutineScope(Dispatchers.IO).launch {
+                OneSignal.Notifications.requestPermission(true)
+            }
         }
         // Tap notification → sync config dans le WebView
         OneSignal.Notifications.addClickListener(object : INotificationClickListener {
@@ -651,11 +686,15 @@ class MainActivity : AppCompatActivity() {
     // onJsConfirm ci-dessous. evaluateJavascript() est asynchrone mais son
     // callback est déjà garanti sur le thread UI (contrat WebView standard),
     // donc l'AlertDialog peut être construite directement dedans.
-    private fun fetchUcLangThen(then: (String) -> Unit) {
+    /** Rafraîchit cachedUcLang -- ne JAMAIS appeler depuis onJsAlert/onJsConfirm
+     *  (cf. commentaire sur cachedUcLang) : uniquement depuis onPageFinished,
+     *  où le thread JS de la page n'est pas suspendu par un confirm()/alert().
+     */
+    private fun refreshCachedUcLang() {
         webView.evaluateJavascript(
             "(function(){try{return (typeof _ucLang==='function')?_ucLang():'EN';}catch(e){return 'EN';}})()"
         ) { raw ->
-            then(raw?.trim('"') ?: "EN")
+            cachedUcLang = raw?.trim('"') ?: "EN"
         }
     }
 
@@ -673,56 +712,27 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     @Suppress("DEPRECATION")
     private fun setupWebView() {
-        // Test diagnostic (17/08/2026, retour utilisateur -- boîtier TV,
-        // artefact visuel : petit carré/point vert qui apparaît près de
-        // l'horloge et change de position/forme à chaque seconde, propre au
-        // redessin fréquent de #countdownDisplayVertical). Piste retenue :
-        // bug du compositeur GPU du pilote SoC bon marché (Allwinner/
-        // Amlogic/Rockchip), PAS un bug applicatif -- ni permission CAMERA/
-        // RECORD_AUDIO (aucune des deux déclarée, indicateur de vie privée
-        // Android exclu), ni contenu vidéo/EME (aucun <video>/DRM dans les
-        // assets), ni flag de debug de rendu (seul setWebContentsDebuggingEnabled
-        // ci-dessous est actif, sans effet visuel). Même famille de bug déjà
-        // rencontrée sur ce projet pour #quranPlayerOverlay (cf. custom.css,
-        // compositeur GPU qui échoue à peindre un overlay position:fixed sur
-        // certains boîtiers bon marché) -- ici LAYER_TYPE_SOFTWARE fait
-        // l'inverse (retire le WebView du compositeur GPU au lieu de forcer
-        // une couche dédiée) pour vérifier si ça élimine l'artefact.
-        // Limité aux boîtiers TV (DeviceType.isAndroidTv) : sur téléphone,
-        // le rendu matériel n'est pas en cause et reste préférable
-        // (fluidité/consommation) -- à retirer si le test ne change rien,
-        // ou à garder si confirmé en conditions réelles sur le boîtier.
-        //
-        // RESOLU (22/08/2026, retour utilisateur -- marquee saccade ~10 img/s
-        // sur boitier TV, cf. TODO du 20/08/2026 ci-dessus dans l'historique
-        // git) : on reprend la 2e piste envisagee plutot que de sacrifier le
-        // rendu GPU de toute la page. LAYER_TYPE_SOFTWARE supprime, le
-        // WebView reste en LAYER_TYPE_HARDWARE (comportement par defaut) sur
-        // TOUS les appareils, y compris boitier TV -- le marquee et toutes
-        // les autres animations CSS retrouvent le compositeur GPU. En
-        // echange, l'element horloge/compteur suspecte d'origine (redessine
-        // chaque seconde, cf. artefact vert du 17/08/2026) est isole sur sa
-        // propre couche de composition cote CSS (transform:translateZ(0) +
-        // backface-visibility:hidden sur #fullClockTimeVertical/Horizontal,
-        // #miniClockTimeVertical/Horizontal, #secondCounterVertical/
-        // Horizontal -- cf. custom.css, meme technique deja validee dans ce
-        // projet pour #quranPlayerOverlay, meme famille de bug pilote GPU
-        // boitier bon marche). Id exact de l'epoque (#countdownDisplayVertical,
-        // TODO ci-dessus) introuvable dans les assets actuels au moment de ce
-        // changement -- cible donc l'ensemble des elements horloge/compteur
-        // mis a jour chaque seconde plutot qu'un seul id incertain.
-        // A VERIFIER EN CONDITIONS REELLES sur boitier TV (l'artefact ne se
-        // constate qu'a l'oeil, pas via les logs) : si le petit carre/point
-        // vert revient malgre l'isolation CSS ci-dessus, revenir a
-        // LAYER_TYPE_SOFTWARE (git revert) en attendant une autre piste.
-        //
-        // PRECISION (22/08/2026, retour utilisateur : bug constate UNIQUEMENT
-        // sur boitier en mode HORIZONTAL) : #countdownDisplayVertical
-        // (mentionne plus haut) est introuvable dans les assets et un bug
-        // horizontal-only ne peut de toute facon pas venir d'un id
-        // "...Vertical" -- coupable corrige dans custom.css :
-        // #fullScreenCounterMiniClockHorizontal (mini horloge du compteur
-        // plein ecran, HORIZONTAL UNIQUEMENT, aucun equivalent Vertical).
+        // Historique du bug GPU boitier TV bon marche (17-25/08/2026) :
+        // artefact visuel (17/08) -> isolation CSS des elements horloge en
+        // LAYER_TYPE_HARDWARE partout (22/08, cf. custom.css) -> plantage
+        // pilote Mali reel decouvert le 24/08 sur le boitier 192.168.1.210
+        // (Mali-G31, page fault/hang complet du thread GPU Chromium, constate
+        // meme hors azan) -- confirme que LAYER_TYPE_SOFTWARE elimine le
+        // plantage mais plafonne le rendu a ~10 img/s (regression marquee
+        // deja identifiee le 22/08). RESOLU DEFINITIVEMENT le 25/08/2026 :
+        // plutot qu'un compromis unique pour tous les boitiers, on detecte la
+        // puce a l'execution (DeviceType.isKnownBuggyGpu, sysfs pilote Mali
+        // kbase) et on n'applique le rendu logiciel QUE sur les boitiers
+        // reellement concernes -- tous les autres gardent LAYER_TYPE_HARDWARE
+        // (comportement par defaut) sans compromis. Comportement JS du
+        // marquee (custom.js) volontairement INCHANGE sur ces boitiers --
+        // seule la saccade du defilement change (rendu logiciel), pas la
+        // logique elle-meme (retour utilisateur 25/08/2026 : le tap
+        // hadith-fixe <-> marquee-long-defilant deja existant, cote core,
+        // doit rester identique partout).
+        if (DeviceType.isKnownBuggyGpu()) {
+            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+        }
 
         // Active chrome://inspect (Chrome DevTools distant) sur ce WebView --
         // permet de brancher un vrai eval JS/console/DOM inspector via un
@@ -797,6 +807,8 @@ class MainActivity : AppCompatActivity() {
                     runOnUiThread { AppUpdateChecker.check(this, manual = true) }
                 },
                 onRemoteSilentUpdate = { runRemoteSilentUpdate() },
+                onRequestNotificationPermission = { requestNotificationPermission() },
+                onRequestBatteryOptimizationExemption = { requestIgnoreBatteryOptimizations() },
                 onOpenTvUtilityMenu = {
                     runOnUiThread { showTvUtilityMenu() }
                 },
@@ -900,26 +912,22 @@ class MainActivity : AppCompatActivity() {
             // lue côté JS via _ucLang() — cf. custom.js) plutôt que la locale
             // système, pour rester cohérent avec le reste de l'UI.
             override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
-                fetchUcLangThen { lang ->
-                    if (isFinishing || isDestroyed) { result.confirm(); return@fetchUcLangThen }
-                    AlertDialog.Builder(this@MainActivity)
-                        .setMessage(message)
-                        .setCancelable(false)
-                        .setPositiveButton(dialogLabel("ok", lang)) { _, _ -> result.confirm() }
-                        .show()
-                }
+                if (isFinishing || isDestroyed) { result.confirm(); return true }
+                AlertDialog.Builder(this@MainActivity)
+                    .setMessage(message)
+                    .setCancelable(false)
+                    .setPositiveButton(dialogLabel("ok", cachedUcLang)) { _, _ -> result.confirm() }
+                    .show()
                 return true
             }
             override fun onJsConfirm(view: WebView, url: String, message: String, result: JsResult): Boolean {
-                fetchUcLangThen { lang ->
-                    if (isFinishing || isDestroyed) { result.cancel(); return@fetchUcLangThen }
-                    AlertDialog.Builder(this@MainActivity)
-                        .setMessage(message)
-                        .setCancelable(false)
-                        .setPositiveButton(dialogLabel("ok", lang)) { _, _ -> result.confirm() }
-                        .setNegativeButton(dialogLabel("cancel", lang)) { _, _ -> result.cancel() }
-                        .show()
-                }
+                if (isFinishing || isDestroyed) { result.cancel(); return true }
+                AlertDialog.Builder(this@MainActivity)
+                    .setMessage(message)
+                    .setCancelable(false)
+                    .setPositiveButton(dialogLabel("ok", cachedUcLang)) { _, _ -> result.confirm() }
+                    .setNegativeButton(dialogLabel("cancel", cachedUcLang)) { _, _ -> result.cancel() }
+                    .show()
                 return true
             }
         }
@@ -973,6 +981,7 @@ class MainActivity : AppCompatActivity() {
             // bas du fichier) ou par le filet de securite SPLASH_FALLBACK_TIMEOUT_MS.
             override fun onPageFinished(view: WebView, url: String) {
                 isPageLoaded = true
+                refreshCachedUcLang()
                 val mid = pendingConfigSync
                 if (mid != null) {
                     pendingConfigSync = null
@@ -1112,6 +1121,13 @@ class MainActivity : AppCompatActivity() {
                 .setPositiveButton(getString(R.string.autostart_prompt_yes)) { _, _ ->
                     AutoStartPrefs.setEnabled(this, true)
                     AutoStartPrefs.markSetupAsked(this)
+                    // Moment naturel pour l'exemption batterie (25/08/2026) :
+                    // c'est le principal point d'entree reel de "demarrage
+                    // auto" sur telephone (ucAutoStartEnabled est actif par
+                    // defaut cote JS, donc la bascule des Reglages -- l'autre
+                    // declencheur, cf. _ucToggleAutoStart -- n'est vue que par
+                    // une minorite d'utilisateurs qui rouvrent ce menu).
+                    requestIgnoreBatteryOptimizations()
                 }
                 .setNegativeButton(getString(R.string.autostart_prompt_no)) { _, _ ->
                     AutoStartPrefs.setEnabled(this, false)

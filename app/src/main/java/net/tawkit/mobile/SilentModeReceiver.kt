@@ -44,8 +44,9 @@ class SilentModeReceiver : BroadcastReceiver() {
         const val REASON_BEFORE = "before"
         const val REASON_AFTER  = "after"
 
-        private const val PREFS_NAME      = "tawkit_silent_mode"
-        private const val PREFS_PREV_MODE = "prev_ringer_mode"
+        private const val PREFS_NAME         = "tawkit_silent_mode"
+        private const val PREFS_PREV_MODE    = "prev_ringer_mode"
+        private const val PREFS_KEEP_VIBRATE = "keep_vibrate"
         private const val MUTE_AFTER_NOTIFICATION_DELAY_MS = 1_500L
 
         private fun prefs(context: Context): SharedPreferences =
@@ -69,6 +70,18 @@ class SilentModeReceiver : BroadcastReceiver() {
         /** true si l'appli a au moins une fenêtre de coupure du son actuellement ouverte (toute reason confondue). */
         fun isAppSilencing(context: Context): Boolean =
             totalOpenCount(prefs(context)) > 0
+
+        /** Réglage "garder le vibreur actif pendant la coupure du son" (onglet
+         *  الإعدادات — custom.js, _ucToggleSilentModeKeepVibrate), commun aux
+         *  deux fonctionnalités (avant/après azan). Lu directement ici plutôt
+         *  que transmis par alarme : les alarmes AlarmManager peuvent se
+         *  déclencher sans que l'appli/WebView ne soit chargée. */
+        fun setKeepVibrate(context: Context, enabled: Boolean) {
+            prefs(context).edit().putBoolean(PREFS_KEEP_VIBRATE, enabled).apply()
+        }
+
+        private fun keepVibrate(context: Context): Boolean =
+            prefs(context).getBoolean(PREFS_KEEP_VIBRATE, false)
 
         /**
          * Referme les fenêtres ouvertes pour UNE seule reason et restaure
@@ -133,8 +146,10 @@ class SilentModeReceiver : BroadcastReceiver() {
                     try {
                         // La fonction a pu être désactivée pendant le délai.
                         if (totalOpenCount(sp) > 0) {
-                            am.ringerMode = AudioManager.RINGER_MODE_SILENT
-                            Log.d("TWKT", "SilentMode: MUTE ($reason, fenêtres ouvertes=$newReasonCount)")
+                            val mode = if (keepVibrate(context)) AudioManager.RINGER_MODE_VIBRATE
+                                       else AudioManager.RINGER_MODE_SILENT
+                            am.ringerMode = mode
+                            Log.d("TWKT", "SilentMode: MUTE ($reason, fenêtres ouvertes=$newReasonCount, mode=$mode)")
                         }
                     } catch (e: SecurityException) {
                         Log.e("TWKT", "SilentMode: MUTE refusé — ${e.message}")

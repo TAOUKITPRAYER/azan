@@ -1,0 +1,26 @@
+Total notre couverture (OSM 1528 + registre/approuve 16) : 1544
+mawaqit_tunisia.json (dans TN) : 512
+  deja couvertes : 46
+  gap (connues par Mawaqit, absentes chez nous) : 466
+
+--- Repartition du gap par ville (nom libre, tel que dans le champ label/address) ---
+     3  تطاوين 3200 تطاوين Tunisia
+     3  حي الأمل المتلوي 2130 المتلوي 
+     3  حي لاروكاد تبسة 12000 تبسة Alg
+     3  قالمة 24000 قالمة Algeria
+     2  Tunisie 3200 TATAOUINE Tunisia
+     2  Tataouine 3200 TATAOUINE Tunis
+     2  قرماسة تطاوين 3271 تطاوين Tuni
+     2  Ksar Daghara 3200 TATAOUINE Tu
+     2  حي المزيرعة المتلوي 2134 المتل
+     2  الحي العصري 2130 المتلوي Tunis
+     2  الحميلة قفصة 2133 قفصة Tunisia
+     2  سكانسكا تبسة 12000 تبسة Algeri
+     2  حجار السود 21000 سكيكدة Algeri
+     2  عين شرشار 21006 سكيكدة Algeria
+     2  حمام سيدي طراد 36000 الطارف Al
+     2  الطارف 36000 الطارف Algeria
+     2  Avenue Habib Bourguiba Medjez 
+     2  سيدي حسين، Tunisie 1095 سيدي ح
+     1  حقل منزل لجمات شرق MLE 33000 إ
+     1  MLE 2 30000 إليزي Algeria

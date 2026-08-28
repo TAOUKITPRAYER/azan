@@ -2,8 +2,10 @@
 <#
     instapk_mosqueadmin.ps1 — build/signature/deploiement de Mosque Admin
     (net.tawkit.mosqueadmin), l'outil perso pour approuver/refuser les
-    propositions de nouvelle mosquee dans Supabase (table
-    public.mosque_config_backups) et les promouvoir vers public.mosques.
+    propositions de nouvelle mosquee dans Supabase. Table unique
+    public.mosques depuis la consolidation du 27/08/2026 : une proposition
+    arrive en status='pending' (blob complet dans mosques.backup_json),
+    approuver = renseigner les colonnes + status='approved'.
     Miroir de release\instapk_hijriadmin.ps1, mais pour ce module separe
     (mosque-admin/).
 

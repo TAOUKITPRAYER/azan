@@ -34,9 +34,16 @@ Supabase backend         Project "tawkit.net" (id tjmjmlzwzebocfdmifrg,
                           and hijri-admin — personal-scale trust model, same
                           pattern used throughout, not hardened multi-tenant
                           auth. Tables:
-    mosques                 Per-mosque remote config (azan offsets, iqama
-                             delays, jumua/eid times...). Public read + anon
-                             insert/update.
+    mosques                 THE single mosque referential (azan offsets, iqama
+                             delays, jumua/eid times, profile, automation,
+                             quran_settings, pin_hash...) + backup_json (full
+                             config blob) + status (approved / pending proposal
+                             / rejected). Also feeds the in-app city→mosque
+                             directory. Public read + anon insert/update.
+                             Managed via the mosque-admin app. (The former
+                             mosque_config_backups table was folded into this
+                             one on 27/08/2026 — see app/src/main/assets/
+                             AGENTS.md.)
     mosque_notifications     Push notification log.
     debug_reports             In-app debug console reports (insert-only from
                              client), sent via a button in the debug console.

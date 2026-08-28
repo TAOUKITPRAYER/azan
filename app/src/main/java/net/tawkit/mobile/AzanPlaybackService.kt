@@ -10,11 +10,13 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.media.AudioAttributes
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
+import java.util.Calendar
 import androidx.core.app.NotificationCompat
 
 /**
@@ -60,6 +62,47 @@ class AzanPlaybackService : Service() {
         const val PREF_VOICE_MODE  = "voice_mode_enabled"
         const val PREF_SHORT_AZAN  = "short_azan_active"
 
+        /** Miroir natif de JS_CUSTOM.ucAzanVoiceEnabledFajr/Dohr/Assr/Mgrb/Isha
+         *  (custom.js, modale "تفعيل الأذان حسب الصلاة" -- accessible seulement
+         *  quand PREF_VOICE_MODE ci-dessus est actif). Combiné en ET avec
+         *  PREF_VOICE_MODE dans onStartCommand : celui-ci reste le garde-fou
+         *  global (désactivé, aucune prière ne peut jouer le vrai son quel que
+         *  soit ce réglage) ; ces flags permettent en plus de couper la voix
+         *  d'une prière précise sans toucher aux autres. Vrai par défaut
+         *  (getBoolean(..., true)) tant que la modale n'a jamais été ouverte. */
+        const val PREF_VOICE_FAJR    = "voice_mode_fajr"
+        const val PREF_VOICE_DHUHR   = "voice_mode_dhuhr"
+        const val PREF_VOICE_ASR     = "voice_mode_asr"
+        const val PREF_VOICE_MAGHREB = "voice_mode_maghreb"
+        const val PREF_VOICE_ISHA    = "voice_mode_isha"
+
+        private fun perPrayerVoicePrefKey(prayer: String): String? = when (prayer) {
+            "Fajr"    -> PREF_VOICE_FAJR
+            "Dhuhr"   -> PREF_VOICE_DHUHR
+            "Asr"     -> PREF_VOICE_ASR
+            "Maghreb" -> PREF_VOICE_MAGHREB
+            "Isha"    -> PREF_VOICE_ISHA
+            else      -> null
+        }
+
+        /** Miroir natif de JS_DATA.ucActivateJomoaAzan (case "أذان الجمعة") et de
+         *  l'heure de Jumu'a effectivement retenue (prayerTimesMinutesObject.DOHR
+         *  le vendredi, en minutes depuis minuit) -- synchronise a chaque
+         *  reprogrammation d'alarme (cf. MobileJsBridge.syncJumuaAzanState,
+         *  appele depuis custom.js _sendToNative). Sert au garde-fou vendredi de
+         *  onStartCommand : le vendredi, la SEULE lecture audio autorisee est
+         *  l'azan de Jumu'a a son heure planifiee. Toute alarme "Dhuhr" qui
+         *  sonne le vendredi a une autre heure (typiquement l'heure du Dhuhr
+         *  ordinaire ~12:25, laissee par une alarme programmee un jour ou
+         *  isFriday etait faux -- fallback "heure deja passee -> demain" de
+         *  scheduleSinglePrayer) est ignoree ici, sans dependre de la
+         *  reprogrammation quotidienne cote JS (qui peut ne pas encore etre
+         *  passee, ou l'appli etre restee fermee).
+         *  Defaut PREF_JUMUA_AZAN_ENABLED = false : si jamais synchronise, on
+         *  n'ouvre pas de son de Jumu'a par defaut (sens conservateur). */
+        const val PREF_JUMUA_AZAN_ENABLED  = "jumua_azan_enabled"
+        const val PREF_JUMUA_TIME_MINUTES  = "jumua_time_minutes"
+
         /** Id (catalogue azan-catalog.json) du muezzin personnalisé choisi par
          *  l'utilisateur (custom.js, _installAzanCatalogFeature), synchronise
          *  via MobileJsBridge.syncAzanCatalogSelection à chaque selection/
@@ -101,6 +144,11 @@ class AzanPlaybackService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    /** Vrai si on est vendredi (fuseau/horloge locale de l'appareil) -- utilise
+     *  par le garde-fou Jumu'a de onStartCommand. */
+    private fun isFridayNow(): Boolean =
+        Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val prayer = intent?.getStringExtra("prayer") ?: "Salat"
@@ -160,8 +208,72 @@ class AzanPlaybackService : Service() {
         val intentShortAzan = intent?.getBooleanExtra("shortAzan", false) ?: false
         val intentVoiceMode = intent?.getBooleanExtra("voiceMode", true) ?: true
         val shortAzan = prefs.getBoolean(PREF_SHORT_AZAN, intentShortAzan)
-        val voiceMode = prefs.getBoolean(PREF_VOICE_MODE, intentVoiceMode)
+        // ET avec le flag par prière (cf. PREF_VOICE_FAJR/... ci-dessus) : le
+        // switch global reste prioritaire (désactivé -> jamais de voix, quel
+        // que soit ce flag), une prière décochée dans la modale coupe la voix
+        // pour elle seule sans affecter les autres.
+        val perPrayerVoiceEnabled = perPrayerVoicePrefKey(prayer)?.let { prefs.getBoolean(it, true) } ?: true
+        val voiceMode = prefs.getBoolean(PREF_VOICE_MODE, intentVoiceMode) && perPrayerVoiceEnabled
         val fullAudioMode = voiceMode && !shortAzan
+
+        // ── Garde-fou VENDREDI ────────────────────────────────────────────────
+        // Le vendredi, la seule lecture audio autorisee est l'azan de la Jumu'a,
+        // et uniquement a son heure planifiee. Une alarme "Dhuhr" qui sonne un
+        // vendredi est soit cet azan de Jumu'a legitime, soit une alarme
+        // PERIMEE : programmee un jour ou isFriday etait faux (donc sans
+        // substitution de l'heure Jumu'a ni prise en compte de la case "أذان
+        // الجمعة"), typiquement via le fallback "heure deja passee -> demain" de
+        // MobileJsBridge.scheduleSinglePrayer, qui la fait retomber le vendredi
+        // a l'heure du Dhuhr ORDINAIRE (~12:25) et non a l'heure de la Jumu'a
+        // (~13:15). Incident declencheur : mosquee tn.monastir.aboubakr,
+        // vendredi 28/08/2026 -- azan complet joue nativement a 12:25 PENDANT la
+        // recitation du Coran d'avant-Jumu'a (auto-demarree a 12:00, coupee a
+        // 12:44), alors que la case Jumu'a etait decochee. custom.js desarme
+        // bien cette alarme a sa reprogrammation quotidienne, mais celle-ci peut
+        // ne pas encore etre passee (ou l'appli etre restee fermee) -- d'ou ce
+        // controle natif, evalue au tout dernier moment avant lecture.
+        if (prayer == "Dhuhr" && isFridayNow()) {
+            val jumuaEnabled = prefs.getBoolean(PREF_JUMUA_AZAN_ENABLED, false)
+            val jumuaMinutes = prefs.getInt(PREF_JUMUA_TIME_MINUTES, -1)
+            val firedMinutes = prayerHour * 60 + prayerMinute
+            // Tolerance 2 min : ecart d'arrondi/reglage athan entre l'heure
+            // figee dans l'alarme et l'heure Jumu'a courante. Si l'heure Jumu'a
+            // n'a jamais ete synchronisee (-1), on ne bloque que sur le flag.
+            val timeMatches = jumuaMinutes < 0 || kotlin.math.abs(firedMinutes - jumuaMinutes) <= 2
+            if (!jumuaEnabled || !timeMatches) {
+                NativeEventLog.log(
+                    this, "AZAN",
+                    "NATIVE_SKIP_JUMUA prayer=Dhuhr jumuaEnabled=$jumuaEnabled " +
+                        "firedMin=$firedMinutes jumuaMin=$jumuaMinutes"
+                )
+                stopSelfCleanly()
+                return START_NOT_STICKY
+            }
+        }
+
+        // ── Garde-fou COUPURE MANUELLE (boitier mosquee, appli au 1er plan) ───
+        // Sur un boitier de mosquee l'appli est en permanence au premier plan et
+        // l'azan "voix complete" est joue ICI (natif) meme au premier plan. On
+        // le route alors sur STREAM_MUSIC (cf. playAzan, USAGE_MEDIA quand
+        // foreground) pour qu'il suive le volume que le responsable regle a la
+        // telecommande. Corollaire : s'il a mis ce volume a 0 (coupure
+        // deliberee -- maintenance, circonstance particuliere...), l'azan ne
+        // doit PAS sortir malgre lui. Sans ce controle, l'azan sortait quand
+        // meme a fond car il partait en USAGE_ALARM sur STREAM_ALARM, un flux
+        // que la telecommande ne touche pas et que le boost pre-azan (T-2min)
+        // avait mis au maximum (incident Maghreb 27/08/2026, mosquee
+        // tn.monastir.aboubakr : volume baisse pendant fin.ogg, azan a fond).
+        // Appli en arriere-plan (telephone, ou reglages ouverts) : comportement
+        // inchange -- USAGE_ALARM, la lecture doit avoir lieu pour ne pas rater
+        // la priere.
+        if (MainActivity.isAppInForeground) {
+            val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            if (am.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
+                NativeEventLog.log(this, "AZAN", "NATIVE_SKIP_MUTED prayer=$prayer stream=music")
+                stopSelfCleanly()
+                return START_NOT_STICKY
+            }
+        }
 
         // Azan court / mode bip au premier plan : deja joue par le WebView
         // (custom.js, playAzanSoundFunction) via son propre <audio>, non
@@ -310,13 +422,13 @@ class AzanPlaybackService : Service() {
             // != 1), azan court si actif (ucShortAzanActive == 1), sinon l'azan
             // complet -- ces 2 premiers sont des fichiers CORE fixes (hors spec/,
             // jamais personnalises par mosquee, memes chemins que index.html),
-            // contrairement a audio_fajr/audio_azan qui restent personnalisables
+            // contrairement a azan_fajr.ogg/azan.ogg qui restent personnalisables
             // par mosquee (spec/audio/).
             val assetPath = when {
                 !voiceMode -> "audio/wbeeep.mp3"
                 shortAzan  -> "audio/short_azan.mp3"
-                isFajr     -> "spec/audio/audio_fajr.ogg"
-                else       -> "spec/audio/audio_azan.ogg"
+                isFajr     -> "spec/audio/azan_fajr.ogg"
+                else       -> "spec/audio/azan.ogg"
             }
 
             // Muezzin personnalise choisi dans le catalogue (custom.js,
@@ -339,10 +451,23 @@ class AzanPlaybackService : Service() {
                 }
             }
 
+            // Appli au premier plan (cas normal du boitier mosquee) : on joue
+            // sur STREAM_MUSIC (USAGE_MEDIA) pour que l'azan suive le volume que
+            // le responsable regle a la telecommande -- une baisse manuelle est
+            // alors reellement respectee (cf. garde-fou NATIVE_SKIP_MUTED dans
+            // onStartCommand). Appli en arriere-plan (telephone, appli fermee) :
+            // USAGE_ALARM comme avant, pour percer le mode silencieux/DND et ne
+            // pas rater la priere.
+            val foreground = MainActivity.isAppInForeground
+            val usage = if (foreground) AudioAttributes.USAGE_MEDIA else AudioAttributes.USAGE_ALARM
+            NativeEventLog.log(
+                this@AzanPlaybackService, "AZAN",
+                "NATIVE_AUDIO_ROUTE usage=" + (if (foreground) "media" else "alarm")
+            )
             mediaPlayer = MediaPlayer().apply {
                 setAudioAttributes(
                     AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setUsage(usage)
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                         .build()
                 )

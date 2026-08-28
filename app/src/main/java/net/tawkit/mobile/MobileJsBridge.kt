@@ -50,6 +50,17 @@ class MobileJsBridge(
     private val onCheckForUpdate: () -> Unit = {},
     /** Lance la mise à jour silencieuse déclenchée à distance (cf. startSilentAppUpdate). */
     private val onRemoteSilentUpdate: () -> Unit = {},
+    /** Demande la permission POST_NOTIFICATIONS (Android 13+) -- appelee de
+     *  facon differee sur telephone, au moment ou l'utilisateur active une
+     *  fonctionnalite qui en depend (cf. custom.js _ucToggleAzanAlert/
+     *  _ucToggleHadithReminder), plutot qu'immediatement au premier lancement.
+     *  Sans effet/deja demandee au demarrage sur boitier TV. */
+    private val onRequestNotificationPermission: () -> Unit = {},
+    /** Demande l'exemption d'optimisation batterie -- differee sur telephone
+     *  jusqu'a l'activation du demarrage automatique (cf. custom.js
+     *  _ucToggleAutoStart), qui est la seule fonctionnalite telephone en
+     *  dependant reellement. Sans effet/deja demandee au demarrage sur TV. */
+    private val onRequestBatteryOptimizationExemption: () -> Unit = {},
     /** Ouvre le menu outils TV (reglages Android / changer l'ecran d'accueil)
      *  — cf. MainActivity.showTvUtilityMenu(). Pas d'ecran de reglages
      *  accessible en mode horizontal pour proposer ces actions autrement. */
@@ -703,6 +714,19 @@ class MobileJsBridge(
     fun isSilentModeActive(): Boolean = SilentModeReceiver.isAppSilencing(context)
 
     /**
+     * Réglage "garder le vibreur actif pendant la coupure du son" (onglet
+     * الإعدادات — custom.js, _ucToggleSilentModeKeepVibrate). Commun aux deux
+     * fonctionnalités de coupure (avant/après azan) : SilentModeReceiver lit
+     * cette valeur au moment de couper, choisit RINGER_MODE_VIBRATE au lieu
+     * de RINGER_MODE_SILENT si activé. Aucune permission supplémentaire
+     * requise (même accès "Ne pas déranger" que la coupure elle-même).
+     */
+    @JavascriptInterface
+    fun setSilentModeKeepVibrate(enabled: Boolean) {
+        SilentModeReceiver.setKeepVibrate(context, enabled)
+    }
+
+    /**
      * Programme, une fois par échéance sonore (azan, récitation du Coran
      * avant l'azan, takbir avant l'azan du Maghreb -- demande explicite du
      * 14/08/2026, custom.js _ucScheduleVolumeBoostAlarms()), une alarme qui
@@ -1003,6 +1027,69 @@ class MobileJsBridge(
     }
 
     /**
+     * Miroir natif de JS_CUSTOM.ucAzanVoiceEnabledFajr/Dohr/Assr/Mgrb/Isha
+     * (custom.js, modale "تفعيل الأذان حسب الصلاة") -- même raison/garantie que
+     * syncAzanPlaybackFlags ci-dessus : AzanPlaybackService relit ces valeurs
+     * juste avant de jouer, combinées en ET avec PREF_VOICE_MODE (le switch
+     * global reste le garde-fou -- désactivé, aucune prière ne peut jouer le
+     * vrai son quel que soit ce réglage par prière).
+     */
+    @JavascriptInterface
+    fun syncAzanPerPrayerFlags(fajr: Boolean, dhuhr: Boolean, asr: Boolean, maghreb: Boolean, isha: Boolean) {
+        context.getSharedPreferences(AzanPlaybackService.PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(AzanPlaybackService.PREF_VOICE_FAJR, fajr)
+            .putBoolean(AzanPlaybackService.PREF_VOICE_DHUHR, dhuhr)
+            .putBoolean(AzanPlaybackService.PREF_VOICE_ASR, asr)
+            .putBoolean(AzanPlaybackService.PREF_VOICE_MAGHREB, maghreb)
+            .putBoolean(AzanPlaybackService.PREF_VOICE_ISHA, isha)
+            .apply()
+    }
+
+    /**
+     * Miroir natif de JS_DATA.ucActivateJomoaAzan (case "أذان الجمعة") + heure
+     * de Jumu'a effectivement retenue (minutes depuis minuit ; -1 = inconnue).
+     * Synchronise a chaque reprogrammation d'alarme (custom.js _sendToNative).
+     * AzanPlaybackService s'en sert pour son garde-fou vendredi : le vendredi,
+     * seule la lecture de l'azan de Jumu'a a son heure planifiee est autorisee
+     * -- toute alarme "Dhuhr" qui sonne le vendredi a une autre heure (alarme
+     * perimee programmee un jour ou isFriday etait faux, cf. le fallback
+     * "heure deja passee -> demain" de scheduleSinglePrayer) est ignoree, sans
+     * dependre de la reprogrammation quotidienne cote JS.
+     */
+    @JavascriptInterface
+    fun syncJumuaAzanState(jumuaAzanEnabled: Boolean, jumuaTimeMinutes: Int) {
+        context.getSharedPreferences(AzanPlaybackService.PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(AzanPlaybackService.PREF_JUMUA_AZAN_ENABLED, jumuaAzanEnabled)
+            .putInt(AzanPlaybackService.PREF_JUMUA_TIME_MINUTES, jumuaTimeMinutes)
+            .apply()
+        Log.d("TWKT", "syncJumuaAzanState: enabled=$jumuaAzanEnabled timeMin=$jumuaTimeMinutes")
+    }
+
+    /**
+     * Annule UNIQUEMENT l'alarme audio a l'heure exacte (minutesBefore=0) d'une
+     * priere, sans toucher a son rappel "N min avant". Appele depuis custom.js
+     * (_sendToNative) le vendredi quand l'azan de Jumu'a est desactive :
+     * schedulePrayerNotifications ne fait qu'ajouter/mettre a jour les entrees
+     * presentes dans son tableau, jamais annuler une entree absente -- une
+     * alarme "Dhuhr" audio deja armee (p.ex. programmee la veille pour "demain"
+     * a l'heure du Dhuhr ordinaire) resterait donc active et sonnerait le
+     * vendredi sans ce desarmement explicite.
+     */
+    @JavascriptInterface
+    fun cancelPrayerAudioAlarm(prayer: String) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, PrayerAlarmReceiver::class.java)
+        val pi = PendingIntent.getBroadcast(
+            context, requestCodeFor(prayer, 0), intent,
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+        )
+        pi?.let { alarmManager.cancel(it) }
+        Log.d("TWKT", "Cancelled exact audio alarm for $prayer")
+    }
+
+    /**
      * Miroir natif de JS_CUSTOM.ucAzanFajrSelected / ucAzanGeneralSelected
      * (custom.js, catalogue de muezzins) -- meme raison que syncAzanPlaybackFlags
      * ci-dessus : AzanPlaybackService (composant natif independant, tourne meme
@@ -1044,6 +1131,12 @@ class MobileJsBridge(
 
     @JavascriptInterface
     fun isAutoStartEnabled(): Boolean = AutoStartPrefs.isEnabled(context)
+
+    @JavascriptInterface
+    fun requestNotificationPermission() = onRequestNotificationPermission()
+
+    @JavascriptInterface
+    fun requestBatteryOptimizationExemption() = onRequestBatteryOptimizationExemption()
 
     @JavascriptInterface
     fun isAndroidTv(): Boolean = DeviceType.isAndroidTv(context)
@@ -1229,11 +1322,17 @@ class MobileJsBridge(
     fun getReciterAudioUrl(id: String, surahNum: Int): String =
         ReciterManager.getAudioUrl(context, id, surahNum)
 
-    /** Lance (ou relance) le telechargement resumable d'un recitateur (archive ZIP). */
+    /**
+     * Lance (ou relance) le telechargement resumable d'un recitateur (archive ZIP).
+     * name : nom localise du catalogue distant (custom.js, item.name) -- filet de
+     * securite si l'archive elle-meme n'embarque pas de meta.json (constate en
+     * pratique, ex. tablawi.zip), cf. ReciterDownloadWorker.finalizeDownload qui
+     * l'ecrit dans reciters/<id>/meta.json une fois l'extraction terminee.
+     */
     @JavascriptInterface
-    fun startReciterDownload(id: String, url: String): String {
+    fun startReciterDownload(id: String, url: String, name: String): String {
         return try {
-            ReciterDownloadWorker.enqueue(context, ReciterManager.sanitizeId(id), url)
+            ReciterDownloadWorker.enqueue(context, ReciterManager.sanitizeId(id), url, name)
             JSONObject().apply { put("ok", true) }.toString()
         } catch (e: Exception) {
             JSONObject().apply { put("ok", false); put("error", e.message) }.toString()
@@ -1248,8 +1347,8 @@ class MobileJsBridge(
 
     /** Reprend un telechargement mis en pause (repart de l'octet ou il s'est arrete). */
     @JavascriptInterface
-    fun resumeDownload(id: String, url: String) {
-        ReciterDownloadWorker.enqueue(context, ReciterManager.sanitizeId(id), url)
+    fun resumeDownload(id: String, url: String, name: String) {
+        ReciterDownloadWorker.enqueue(context, ReciterManager.sanitizeId(id), url, name)
     }
 
     /** Annule et supprime toute trace du telechargement (fichier partiel + progression). */

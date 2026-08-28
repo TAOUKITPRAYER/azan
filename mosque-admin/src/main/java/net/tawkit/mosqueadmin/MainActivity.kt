@@ -20,12 +20,15 @@ import java.net.URL
 import java.net.URLEncoder
 import java.security.MessageDigest
 
-// Petit outil perso : administrer les propositions de nouvelle mosquee
-// stockees dans Supabase public.mosque_config_backups (cf.
-// app/src/main/assets/spec/custom.js, _ucProposeNewMosque / _pushRemoteBackup)
-// et realiser le "pont" manquant vers public.mosques (la table que l'app
-// consulte reellement) -- approuver = creer/mettre a jour la ligne mosques
-// a partir du blob de sauvegarde ; refuser/annuler = la supprimer.
+// Petit outil perso : administrer les propositions de nouvelle mosquee.
+// Table unique public.mosques depuis la consolidation du 27/08/2026
+// (mosque_config_backups supprimee) : une proposition arrive en
+// status='pending' avec le blob complet dans mosques.backup_json (cf.
+// app/src/main/assets/spec/custom.js, _ucProposeNewMosque / _pushRemoteBackup).
+// Approuver = renseigner les colonnes structurees a partir du blob et passer
+// status='approved' ; refuser/annuler = supprimer la ligne.
+// La liste n'affiche QUE les lignes non-approuvees (file d'attente de revue) :
+// les ~1805 entrees 'approved' du catalogue Tunisie ne sont pas a revoir.
 class MainActivity : AppCompatActivity() {
 
     private val sbUrl = "https://tjmjmlzwzebocfdmifrg.supabase.co"
@@ -126,13 +129,13 @@ class MainActivity : AppCompatActivity() {
         listContainer.removeAllViews()
         httpRequest(
             "GET",
-            "/rest/v1/mosque_config_backups?select=mosque_id,mosque_name,location_code,status,updated_at&order=status.asc,updated_at.desc"
+            "/rest/v1/mosques?status=neq.approved&select=mosque_id,mosque_name,location_code,status,updated_at&order=status.asc,updated_at.desc"
         ) { code, body ->
             if (code in 200..299) {
                 try {
                     val arr = JSONArray(body)
                     if (arr.length() == 0) {
-                        txtGlobalStatus.text = "Aucune mosquee dans mosque_config_backups."
+                        txtGlobalStatus.text = "Aucune proposition en attente."
                     } else {
                         txtGlobalStatus.text = "${arr.length()} mosquee(s)."
                         for (i in 0 until arr.length()) {
@@ -200,7 +203,7 @@ class MainActivity : AppCompatActivity() {
     // ── Detail ────────────────────────────────────────────────────────────
     private fun loadDetail(mosqueId: String) {
         txtGlobalStatus.text = "Chargement du detail..."
-        httpRequest("GET", "/rest/v1/mosque_config_backups?mosque_id=eq.${enc(mosqueId)}&select=*") { code, body ->
+        httpRequest("GET", "/rest/v1/mosques?mosque_id=eq.${enc(mosqueId)}&select=*") { code, body ->
             if (code in 200..299) {
                 try {
                     val arr = JSONArray(body)
@@ -303,11 +306,10 @@ class MainActivity : AppCompatActivity() {
         val quranEnabled = jsCustom.optInt("ucStartQuranBeforeAzan", 0) == 1
         addDetailRow("Coran avant azan", if (quranEnabled) "active" else "desactive")
 
-        // ── Profil / coordonnees (JS_DATA_CUSTOM, cf. custom.js
-        //    _installMosqueInfoModal -- ucMPE* dans _finishSelectMosque) :
-        //    purement informatif, ces champs n'ont pas de colonne dans
-        //    public.mosques (aucune n'existe pour l'instant) -- affiches ici
-        //    pour revue admin, jamais envoyes lors de l'approbation.
+        // ── Profil / coordonnees : lus depuis le blob (JS_DATA_CUSTOM) pour la
+        //    revue admin. La ligne mosques porte deja profile/image_url
+        //    (ecrits par _pushRemoteBackup a la proposition) -- l'approbation
+        //    ne les renvoie pas, merge-duplicates les conserve.
         addDetailTitle("Profil de la mosquee")
         val address = jsCustom.optString("ucMosqueAddress", "")
         addDetailRow("Adresse", address.ifEmpty { "-" })
@@ -340,7 +342,7 @@ class MainActivity : AppCompatActivity() {
             btnCancel.setOnClickListener {
                 confirmDialog(
                     "Annuler l'approbation ?",
-                    "$name sera retiree de mosques ET de mosque_config_backups."
+                    "$name sera supprimee de la table mosques."
                 ) { cancelApproval(mosqueId) }
             }
         } else {
@@ -352,7 +354,7 @@ class MainActivity : AppCompatActivity() {
             btnReject.setOnClickListener {
                 confirmDialog(
                     "Refuser cette proposition ?",
-                    "$name sera supprimee de mosque_config_backups."
+                    "$name (proposition en attente) sera supprimee de la table mosques."
                 ) { rejectProposal(mosqueId) }
             }
         }
@@ -539,14 +541,15 @@ class MainActivity : AppCompatActivity() {
         return payload
     }
 
-    // ── Approuver : ecrit/upsert public.mosques puis passe le backup a
-    //    status=approved ─────────────────────────────────────────────────
+    // ── Approuver : renseigne les colonnes structurees de la ligne mosques
+    //    (upsert merge-duplicates) et passe status='approved'. backup_json /
+    //    profile / image_url deja presents sur la ligne (proposition) sont
+    //    conserves (colonnes absentes du payload). ─────────────────────────
     private fun approveMosque(
         row: JSONObject, jsData: JSONObject, jsCustom: JSONObject,
         city: String, country: String, lat: Double?, lon: Double?,
         onDone: (Boolean, String) -> Unit
     ) {
-        val mosqueId = row.optString("mosque_id", "")
         val payload = try {
             buildMosquesPayload(row, jsData, jsCustom, city, country, lat, lon)
         } catch (e: Exception) {
@@ -559,43 +562,19 @@ class MainActivity : AppCompatActivity() {
             JSONArray().put(payload).toString(),
             mapOf("Prefer" to "resolution=merge-duplicates,return=minimal")
         ) { code, body ->
-            if (code in 200..299) {
-                httpRequest(
-                    "PATCH",
-                    "/rest/v1/mosque_config_backups?mosque_id=eq.${enc(mosqueId)}",
-                    JSONObject().put("status", "approved").toString(),
-                    mapOf("Prefer" to "return=minimal")
-                ) { code2, body2 ->
-                    if (code2 in 200..299) onDone(true, "")
-                    else onDone(false, "mosques ecrit, mais maj statut echouee ($code2) : $body2")
-                }
-            } else {
-                onDone(false, "Erreur ecriture mosques ($code) : $body")
-            }
+            if (code in 200..299) onDone(true, "")
+            else onDone(false, "Erreur ecriture mosques ($code) : $body")
         }
     }
 
-    // ── Refuser (proposition en attente, jamais promue) ─────────────────────
-    private fun rejectProposal(mosqueId: String) {
-        txtGlobalStatus.text = "Suppression..."
-        httpRequest(
-            "DELETE",
-            "/rest/v1/mosque_config_backups?mosque_id=eq.${enc(mosqueId)}",
-            null,
-            mapOf("Prefer" to "return=minimal")
-        ) { code, body ->
-            if (code in 200..299) {
-                showList()
-                loadList()
-            } else {
-                txtGlobalStatus.text = "Erreur suppression ($code) : $body"
-            }
-        }
-    }
+    // ── Refuser (proposition en attente) / Annuler une approbation :
+    //    supprime la ligne mosques. ───────────────────────────────────────
+    private fun rejectProposal(mosqueId: String) = deleteMosque(mosqueId, "Suppression...")
 
-    // ── Annuler une approbation (retire mosques + mosque_config_backups) ──
-    private fun cancelApproval(mosqueId: String) {
-        txtGlobalStatus.text = "Annulation..."
+    private fun cancelApproval(mosqueId: String) = deleteMosque(mosqueId, "Annulation...")
+
+    private fun deleteMosque(mosqueId: String, progress: String) {
+        txtGlobalStatus.text = progress
         httpRequest(
             "DELETE",
             "/rest/v1/mosques?mosque_id=eq.${enc(mosqueId)}",
@@ -603,19 +582,8 @@ class MainActivity : AppCompatActivity() {
             mapOf("Prefer" to "return=minimal")
         ) { code, body ->
             if (code in 200..299) {
-                httpRequest(
-                    "DELETE",
-                    "/rest/v1/mosque_config_backups?mosque_id=eq.${enc(mosqueId)}",
-                    null,
-                    mapOf("Prefer" to "return=minimal")
-                ) { code2, body2 ->
-                    if (code2 in 200..299) {
-                        showList()
-                        loadList()
-                    } else {
-                        txtGlobalStatus.text = "mosques supprime, mais backup non supprime ($code2) : $body2"
-                    }
-                }
+                showList()
+                loadList()
             } else {
                 txtGlobalStatus.text = "Erreur suppression mosques ($code) : $body"
             }
