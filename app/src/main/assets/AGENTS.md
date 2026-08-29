@@ -105,6 +105,27 @@ in `#ucRASharedPin` directly under the mosque-name display and above the tab bar
 when switching tabs). `_sendRemoteAction` and `_submit` both read
 `#ucRAActionsPin`.
 
+### Mosque profile editor — PIN gate + targeted sync (v14.16)
+
+`ucMosqueProfileEditBtn` (✏️ in the mosque-info modal) opens `_openMosqueProfileEdit`.
+Editable when `_mosqueProfileCanEdit()` = **anonymous mosque** (no PIN — a
+proposal in progress) **OR** `window._ucAdminUnlocked` (the 🔒 admin unlock,
+PIN-gated, persisted per-mosque in `localStorage.UC_ADMIN_UNLOCKED_FOR` until
+mosque change / reset).
+
+- **The gate now lives INSIDE `_openMosqueProfileEdit()`**, not only on the
+  button's visibility — because `window._ucOpenMosqueProfileEdit` is called
+  directly by the smart assistant (and the "Propose a mosque" flow), which
+  bypassed the button. Known mosque + locked → `_ucOpenAdminUnlockOverlay(cb)`
+  (now takes an `onUnlock` callback) → PIN → editor re-opens.
+- **Save → `_autoPushProfileIfRealMosque()` does a TARGETED `PATCH`** of
+  `profile` / `image_url` / `mosque_name` only (known mosque; anonymous pushes
+  nothing). It no longer calls `_ucPushRemoteBackup` (the whole local blob) — a
+  phone editing the profile can't clobber `backup_json` / schedule columns
+  anymore. On a box the v14.14 auto-export still refreshes `backup_json`
+  afterward (box = source of truth). No schedule column touched → no notify.
+  Traced `CFG PROFILE_PATCH_SEND/OK/ERR`.
+
 ## _applyMosqueConfig() — Auto-reload on First Install
 
 When `MOSQUE_CONFIG.VERSION` differs from the stored version in `JS_DATA_CUSTOM`:
