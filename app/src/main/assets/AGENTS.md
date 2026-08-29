@@ -68,6 +68,43 @@ custom.js reads/writes only `mosques`: `_fetchRemoteListByCity` &
 `_pushRemoteBackup` (single upsert: identity + profile + image + `backup_json`,
 `status='pending'` only for a proposal), `_ucSyncFromSupabase` (`select=*`).
 
+### `on_mosque_update` trigger — visible "prayer times updated" notification
+
+`AFTER UPDATE ON mosques` → `supabase_functions.http_request` → `rapid-service`
+(webhook mode) → OneSignal visible push "Prayer times updated" to every
+subscriber of that mosque. Since migration
+`mosque_update_notify_only_on_schedule_change` (29/08/2026) it carries a **`WHEN`
+clause**: it fires **only** when a schedule column actually changes
+(`azan_offsets`, `iqama_delay`, `iqama_fixed`, `jumua`, `eid`, `time_flags`,
+`primary_azan`, `dohr_before_asr_min`, `quran_settings`). A write that touches
+only `backup_json` / `profile` / `automation` / `mosque_name` / `image_url` no
+longer spams subscribers. `updated_at` (via `trg_mosques_updated_at`) still
+bumps on every write, so the 18 s polling sync is unaffected.
+
+### Auto-export of `backup_json` after a remote edit (box only)
+
+`rapid-service` (mode `remote_config_update`) PATCHes only the structured
+schedule columns — never `backup_json`. So after an imam edits times/Quran
+delays from their phone, the box's `backup_json` blob would go stale (a later
+"Import config → Distant" or directory re-selection would restore old times).
+`_installAutoExportAfterRemoteEdit` (`custom.js`, box only) fixes this: when the
+box applies a remotely-received change (`ucConfigSync` listener /
+`_installRemoteConfigPolling` set `localStorage.UC_PENDING_AUTO_EXPORT`), the
+**next** page load (right after `_applyRow`'s reload) calls `_ucPushRemoteBackup`
+to re-persist the full blob. Anti-reload-loop: that write bumps `updated_at`
+without touching schedule columns → no notification (WHEN clause above) and
+`_installRemoteConfigPolling` skips it (`UC_SELF_WRITE_INFLIGHT` +
+`UC_SELF_WRITE_UPDATED_AT` guards). Traced as `SYNC AUTO_EXPORT_ARMED/START/OK/
+ERR/SKIP`.
+
+### Shared PIN field (`_installRemoteMosqueAdmin`)
+
+Both tabs (Actions + Settings) share **one** PIN input, `#ucRAActionsPin`, placed
+in `#ucRASharedPin` directly under the mosque-name display and above the tab bar
+(was two separate fields `#ucRAActionsPin` / `#ucRAPin` that had to be retyped
+when switching tabs). `_sendRemoteAction` and `_submit` both read
+`#ucRAActionsPin`.
+
 ## _applyMosqueConfig() — Auto-reload on First Install
 
 When `MOSQUE_CONFIG.VERSION` differs from the stored version in `JS_DATA_CUSTOM`:
