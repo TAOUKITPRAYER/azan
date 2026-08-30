@@ -130,12 +130,22 @@ class MainActivity : AppCompatActivity() {
          * normalement. Sans effet si aucune instance vivante ou page pas encore
          * chargee (fallback : la reprogrammation quotidienne UC_EVT.AZAN_TIME
          * reste le seul filet, comme avant ce correctif).
+         *
+         * Depuis v14.20 : appelle en priorite window._ucOnSystemTimeChanged (cf.
+         * custom.js), qui force D'ABORD le recalcul complet des horaires du coeur
+         * (calculateAndDisplayTimesFunction + updateTimeAndPrayersFunction) PUIS
+         * reprogramme -- sinon la repro nativie repartait des horaires perimes du
+         * coeur (calcules pendant la fenetre d'horloge fausse au boot ; incident
+         * box aboubakr 30/08/2026, "fenetre morte" de ~40 min ou aucune
+         * automatisation pre-azan ne se declenchait). Repli sur l'ancien appel
+         * si la nouvelle fonction n'est pas exposee (ancienne version JS).
          */
         fun rescheduleNativeAzanAlarmsIfReady() {
             val activity = instanceRef?.get() ?: return
             if (!activity.isPageLoaded) return
             activity.webView.evaluateJavascript(
-                "if (window._ucRescheduleNativeAzanAlarms) window._ucRescheduleNativeAzanAlarms();",
+                "if (window._ucOnSystemTimeChanged) window._ucOnSystemTimeChanged();" +
+                    " else if (window._ucRescheduleNativeAzanAlarms) window._ucRescheduleNativeAzanAlarms();",
                 null
             )
         }
