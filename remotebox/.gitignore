@@ -1,3 +1,7 @@
 .gradle/
 build/
 *.log
+
+# Config/token export for machine-to-machine transfer — contains the
+# Tailscale API token in clear text, never commit.
+remotebox-config.zip
