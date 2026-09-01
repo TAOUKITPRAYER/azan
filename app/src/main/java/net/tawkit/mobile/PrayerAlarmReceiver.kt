@@ -16,6 +16,16 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
          *  considérée périmée (rattrapage suite à horloge figée) et ignorée
          *  plutôt que rejouée en retard. */
         private const val STALE_ALARM_THRESHOLD_MS = 10 * 60 * 1000L
+
+        /** ID FIXE (pas prayer.hashCode()) : une nouvelle alerte "N min avant"
+         *  (prière suivante) REMPLACE celle encore affichée pour la prière
+         *  précédente au lieu de s'empiler dans le volet à côté d'elle. Sur
+         *  toute une journée, sans ce fix, jusqu'à 5 notifications "azan_alert"
+         *  (une par prière non balayée) restaient visibles en même temps —
+         *  retour utilisateur 01/09/2026. Même principe côté SilentModeReceiver
+         *  / HadithAlarmReceiver (id fixe par tag, cf. leurs commentaires).
+         */
+        private const val NOTIF_ID = 9101
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -137,7 +147,8 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
             .build()
 
         // Le tag sépare cette alerte des notifications MUTE/RESTORE de la
-        // même prière. Elle reste dans le volet jusqu'au clic ou au balayage.
-        nm.notify("azan_alert", prayer.hashCode(), notification)
+        // même prière. ID fixe (pas prayer.hashCode()) : remplace l'alerte
+        // encore affichée pour la prière précédente au lieu de s'y ajouter.
+        nm.notify("azan_alert", NOTIF_ID, notification)
     }
 }

@@ -915,6 +915,49 @@ class MobileJsBridge(
     }
 
     /**
+     * Pose le tag OneSignal mosque_admin_<id> (sanitizé) = "1". Posé UNIQUEMENT
+     * sur les téléphones dont le PIN d'administration à distance a été validé
+     * côté serveur (cf. custom.js _ucArmMosqueAdminPush, appelé après un 200 de
+     * rapid-service dans _sendRemoteAction / _submit). Plusieurs téléphones
+     * admin par mosquée sont supportés — le filtre OneSignal correspondant
+     * (rapid-service mode "light_watchdog_alert") les cible tous.
+     *
+     * Sert au ciblage EXCLUSIF des alertes de surveillance des modules Shelly
+     * (box → admin) : contrairement à mosque_sub_<id> (tous les fidèles
+     * abonnés), ce tag ne touche que les responsables.
+     *
+     * Même sanitisation que addMosqueSubscriptionTag / sanitizeMosqueId côté
+     * Edge Function — DOIT rester identique pour que les filtres correspondent.
+     *
+     *   if (window.AndroidMobile) window.AndroidMobile.addMosqueAdminTag("tn.monastir.aboubakr");
+     */
+    @JavascriptInterface
+    fun addMosqueAdminTag(mosqueId: String) {
+        if (mosqueId.isNotBlank()) {
+            val sanitized = mosqueId.replace(Regex("[^a-zA-Z0-9_]"), "_")
+            OneSignal.User.addTag("mosque_admin_$sanitized", "1")
+            Log.d("TWKT", "OneSignal tag mosque_admin_$sanitized = 1")
+        }
+    }
+
+    /**
+     * Retire le tag OneSignal mosque_admin_<id> (sanitizé). Appelé depuis
+     * custom.js (_installOneSignalMosqueAdminTag) quand l'armement admin d'une
+     * mosquée a expiré (TTL 90 j sans nouvelle validation de PIN) — symétrique
+     * de addMosqueAdminTag(). Nettoyage idempotent.
+     *
+     *   if (window.AndroidMobile) window.AndroidMobile.removeMosqueAdminTag("tn.monastir.aboubakr");
+     */
+    @JavascriptInterface
+    fun removeMosqueAdminTag(mosqueId: String) {
+        if (mosqueId.isNotBlank()) {
+            val sanitized = mosqueId.replace(Regex("[^a-zA-Z0-9_]"), "_")
+            OneSignal.User.removeTag("mosque_admin_$sanitized")
+            Log.d("TWKT", "OneSignal tag mosque_admin_$sanitized retiré")
+        }
+    }
+
+    /**
      * Check if running inside the Android app (callable from JS for feature detection).
      */
     @JavascriptInterface

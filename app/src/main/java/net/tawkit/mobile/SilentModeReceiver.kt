@@ -49,6 +49,16 @@ class SilentModeReceiver : BroadcastReceiver() {
         private const val PREFS_KEEP_VIBRATE = "keep_vibrate"
         private const val MUTE_AFTER_NOTIFICATION_DELAY_MS = 1_500L
 
+        /** IDs FIXES (pas prayer.hashCode()) : la notification MUTE/RESTORE de
+         *  la prière courante remplace celle de la prière précédente au lieu
+         *  de s'empiler dans le volet — même fix que PrayerAlarmReceiver.NOTIF_ID
+         *  (retour utilisateur 01/09/2026). Deux constantes distinctes (tags
+         *  déjà distincts "silent_mute"/"silent_restore", donc pas de collision
+         *  possible même avec la même valeur, mais séparées pour la lisibilité).
+         */
+        private const val NOTIF_ID_MUTE    = 9102
+        private const val NOTIF_ID_RESTORE = 9103
+
         private fun prefs(context: Context): SharedPreferences =
             context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
@@ -227,8 +237,11 @@ class SilentModeReceiver : BroadcastReceiver() {
             .setVibrate(longArrayOf(0, 300, 150, 300))
             .build()
 
-        // Les tags distincts permettent aux trois types de coexister.
+        // Les tags distincts permettent aux deux types de coexister. ID fixe
+        // par tag (pas prayer.hashCode()) : remplace la notification encore
+        // affichée pour la prière précédente au lieu de s'y ajouter.
         val tag = if (isRestore) "silent_restore" else "silent_mute"
-        nm.notify(tag, prayer.hashCode(), notification)
+        val id  = if (isRestore) NOTIF_ID_RESTORE else NOTIF_ID_MUTE
+        nm.notify(tag, id, notification)
     }
 }

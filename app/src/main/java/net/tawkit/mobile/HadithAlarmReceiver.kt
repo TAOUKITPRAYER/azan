@@ -29,6 +29,14 @@ import androidx.core.app.NotificationCompat
  */
 class HadithAlarmReceiver : BroadcastReceiver() {
 
+    companion object {
+        /** ID FIXE (pas prayer.hashCode()) : le rappel hadith de la prière
+         *  courante remplace celui de la prière précédente au lieu de
+         *  s'empiler dans le volet — même fix que PrayerAlarmReceiver.NOTIF_ID
+         *  (retour utilisateur 01/09/2026). */
+        private const val NOTIF_ID = 9104
+    }
+
     override fun onReceive(context: Context, intent: Intent) {
         val prayer        = intent.getStringExtra("prayer") ?: "Salat"
         val arabicName    = intent.getStringExtra("arabicName") ?: prayer
@@ -69,6 +77,8 @@ class HadithAlarmReceiver : BroadcastReceiver() {
 
         // Tag dedie : coexiste sans jamais remplacer azan_alert (rappel "N min
         // avant") ni les notifications AzanPlaybackService pour la meme priere.
-        nm.notify("hadith_reminder", prayer.hashCode(), notification)
+        // ID fixe (pas prayer.hashCode()) : remplace le rappel hadith encore
+        // affiche pour la priere precedente au lieu de s'y ajouter.
+        nm.notify("hadith_reminder", NOTIF_ID, notification)
     }
 }
