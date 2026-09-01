@@ -19,6 +19,9 @@ public final class TailscaleCli {
 
     private final AppConfig cfg;
 
+    /** LoginName (email) of the account this machine is currently authenticated as, set by the last {@link #list()}. */
+    public volatile String currentAccount = "";
+
     public TailscaleCli(AppConfig cfg) {
         this.cfg = cfg;
     }
@@ -45,6 +48,9 @@ public final class TailscaleCli {
             Device d = fromNode(self, users);
             d.self = true;
             out.add(d);
+            currentAccount = users.getOrDefault(self.path("UserID").asText(""), "");
+        } else {
+            currentAccount = "";
         }
         JsonNode peers = root.path("Peer");
         for (Iterator<String> it = peers.fieldNames(); it.hasNext(); ) {

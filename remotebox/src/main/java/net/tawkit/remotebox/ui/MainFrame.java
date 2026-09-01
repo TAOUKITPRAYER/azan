@@ -26,6 +26,7 @@ public class MainFrame extends JFrame {
     private final DeviceTableModel model = new DeviceTableModel();
     private final JTable table = new JTable(model);
     private final JLabel status = new JLabel(" ");
+    private final JLabel accountStatus = new JLabel(" ");
     private final JTextArea console = new JTextArea(7, 20);
     private final JButton refreshButton = new JButton("Rafraîchir");
     private Timer autoRefresh;
@@ -103,7 +104,25 @@ public class MainFrame extends JFrame {
         JPanel p = new JPanel(new BorderLayout());
         p.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
         p.add(status, BorderLayout.WEST);
+        p.add(accountStatus, BorderLayout.EAST);
         return p;
+    }
+
+    /** Met à jour la pastille "compte Tailscale" du dashboard : vert = conforme, orange = écart, gris = non configuré. */
+    private void updateAccountStatus() {
+        String expected = cfg.tailscaleAccount == null ? "" : cfg.tailscaleAccount.trim();
+        String current = deviceService.currentAccount == null ? "" : deviceService.currentAccount.trim();
+        if (expected.isBlank()) {
+            accountStatus.setForeground(new Color(0x8B949E));
+            accountStatus.setText(current.isBlank() ? "Compte Tailscale : —" : "Compte Tailscale : " + current);
+        } else if (expected.equalsIgnoreCase(current)) {
+            accountStatus.setForeground(new Color(0x3FB950));
+            accountStatus.setText("✔ Compte Tailscale : " + current);
+        } else {
+            accountStatus.setForeground(new Color(0xD29922));
+            accountStatus.setText("⚠ Compte Tailscale : " + (current.isBlank() ? "déconnecté" : current)
+                    + " (attendu " + expected + ")");
+        }
     }
 
     private void installTable() {
@@ -186,6 +205,7 @@ public class MainFrame extends JFrame {
                 status.setText(model.getRowCount() + " machines — maj " + stamp
                         + (w != null ? "   ⚠ " + w : ""));
                 if (w != null) log("⚠ " + w);
+                updateAccountStatus();
                 updateStatusForSelection();
             }
 
@@ -285,7 +305,7 @@ public class MainFrame extends JFrame {
     }
 
     private void openSettings() {
-        SettingsDialog dlg = new SettingsDialog(this, cfg);
+        SettingsDialog dlg = new SettingsDialog(this, cfg, this::log);
         dlg.setVisible(true);
         if (dlg.isSaved()) {
             App.applyTheme(cfg);

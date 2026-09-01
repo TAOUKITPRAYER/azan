@@ -15,13 +15,18 @@ public final class DeviceService {
     /** Non-fatal warning from the last refresh (e.g. API token rejected), or null. */
     public volatile String lastWarning;
 
+    /** LoginName (email) of the account this machine is currently authenticated as, from the last refresh. */
+    public volatile String currentAccount = "";
+
     public DeviceService(AppConfig cfg) {
         this.cfg = cfg;
     }
 
     public List<Device> refresh() throws Exception {
         lastWarning = null;
-        List<Device> devices = new TailscaleCli(cfg).list();
+        TailscaleCli cli = new TailscaleCli(cfg);
+        List<Device> devices = cli.list();
+        currentAccount = cli.currentAccount;
 
         TailscaleApi api = new TailscaleApi(cfg);
         if (api.configured()) {

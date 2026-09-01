@@ -2,17 +2,22 @@ package net.tawkit.remotebox.ui;
 
 import net.tawkit.remotebox.config.AppConfig;
 import net.tawkit.remotebox.config.ConfigStore;
+import net.tawkit.remotebox.tailscale.TailscaleAuth;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.function.Consumer;
 
 class SettingsDialog extends JDialog {
 
     private boolean saved = false;
 
-    SettingsDialog(Window owner, AppConfig cfg) {
+    SettingsDialog(Window owner, AppConfig cfg, Consumer<String> logSink) {
         super(owner, "Réglages", ModalityType.APPLICATION_MODAL);
 
+        String previousAccount = cfg.tailscaleAccount;
+
+        JTextField account = new JTextField(cfg.tailscaleAccount, 24);
         JTextArea token = new JTextArea(cfg.tailscaleApiToken, 3, 40);
         token.setLineWrap(true);
         JTextField tailnet = new JTextField(cfg.tailnet, 24);
@@ -31,6 +36,9 @@ class SettingsDialog extends JDialog {
         g.fill = GridBagConstraints.HORIZONTAL;
         int[] y = {0};
 
+        addRow(form, g, y, "Compte Tailscale attendu", account,
+                "Ex. tawkit.net@gmail.com — affiché sur le dashboard avec état de validation. "
+                        + "Le changer ici déclenche une reconnexion (logout + login, lien ouvert dans le navigateur).");
         addRow(form, g, y, "Token API Tailscale", new JScrollPane(token),
                 "Onglet Keys de l'admin console → Generate access token. Sans token, l'app fonctionne quand même via le CLI local.");
         addRow(form, g, y, "Tailnet", tailnet, "\"-\" = tailnet par défaut du token (ex. tawkit.net@gmail.com).");
@@ -43,6 +51,8 @@ class SettingsDialog extends JDialog {
         JButton ok = new JButton("Enregistrer");
         JButton cancel = new JButton("Annuler");
         ok.addActionListener(e -> {
+            String newAccount = account.getText().trim();
+            cfg.tailscaleAccount = newAccount;
             cfg.tailscaleApiToken = token.getText().trim();
             cfg.tailnet = tailnet.getText().trim().isEmpty() ? "-" : tailnet.getText().trim();
             cfg.tailscalePath = tsPath.getText().trim();
@@ -53,6 +63,22 @@ class SettingsDialog extends JDialog {
             ConfigStore.save(cfg);
             saved = true;
             dispose();
+
+            boolean changed = !newAccount.equalsIgnoreCase(previousAccount == null ? "" : previousAccount.trim());
+            if (changed && !newAccount.isBlank()) {
+                int choice = JOptionPane.showConfirmDialog(owner,
+                        "Compte Tailscale attendu changé pour :\n" + newAccount
+                                + "\n\nSe reconnecter maintenant avec ce compte ? "
+                                + "Cela déconnecte l'appareil du compte actuel et ouvre le lien "
+                                + "d'autorisation dans le navigateur.",
+                        "Ré-authentification Tailscale",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (choice == JOptionPane.YES_OPTION) {
+                    logSink.accept("");
+                    logSink.accept("=== Ré-authentification Tailscale → " + newAccount + " ===");
+                    TailscaleAuth.reauth(cfg, logSink);
+                }
+            }
         });
         cancel.addActionListener(e -> dispose());
 
