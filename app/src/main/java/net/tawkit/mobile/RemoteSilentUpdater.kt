@@ -29,12 +29,17 @@ object RemoteSilentUpdater {
         val totalBytes: Long = 0
     )
 
-    // APK ~80 Mo : budget large avant d'abandonner le polling -- porté de 120s
-    // à 600s le 31/07/2026 (box mediouni) après avoir constaté un débit reel
-    // trop faible sur cette connexion pour finir le telechargement en 2 min
-    // (le telechargement natif lui-meme a ses propres retries/backoff, cf.
-    // AppUpdateDownloader -- ce polling ne fait qu'attendre son issue).
-    private const val MAX_POLL_SECONDS = 600
+    // APK ~96 Mo : budget large avant d'abandonner le polling. Porté de 120s
+    // -> 600s le 31/07/2026 (box mediouni), puis -> 3600s le 08/09/2026 :
+    // depuis que AppUpdateDownloader reprend via Range (partiel conservé,
+    // retry/backoff internes), un téléchargement sur lien très faible (KM22 :
+    // Wi-Fi mosquée + Tailscale DERP ~15-35 Ko/s -> ~45-90 min pour 96 Mo)
+    // peut légitimement aboutir bien au-delà de 10 min. On borne quand même
+    // (1 h) et on abandonne plus tôt si AUCUN octet ne progresse pendant
+    // STALL_GIVEUP_SECONDS (lien réellement mort -- en principe
+    // AppUpdateDownloader passe STATUS_FAILED avant, ceci n'est qu'un filet).
+    private const val MAX_POLL_SECONDS = 3600
+    private const val STALL_GIVEUP_SECONDS = 300
 
     suspend fun run(context: Context, onProgress: ((Progress) -> Unit)? = null): Outcome {
         // AUCUN onProgress avant d'avoir confirmé qu'une mise à jour existe
@@ -67,6 +72,8 @@ object RemoteSilentUpdater {
         // atteint en quelques secondes seulement, timeout 120s jamais approché.
         var lastReason = -1
         var lastStatus = -1
+        var lastBytes = -1L
+        var stalledSeconds = 0
         while (!terminal && waited < MAX_POLL_SECONDS) {
             delay(1000)
             waited++
@@ -77,6 +84,15 @@ object RemoteSilentUpdater {
                 DownloadManager.STATUS_SUCCESSFUL -> { terminal = true; ok = true }
                 DownloadManager.STATUS_FAILED     -> terminal = true
                 else -> {
+                    // Abandon anticipé si le téléchargement ne progresse plus du
+                    // tout (le retry/Range d'AppUpdateDownloader devrait déjà
+                    // avoir rendu STATUS_FAILED avant, ceci n'est qu'un filet).
+                    if (progress.bytesDownloaded > lastBytes) {
+                        lastBytes = progress.bytesDownloaded
+                        stalledSeconds = 0
+                    } else if (++stalledSeconds >= STALL_GIVEUP_SECONDS) {
+                        terminal = true
+                    }
                     // Throttle à chaque palier de 1% -- évite d'inonder le dialogue
                     // natif et le rapport Supabase (appelé jusqu'à 1x/s sinon).
                     if (progress.totalBytes > 0) {
