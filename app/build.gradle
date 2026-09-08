@@ -11,8 +11,8 @@ android {
         applicationId = "net.tawkit.mobile"
         minSdk = 23
         targetSdk = 34
-        versionCode = 231
-        versionName = "14.40"
+        versionCode = 232
+        versionName = "14.41"
     }
 
     buildTypes {
