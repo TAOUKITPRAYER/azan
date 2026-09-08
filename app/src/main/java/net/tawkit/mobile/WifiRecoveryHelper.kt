@@ -258,16 +258,53 @@ object WifiRecoveryHelper {
                 ?.firstOrNull { it.isNotEmpty() && !it.contains(":") }   // IPv4 en priorite, plus lisible
                 ?: linkProps?.linkAddresses?.firstOrNull()?.address?.hostAddress ?: ""
 
+            // IP locale (LAN) ET IP VPN, separement. `ip` ci-dessus vient du
+            // reseau ACTIF (cm.activeNetwork), qui est le reseau VPN quand
+            // Tailscale est monte -> on n'y voit alors que le 100.x. On
+            // enumere les interfaces pour recuperer les deux : wlan0/eth0 =
+            // lanIp (ex. 192.168.1.45), tun* = vpnIp (ex. 100.102.212.70).
+            var lanIp = ""
+            var vpnIp = ""
+            try {
+                val ifaces = java.net.NetworkInterface.getNetworkInterfaces()
+                while (ifaces.hasMoreElements()) {
+                    val nif = ifaces.nextElement()
+                    if (!nif.isUp || nif.isLoopback) continue
+                    val name = nif.name ?: ""
+                    val addrs = nif.inetAddresses
+                    while (addrs.hasMoreElements()) {
+                        val addr = addrs.nextElement()
+                        if (addr.isLoopbackAddress || addr is java.net.Inet6Address) continue
+                        val host = addr.hostAddress ?: continue
+                        when {
+                            name.startsWith("tun") || name.startsWith("ppp") ||
+                                name.startsWith("nordlynx") || name.startsWith("wg") ->
+                                    if (vpnIp.isEmpty()) vpnIp = host
+                            name.startsWith("wlan") || name.startsWith("eth") ||
+                                name.startsWith("rmnet") || name.startsWith("ap") ->
+                                    if (lanIp.isEmpty()) lanIp = host
+                            else -> if (lanIp.isEmpty()) lanIp = host
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("TWKT", "WifiRecoveryHelper: getNetworkInfo iface enum error: ${e.message}")
+            }
+
             result.put("connected", connected)
             result.put("type", type)
             result.put("ssid", ssid)
             result.put("ip", ip)
+            result.put("lanIp", lanIp)
+            result.put("vpnIp", vpnIp)
         } catch (e: Exception) {
             Log.e("TWKT", "WifiRecoveryHelper: getNetworkInfo error: ${e.message}")
             result.put("connected", false)
             result.put("type", "none")
             result.put("ssid", "")
             result.put("ip", "")
+            result.put("lanIp", "")
+            result.put("vpnIp", "")
         }
         return result.toString()
     }
