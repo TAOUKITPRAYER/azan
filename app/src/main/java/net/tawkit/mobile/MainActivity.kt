@@ -740,8 +740,15 @@ class MainActivity : AppCompatActivity() {
         // logique elle-meme (retour utilisateur 25/08/2026 : le tap
         // hadith-fixe <-> marquee-long-defilant deja existant, cote core,
         // doit rester identique partout).
-        if (DeviceType.isKnownBuggyGpu()) {
+        if (DeviceType.isKnownBuggyGpu(this)) {
             webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+            if (GpuRecovery.shouldForceSoftware(this)) {
+                // Rendu logiciel impose par l'auto-apprentissage (le compositeur
+                // a gele et le watchdog a du redemarrer le process >= 2 fois),
+                // pas par la liste de puces ni un setprop -- trace utile au
+                // prochain diagnostic a distance.
+                Log.w("TWKT", "WebView -> SOFTWARE layer (GpuRecovery auto-fallback latched)")
+            }
         }
 
         // Active chrome://inspect (Chrome DevTools distant) sur ce WebView --

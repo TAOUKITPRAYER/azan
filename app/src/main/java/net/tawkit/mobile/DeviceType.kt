@@ -61,26 +61,33 @@ object DeviceType {
             .invoke(null, key) as? String ?: ""
     } catch (e: Exception) { "" }
 
-    // Surcharges manuelles (posees par adb sur un boitier precis, cf.
-    // z6-aboubaker : `setprop persist.tawkit.gpu_hw_ok 1`) :
-    //   persist.tawkit.gpu_hw_ok = 1  -> FORCE le rendu GPU (LAYER_TYPE_HARDWARE)
-    //     meme sur un Mali-G31. Certaines revisions firmware/pilote (ex. Allwinner
-    //     H618 Mali-G31 r0p0, pilote r20p0) n'ont PAS le hang JOB_READ_FAULT du
-    //     X96Q_PRO1 (H616) -- verifie stable en soak + cycle azan complet le
-    //     28/08/2026, gain marquee 200ms -> 29ms/frame. A poser uniquement apres
-    //     verification sur CE boitier.
-    //   persist.tawkit.gpu_force_sw = 1 -> FORCE le rendu logiciel (echappatoire
-    //     si un boitier hors Mali-G31 montre le meme hang).
-    private val overrideCache: Boolean? by lazy {
-        when {
-            sysProp("persist.tawkit.gpu_force_sw") == "1" -> true
-            sysProp("persist.tawkit.gpu_hw_ok")    == "1" -> false
-            else -> null
-        }
-    }
+    // Ordre de decision de isKnownBuggyGpu(context) ci-dessous :
+    //
+    //   1. persist.tawkit.gpu_force_sw = 1  (adb, echappatoire manuelle)
+    //        -> FORCE le rendu logiciel, quel que soit le GPU.
+    //   2. GpuRecovery.shouldForceSoftware(context)  (auto-apprentissage)
+    //        -> le compositeur a deja gele plusieurs fois sur CE boitier et le
+    //           watchdog a du redemarrer le process : on se rabat sur le rendu
+    //           logiciel tout seul, sans intervention adb. Sticky.
+    //   3. persist.tawkit.gpu_hw_ok = 1  (adb, cf. z6-aboubaker)
+    //        -> FORCE le rendu GPU (LAYER_TYPE_HARDWARE) meme sur un Mali-G31.
+    //           Certaines revisions firmware/pilote n'ont pas le hang du
+    //           X96Q_PRO1 (H616). A poser uniquement apres verification soak
+    //           sur CE boitier -- et le point 2 peut quand meme reprendre la
+    //           main si le materiel finit par lacher (le latch GpuRecovery
+    //           l'emporte volontairement sur ce flag).
+    //   4. sinon : liste de puces connues instables (Mali-G31).
+    private fun manualForceSoftware(): Boolean = sysProp("persist.tawkit.gpu_force_sw") == "1"
+    private fun manualForceHardware(): Boolean = sysProp("persist.tawkit.gpu_hw_ok") == "1"
 
-    // Resultat mis en cache (lazy, un seul acces disque par process) : appele
-    // a la fois par MainActivity.setupWebView() et par MobileJsBridge cote JS
-    // (custom.js, mode marquee fige), doit rester bon marche a chaque appel.
-    fun isKnownBuggyGpu(): Boolean = overrideCache ?: knownBuggyGpuCache
+    // Appele par MainActivity.setupWebView(). Doit rester bon marche : les
+    // sysProp sont des appels reflechis legers, knownBuggyGpuCache est lazy
+    // (un seul acces disque /sys par process), et GpuRecovery lit un
+    // SharedPreferences deja monte.
+    fun isKnownBuggyGpu(context: Context): Boolean = when {
+        manualForceSoftware() -> true
+        GpuRecovery.shouldForceSoftware(context) -> true
+        manualForceHardware() -> false
+        else -> knownBuggyGpuCache
+    }
 }

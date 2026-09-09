@@ -215,6 +215,33 @@ class MobileJsBridge(
         NativeEventLog.log(context, tag, text)
     }
 
+    /**
+     * Auto-reparation d'un gel du compositeur WebView : redemarre REELLEMENT
+     * le process (cf. GpuRecovery). Appele par le watchdog anti-gel de
+     * custom.js (_installRepaintWatchdog) UNIQUEMENT apres qu'un
+     * location.reload() n'a pas degele l'ecran -- le contexte GL perdu qui
+     * cause ce gel survit au reload (meme process de rendu), seul un kill du
+     * process le nettoie.
+     *
+     * Cote appelant : boitier uniquement (le watchdog est deja garde par
+     * isAndroidTv()). GpuRecovery porte tous les garde-fous de frequence
+     * (cooldown 90 s, plafond par fenetre, latch rendu logiciel) -- ce point
+     * d'entree reste un simple relais. Lance sur un thread dedie : ni le kill
+     * ni AlarmManager n'ont besoin du thread JS-bridge, et on evite tout
+     * risque d'ANR si le systeme repond lentement.
+     */
+    @JavascriptInterface
+    fun requestGpuRecoveryRestart(reason: String) {
+        val safe = reason.take(80).ifBlank { "unspecified" }
+        Thread {
+            try {
+                GpuRecovery.requestRestart(context, safe)
+            } catch (e: Exception) {
+                Log.e("TWKT", "requestGpuRecoveryRestart failed: ${e.message}")
+            }
+        }.start()
+    }
+
     /** Ecran de demarrage natif : avancement 0-100 du chargement JS. */
     @JavascriptInterface
     fun reportLoadProgress(percent: Int) {
