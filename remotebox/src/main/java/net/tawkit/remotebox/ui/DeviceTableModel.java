@@ -54,8 +54,8 @@ class DeviceTableModel extends AbstractTableModel {
             case COL_OS -> d.os;
             case COL_VERSION -> versionCell(d);
             case COL_LASTSEEN -> switch (d.reachability()) {
-                case 2 -> "en ligne";
-                case 1 -> "actif (" + ago(d.lastHandshake != null ? d.lastHandshake : d.lastSeen) + ")";
+                case 2 -> "actif (" + ago(d.lastHandshake != null ? d.lastHandshake : d.lastSeen) + ")";
+                case 1 -> "en ligne";
                 default -> ago(d.lastSeen);
             };
             case COL_TRAFFIC -> traffic(d);
@@ -67,8 +67,9 @@ class DeviceTableModel extends AbstractTableModel {
     /** Tooltip explaining the status dot. */
     String statusTooltip(Device d) {
         return switch (d.reachability()) {
-            case 2 -> "En ligne (plan de contrôle Tailscale)";
-            case 1 -> "Tunnel actif / handshake récent — joignable même si le plan de contrôle est en retard";
+            case 2 -> "Joignable maintenant (trafic actif / handshake WireGuard récent)";
+            case 1 -> "En ligne côté Tailscale, mais pas de connexion confirmée depuis ce poste — "
+                    + "la box était inactive, le 1ᵉʳ essai (adb/scrcpy) peut réveiller le tunnel et échouer une fois avant de passer";
             default -> "Aucun signe de vie" + (d.lastSeen != null ? " — vu il y a " + ago(d.lastSeen) : "");
         };
     }

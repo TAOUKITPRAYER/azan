@@ -12,6 +12,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -161,6 +163,24 @@ public class MainFrame extends JFrame {
             launchScrcpy(d);
         });
 
+        // Double-clic sur une ligne = même effet que le bouton de la colonne Action (lancer scrcpy).
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() != 2 || !SwingUtilities.isLeftMouseButton(e)) return;
+                int viewRow = table.rowAtPoint(e.getPoint());
+                if (viewRow < 0) return;
+                if (table.columnAtPoint(e.getPoint())
+                        == table.convertColumnIndexToView(DeviceTableModel.COL_ACTION)) {
+                    return; // la cellule-bouton s'en charge déjà (éviter un double lancement)
+                }
+                if (table.isEditing()) table.getCellEditor().cancelCellEditing();
+                Device d = model.deviceAt(table.convertRowIndexToModel(viewRow));
+                log("Double-clic sur « " + d.displayName() + " »");
+                launchScrcpy(d);
+            }
+        });
+
         table.getSelectionModel().addListSelectionListener(e -> updateStatusForSelection());
     }
 
@@ -275,12 +295,37 @@ public class MainFrame extends JFrame {
 
     private void openShell(Device d) {
         BoxProfile p = profiles.get(d.key());
-        try {
-            scrcpyService.openAdbShell(d, p);
-            log("adb shell ouvert pour " + d.displayName() + ".");
-        } catch (Exception ex) {
-            log("ERREUR adb shell : " + ex.getMessage());
-        }
+        log("");
+        log("=== adb shell → " + d.displayName() + " (" + d.tailscaleIp + ") ===");
+        // adb connect vers une box Tailscale inactive depuis un moment peut nécessiter quelques
+        // tentatives (cf. ScrcpyService.connectAdb) — hors EDT pour ne pas geler la fenêtre.
+        new SwingWorker<Void, String>() {
+            Exception error;
+
+            @Override
+            protected Void doInBackground() {
+                try {
+                    scrcpyService.openAdbShell(d, p, this::publish);
+                } catch (Exception ex) {
+                    error = ex;
+                }
+                return null;
+            }
+
+            @Override
+            protected void process(List<String> chunks) {
+                chunks.forEach(MainFrame.this::log);
+            }
+
+            @Override
+            protected void done() {
+                if (error != null) {
+                    log("ERREUR adb shell : " + error.getMessage());
+                } else {
+                    log("adb shell ouvert pour " + d.displayName() + ".");
+                }
+            }
+        }.execute();
     }
 
     private void editProfile(Device d) {

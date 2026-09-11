@@ -24,6 +24,17 @@ public final class ScrcpyService {
     /** Max seconds to watch a freshly-started scrcpy for a success or failure marker. */
     private static final int WATCH_SECONDS = 18;
 
+    /**
+     * `adb connect` to a Tailscale peer that has been idle for a while routinely fails on the
+     * FIRST attempt: adb gives up after its own short internal timeout, well before Tailscale has
+     * finished waking up the path (direct NAT traversal or DERP relay) to that peer — confirmed in
+     * practice on 100.102.212.70 (RemoteBox showed it "online", `tailscale ping`/ICMP both timed
+     * out, yet a plain retried `adb connect` a few seconds later succeeded and a real shell round
+     * -tripped). A prompt retry is enough; no need to wait out a full new negotiation each time.
+     */
+    private static final int ADB_CONNECT_ATTEMPTS = 4;
+    private static final long ADB_CONNECT_RETRY_DELAY_MS = 2000;
+
     private final AppConfig cfg;
 
     public ScrcpyService(AppConfig cfg) {
@@ -63,18 +74,8 @@ public final class ScrcpyService {
         if (d.tailscaleIp == null || d.tailscaleIp.isBlank()) {
             throw new IllegalStateException("Pas d'adresse Tailscale pour " + d.displayName());
         }
-        String target = adbTarget(d, p);
-
         if (p.autoAdbConnect) {
-            List<String> connect = List.of(Tools.adb(cfg), "connect", target);
-            log.accept("$ " + String.join(" ", connect));
-            ProcessRunner.Result r = ProcessRunner.run(connect, 20);
-            String msg = (r.stdout() + r.stderr()).trim();
-            log.accept(msg.isEmpty() ? "(adb: pas de sortie)" : msg);
-            String low = msg.toLowerCase();
-            if (low.contains("cannot connect") || low.contains("failed to connect") || low.contains("unable to connect")) {
-                throw new IllegalStateException("adb connect a échoué pour " + target + " : " + msg);
-            }
+            connectAdb(d, p, log);
         }
 
         boolean pinnedEncoder = p.scrcpyArgs.stream().anyMatch(a -> a.startsWith("--video-encoder="));
@@ -106,6 +107,34 @@ public final class ScrcpyService {
                 + (encoderError
                     ? "Erreur d'encodage vidéo ; ce profil force déjà un encodeur — édite-le (Profil scrcpy…)."
                     : lastMeaningfulLine(w.output)));
+    }
+
+    /**
+     * `adb connect`, retried a few times a couple seconds apart — see {@link #ADB_CONNECT_ATTEMPTS}.
+     * Treats "already connected to ..." as success (adb's own idempotent-connect message).
+     */
+    private void connectAdb(Device d, BoxProfile p, Consumer<String> log) throws Exception {
+        String target = adbTarget(d, p);
+        List<String> connect = List.of(Tools.adb(cfg), "connect", target);
+        String lastMsg = "";
+        for (int attempt = 1; attempt <= ADB_CONNECT_ATTEMPTS; attempt++) {
+            log.accept("$ " + String.join(" ", connect)
+                    + (attempt > 1 ? "  (tentative " + attempt + "/" + ADB_CONNECT_ATTEMPTS + ")" : ""));
+            ProcessRunner.Result r = ProcessRunner.run(connect, 20);
+            lastMsg = (r.stdout() + r.stderr()).trim();
+            log.accept(lastMsg.isEmpty() ? "(adb: pas de sortie)" : lastMsg);
+            String low = lastMsg.toLowerCase();
+            boolean failed = low.contains("cannot connect") || low.contains("failed to connect") || low.contains("unable to connect");
+            if (!failed) return;
+            if (attempt < ADB_CONNECT_ATTEMPTS) {
+                log.accept("⚠ adb connect a échoué — nouvelle tentative dans "
+                        + (ADB_CONNECT_RETRY_DELAY_MS / 1000) + " s (le tunnel Tailscale vers une box "
+                        + "inactive depuis un moment met parfois un instant à se réveiller)…");
+                Thread.sleep(ADB_CONNECT_RETRY_DELAY_MS);
+            }
+        }
+        throw new IllegalStateException("adb connect a échoué pour " + target + " après "
+                + ADB_CONNECT_ATTEMPTS + " tentatives : " + lastMsg);
     }
 
     private static final class Watch {
@@ -202,10 +231,10 @@ public final class ScrcpyService {
         return last.isEmpty() ? "Voir le journal ci-dessus." : last;
     }
 
-    /** `adb -s target shell` in a new console window (Windows). */
-    public void openAdbShell(Device d, BoxProfile p) throws Exception {
+    /** `adb -s target shell` in a new console window (Windows). {@code log} may be a no-op. */
+    public void openAdbShell(Device d, BoxProfile p, Consumer<String> log) throws Exception {
+        connectAdb(d, p, log);
         String target = adbTarget(d, p);
-        ProcessRunner.run(List.of(Tools.adb(cfg), "connect", target), 20);
         List<String> cmd = List.of("cmd", "/c", "start", "\"" + d.displayName() + " adb shell\"",
                 Tools.adb(cfg), "-s", target, "shell");
         ProcessRunner.spawn(cmd);

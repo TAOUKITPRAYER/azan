@@ -66,13 +66,23 @@ public class Device {
     }
 
     /**
-     * Practical "can I reach it now?" state, three levels:
-     * 2 = online per control plane, 1 = tunnel active / just handshook (control plane may lag),
-     * 0 = no sign of life.
+     * Practical "can I reach it now?" state, three levels. `online` is the Tailscale CONTROL
+     * PLANE's view ("this peer's tailscaled has checked in with the coordinator recently") — it
+     * says nothing about whether THIS machine currently has a live path to it. A peer idle for a
+     * while (no direct route yet negotiated, or DERP-relayed) can show `online=true` here while
+     * `adb connect` / `tailscale ping` / plain ICMP from this machine time out, because the very
+     * first packet has to wake up NAT traversal or the DERP relay — confirmed in practice on an
+     * Android box (100.102.212.70): RemoteBox showed solid green, ping and `tailscale ping` both
+     * timed out, yet a retried `adb connect` moments later succeeded. So a confirmed live signal
+     * from THIS side (recent WireGuard handshake / active traffic) outranks the control-plane flag:
+     * 2 = active traffic or a handshake in the last 3 min — reachable right now,
+     * 1 = online per control plane only, no confirmed live path from here yet — the box is up, but
+     *     the first connection attempt may need a moment/a retry to wake the tunnel,
+     * 0 = no sign of life at all.
      */
     public int reachability() {
-        if (online) return 2;
-        if (active || recentHandshake()) return 1;
+        if (active || recentHandshake()) return 2;
+        if (online) return 1;
         return 0;
     }
 }

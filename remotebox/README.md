@@ -66,21 +66,37 @@ personnel, comme le reste du repo).
 
 | Pastille | Sens |
 |----------|------|
-| ● vert   | En ligne selon le plan de contrôle Tailscale (`Online`) |
-| ◐ ambre  | `Online=false` **mais** tunnel actif / handshake WireGuard < 3 min → **joignable quand même** |
+| ● vert   | Trafic actif ou handshake WireGuard < 3 min → **joignable maintenant, prouvé depuis ce poste** |
+| ◐ ambre  | En ligne selon le plan de contrôle Tailscale (`Online`), mais sans preuve de connexion récente depuis ce poste |
 | ○ gris   | Aucun signe de vie |
 
-L'état ambre existe parce que le client Tailscale **Android** de ces box
-signale souvent `Online=false` au plan de contrôle alors que le tunnel
-fonctionne (c'est le cas de `z6-aboubaker-ksibet`). Après un lancement scrcpy
-réussi, la liste se rafraîchit automatiquement ; sinon rafraîchissement toutes
-les 30 s (configurable) + bouton **Rafraîchir**.
+Le vert exige une preuve locale (handshake/trafic), pas seulement le plan de
+contrôle — `Online` dit juste que le tailscaled de la box a fait un check-in
+récent, pas qu'*elle est joignable depuis cette machine maintenant*. Deux cas
+concrets qui ont motivé ce choix :
+- `z6-aboubaker-ksibet` : le client Tailscale **Android** signale souvent
+  `Online=false` alors que le tunnel fonctionne très bien → passe quand même en
+  vert grâce au handshake récent (prioritaire sur `Online`).
+- `x96qmaxpro-youssef` : `Online=true` (donc vert avant ce correctif) alors que
+  la box était inactive depuis un moment — `tailscale ping`/ping ICMP
+  timeoutaient, et le premier `adb connect` échouait, le temps que Tailscale
+  réveille la route (NAT direct ou relais DERP). Passe maintenant en **ambre**
+  tant qu'aucune connexion réelle n'a été prouvée depuis ce poste — plus
+  honnête qu'un vert qui peut planter au premier essai.
+
+Le bouton `▶ scrcpy` / `adb shell` retente `adb connect` automatiquement
+(jusqu'à 4 fois, ~2 s d'écart) avant d'abandonner — un ambre qui refuse de se
+connecter au premier essai passe généralement au deuxième ou troisième.
+
+Après un lancement scrcpy réussi, la liste se rafraîchit automatiquement ;
+sinon rafraîchissement toutes les 30 s (configurable) + bouton **Rafraîchir**.
 
 ## Utilisation
 
 - La liste se rafraîchit au démarrage puis toutes les 60 s (configurable).
-- **Bouton `▶ scrcpy`** sur chaque ligne Android : fait `adb connect <ip>:5555`
-  puis lance scrcpy avec le profil de la box.
+- **Bouton `▶ scrcpy`** sur chaque ligne Android (ou **double-clic sur la
+  ligne**) : fait `adb connect <ip>:5555` puis lance scrcpy avec le profil de
+  la box.
 - Barre d'outils sur la sélection : `▶ scrcpy`, `adb shell`, `Profil scrcpy…`
   (éditeur d'arguments avec préréglages matériel / logiciel), `Copier la commande`.
 - Le journal en bas montre les commandes exécutées et leur sortie.
