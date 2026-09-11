@@ -409,6 +409,7 @@ class MobileJsBridge(
                     data = android.net.Uri.parse("package:" + context.packageName)
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
+                MainActivity.expectSystemHandoff()
                 context.startActivity(intent)
             } catch (e: Exception) {
                 Log.e("TWKT", "requestScheduleExactAlarmPermission failed: ${e.message}")
@@ -858,6 +859,7 @@ class MobileJsBridge(
             val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
+            MainActivity.expectSystemHandoff()
             context.startActivity(intent)
         } catch (e: Exception) {
             Log.e("TWKT", "requestDndAccess failed: ${e.message}")
@@ -878,6 +880,7 @@ class MobileJsBridge(
                 data = android.net.Uri.parse("package:" + context.packageName)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
+            MainActivity.expectSystemHandoff()
             context.startActivity(intent)
         } catch (e: Exception) {
             Log.e("TWKT", "openAppSettings failed: ${e.message}")
@@ -1551,6 +1554,7 @@ class MobileJsBridge(
             val chooser = Intent.createChooser(sendIntent, title).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
+            MainActivity.expectSystemHandoff()
             context.startActivity(chooser)
         } catch (e: Exception) {
             Log.e("TWKT", "shareText failed: ${e.message}")

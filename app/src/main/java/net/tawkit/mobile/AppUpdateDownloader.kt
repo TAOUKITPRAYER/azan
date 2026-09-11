@@ -469,6 +469,10 @@ object AppUpdateDownloader {
             setDataAndType(apkUri, "application/vnd.android.package-archive")
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
+        // L'installateur systeme va occuper le premier plan potentiellement
+        // longtemps (l'utilisateur doit confirmer) -- ne doit pas etre
+        // combattu par le watchdog "kiosque" TV (cf. MainActivity.onStop()).
+        MainActivity.expectSystemHandoff(graceMs = 5 * 60_000L)
         context.startActivity(installIntent)
     }
 }

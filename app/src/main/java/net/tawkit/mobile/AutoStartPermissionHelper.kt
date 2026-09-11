@@ -48,6 +48,7 @@ object AutoStartPermissionHelper {
                     component = ComponentName(vendor.pkg, vendor.cls)
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
+                MainActivity.expectSystemHandoff()
                 context.startActivity(intent)
                 return true
             } catch (e: Exception) {
@@ -63,6 +64,7 @@ object AutoStartPermissionHelper {
                 data = Uri.fromParts("package", context.packageName, null)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
+            MainActivity.expectSystemHandoff()
             context.startActivity(intent)
             true
         } catch (e: ActivityNotFoundException) {

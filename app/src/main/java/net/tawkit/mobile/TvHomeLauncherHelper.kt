@@ -112,6 +112,11 @@ object TvHomeLauncherHelper {
      *  l'utilisateur vers le bouton Accueil de la telecommande. */
     fun openHomeAppPicker(context: Context) {
         try {
+            // Cet ecran systeme fait passer MainActivity en arriere-plan
+            // deliberement -- ne doit pas reveiller le watchdog "kiosque" TV
+            // (cf. MainActivity.onStop()/expectSystemHandoff), sinon Tawkit se
+            // rouvrirait par-dessus le selecteur quelques secondes plus tard.
+            MainActivity.expectSystemHandoff()
             context.startActivity(
                 Intent(Settings.ACTION_HOME_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )

@@ -2,6 +2,7 @@ package net.tawkit.mobile
 
 import android.app.UiModeManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import java.io.File
@@ -23,7 +24,28 @@ object DeviceType {
         val uiModeIsTv = uiModeManager?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
         val hasLeanback = pm.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
         val noTouchscreen = !pm.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)
-        return uiModeIsTv || hasLeanback || noTouchscreen
+        // 4e signal (ajoute 11/09/2026, boitier aboubakr Z6/"Oranth") : ce
+        // boitier declare FEATURE_TOUCHSCREEN=true (flag ROM generique copie
+        // d'une base telephone, alors qu'il n'y a physiquement aucun
+        // digitiseur) ET pas de FEATURE_LEANBACK ET un UI mode pas TELEVISION
+        // -- les 3 signaux existants se trompaient donc tous a la fois sur ce
+        // boitier reel, DeviceType.isAndroidTv() renvoyait false et TOUTES les
+        // protections TV (mode kiosque onStop, relance TV au boot, reassert
+        // launcher d'accueil...) restaient inactives, laissant ce boitier se
+        // comporter comme un telephone. Absence de batterie est en revanche
+        // une verite materielle que ces ROMs generiques ne "trichent" pas --
+        // aucun boitier mural mosquee n'a de batterie, tout telephone/tablette
+        // en a une (meme les rares tablettes "toujours branchees" en
+        // rapportent une, juste chargee a 100%).
+        val noBattery = try {
+            val batteryStatus = context.registerReceiver(
+                null, android.content.IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            )
+            batteryStatus?.getBooleanExtra(android.os.BatteryManager.EXTRA_PRESENT, true) == false
+        } catch (e: Exception) {
+            false // signal indisponible -> ne penalise pas les 3 autres, comme avant
+        }
+        return uiModeIsTv || hasLeanback || noTouchscreen || noBattery
     }
 
     // Chemin standard du pilote noyau ARM Mali "kbase" (Midgard/Bifrost),

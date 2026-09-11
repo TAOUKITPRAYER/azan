@@ -122,6 +122,15 @@
             </intent-filter>
         </receiver>
 
+        <!-- "Mode kiosque" boitier TV : rattrapage arme par MainActivity.onStop()
+             si l'appli quitte le premier plan de facon inattendue, cf.
+             AppForegroundWatchdogReceiver.kt. Jamais declenche via intent-filter,
+             uniquement via PendingIntent explicite (AlarmManager) : pas besoin
+             d'action declaree ici. -->
+        <receiver
+            android:name=".AppForegroundWatchdogReceiver"
+            android:exported="false" />
+
         <!-- Diagnostic (11/08/2026) : journalise chaque correction de l'horloge
              systeme (ex. synchro NTP au demarrage), cf. TimeChangeReceiver.
              Ne reprogramme rien pour l'instant, sert a confirmer l'hypothese

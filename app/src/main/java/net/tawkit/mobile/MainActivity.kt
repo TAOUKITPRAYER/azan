@@ -149,6 +149,37 @@ class MainActivity : AppCompatActivity() {
                 null
             )
         }
+
+        /**
+         * Horodatage (System.currentTimeMillis) jusqu'auquel un onStop() de
+         * MainActivity doit etre considere comme une navigation ATTENDUE
+         * (nous-memes ouvrons un ecran systeme : Parametres, selecteur
+         * d'accueil TV, chooser de fichier/partage, installateur d'APK...) et
+         * ne doit donc PAS reveiller AppForegroundWatchdogReceiver ci-dessous.
+         * Sans ce garde-fou, le watchdog "kiosque" (cf. onStop()) rouvrirait
+         * Tawkit PAR-DESSUS ces ecrans systeme quelques secondes apres les
+         * avoir ouverts nous-memes -- notamment un aller-retour infini avec
+         * TvHomeLauncherHelper.openHomeAppPicker() (cf. maybeReassertTvHomeLauncher).
+         *
+         * @Volatile : ecrit depuis le thread UI d'un appel JS bridge
+         * (MobileJsBridge tourne sur le thread WebView/UI), lu depuis onStop()
+         * qui tourne toujours sur le thread UI aussi -- volatile par prudence
+         * si ce contrat changeait un jour, cout nul.
+         */
+        @Volatile
+        private var expectSystemHandoffUntil = 0L
+
+        /** A appeler juste AVANT tout startActivity()/ActivityResultLauncher.launch()
+         *  qui va delibbrement faire passer Tawkit en arriere-plan (ecran systeme,
+         *  chooser, installateur...) -- cf. expectSystemHandoffUntil ci-dessus.
+         *  graceMs genereux (les ecrans systeme les plus lents -- selecteur
+         *  d'accueil TV, installateur de paquet -- peuvent rester ouverts un
+         *  moment si l'utilisateur hesite) ; sans consequence si trop long : le
+         *  watchdog ne fait rien tant qu'on est dans cette fenetre, et
+         *  onResume() la neutralise de toute facon des le retour reel. */
+        fun expectSystemHandoff(graceMs: Long = 60_000L) {
+            expectSystemHandoffUntil = System.currentTimeMillis() + graceMs
+        }
     }
 
     private lateinit var webView: WebView
@@ -403,6 +434,7 @@ class MainActivity : AppCompatActivity() {
                             .setNegativeButton("Annuler", null)
                             .setNeutralButton("Paramètres Android") { _, _ ->
                                 try {
+                                    expectSystemHandoff()
                                     startActivity(
                                         Intent(Settings.ACTION_SETTINGS)
                                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -818,7 +850,7 @@ class MainActivity : AppCompatActivity() {
         webView.addJavascriptInterface(
             MobileJsBridge(
                 this,
-                onRequestImport = { importTreeLauncher.launch(null) },
+                onRequestImport = { expectSystemHandoff(); importTreeLauncher.launch(null) },
                 onSetKeepScreenOn = { enabled -> setKeepScreenOn(enabled) },
                 onCheckForUpdate = {
                     runOnUiThread { AppUpdateChecker.check(this, manual = true) }
@@ -832,6 +864,7 @@ class MainActivity : AppCompatActivity() {
                 onSetAutoDailyUpdate = { enabled, hour, minute -> setAutoDailyUpdateEnabled(enabled, hour, minute) },
                 onPickCustomAzanFile = { groupKey ->
                     pendingCustomAzanGroup = groupKey
+                    expectSystemHandoff()
                     pickAudioLauncher.launch(arrayOf("audio/mpeg", "audio/ogg", "audio/mp4", "audio/x-wav", "audio/*"))
                 },
                 onReportLoadProgress = { percent ->
@@ -887,6 +920,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 return try {
+                    expectSystemHandoff()
                     fileChooserLauncher.launch(chooser)
                     true
                 } catch (e: Exception) {
@@ -917,6 +951,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     pendingGeoOrigin = origin
                     pendingGeoCallback = callback
+                    expectSystemHandoff()
                     locationPermLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                 }
             }
@@ -964,6 +999,7 @@ class MainActivity : AppCompatActivity() {
                     "http", "https", "file", "about", "data", "blob" -> return false
                 }
                 return try {
+                    expectSystemHandoff()
                     startActivity(Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                     true
                 } catch (e: Exception) {
@@ -1218,6 +1254,7 @@ class MainActivity : AppCompatActivity() {
             .setItems(items) { _, which ->
                 when (which) {
                     0 -> try {
+                        expectSystemHandoff()
                         startActivity(Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                     } catch (e: Exception) {
                         Log.e("TWKT", "ACTION_SETTINGS unavailable: ${e.message}")
@@ -1250,6 +1287,7 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED) {
+                expectSystemHandoff()
                 notifPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
@@ -1270,6 +1308,7 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
                 data = Uri.parse("package:$packageName")
             }
+            expectSystemHandoff()
             startActivity(intent)
         } catch (e: Exception) {
             Log.e("TWKT", "requestIgnoreBatteryOptimizations failed: ${e.message}")
@@ -1289,6 +1328,12 @@ class MainActivity : AppCompatActivity() {
         NativeEventLog.log(this, "AZAN", "APP_RESUME")
         maybeTriggerJsResync()
         maybeReassertTvHomeLauncher()
+        // On est de retour au premier plan par un moyen ou un autre (nous-memes
+        // ou le watchdog) -- neutralise toute fenetre de tolerance restante et
+        // annule un rattrapage deja programme (cf. onStop()) pour ne pas
+        // rappeler MainActivity inutilement quelques secondes apres coup.
+        expectSystemHandoffUntil = 0L
+        AppForegroundWatchdogReceiver.cancel(this)
     }
 
     /**
@@ -1362,6 +1407,55 @@ class MainActivity : AppCompatActivity() {
         webView.pauseTimers()
         pausedAtMs = System.currentTimeMillis()
         NativeEventLog.log(this, "AZAN", "APP_PAUSE")
+        maybeArmForegroundWatchdog()
+    }
+
+    /**
+     * "Mode kiosque" boitier TV : Tawkit ne doit JAMAIS rester en arriere-plan
+     * (ecran mural d'affichage continu des horaires -- pas un usage telephone
+     * ou l'utilisateur navigue volontairement entre apps).
+     *
+     * Arme depuis onPause() plutot que onStop() : constate en conditions
+     * reelles (11/09/2026, boitier aboubakr Z6/"Oranth") que le launcher
+     * constructeur de ce ROM (com.oranth.tvlauncher, y compris son propre
+     * ecran Parametres) declare ses ecrans systeme translucent=true --
+     * Android considere alors l'Activity en dessous (Tawkit) toujours
+     * "visible" (juste PAUSED, jamais STOPPED) tant qu'un tel ecran reste au
+     * premier plan, meme si a l'oeil Tawkit n'est plus du tout ce que
+     * l'utilisateur voit/pilote. onStop() ne se declenchait donc JAMAIS dans
+     * ce cas -- confirme par dumpsys activity activities (Task Tawkit
+     * "visible=true" en permanence) et par le journal natif persistant
+     * (aucune entree APP_STOP alors que l'ecran Parametres restait ouvert
+     * plusieurs minutes). onPause(), en revanche, se declenche de façon
+     * fiable des que Tawkit perd le focus resume -- exactement le signal
+     * dont on a besoin ici, et deja utilise ailleurs (isAppInForeground,
+     * AzanPlaybackService) pour la meme raison.
+     *
+     * Repose sur le meme mecanisme deja eprouve que BootReceiver
+     * (AlarmManager.setExactAndAllowWhileIdle -- exemption BAL accordee car
+     * declenche par AlarmManagerService, pas depuis notre propre process, cf.
+     * commentaire detaille dans BootReceiver.kt) ; relaye par
+     * AppForegroundWatchdogReceiver plutot qu'un PendingIntent direct pour
+     * pouvoir revrifier isAppInForeground au moment ou l'alarme se declenche
+     * (l'utilisateur/le systeme peut tres bien etre revenu de lui-meme entre
+     * temps) plutot que de rouvrir Tawkit en aveugle.
+     *
+     * Ne s'applique jamais sur telephone (usage normal = l'appli passe en
+     * arriere-plan constamment), ni pendant une navigation deliberement
+     * ouverte par Tawkit lui-meme vers un ecran systeme (cf.
+     * expectSystemHandoff -- Parametres, selecteur d'accueil TV, chooser de
+     * fichier/partage, installateur d'APK...).
+     */
+    private fun maybeArmForegroundWatchdog() {
+        if (isSilentBoot) return
+        if (!DeviceType.isAndroidTv(this)) return
+        if (System.currentTimeMillis() < expectSystemHandoffUntil) {
+            Log.d("TWKT", "onPause (TV) — system handoff attendu, watchdog non arme")
+            return
+        }
+        Log.d("TWKT", "onPause (TV) — sortie de premier plan inattendue, armement du watchdog")
+        NativeEventLog.log(this, "SYS", "APP_PAUSE_UNEXPECTED — foreground watchdog arme")
+        AppForegroundWatchdogReceiver.schedule(this)
     }
 
     // Called when notification is tapped and app is already open

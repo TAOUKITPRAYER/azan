@@ -311,6 +311,7 @@ object WifiRecoveryHelper {
 
     fun openWifiSettings(context: Context) {
         try {
+            MainActivity.expectSystemHandoff()
             context.startActivity(
                 Intent(Settings.ACTION_WIFI_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
