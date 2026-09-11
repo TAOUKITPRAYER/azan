@@ -19,8 +19,15 @@ public class Device {
     public Instant lastHandshake;     // last successful WireGuard handshake
 
     // From the API (may be null if no token configured)
-    public String clientVersion;
+    public String clientVersion;      // version du client Tailscale lui-même (pas notre app)
     public boolean updateAvailable;
+
+    /** Version de l'app Tawkit (net.tawkit.mobile) installée sur CETTE box, obtenue via
+     *  `adb shell dumpsys package` (cf. ScrcpyService.queryTawkitVersion) — pas une donnée
+     *  Tailscale. Null tant qu'aucun rafraîchissement manuel n'a réussi à l'obtenir ; conservée
+     *  d'un rafraîchissement à l'autre (cf. DeviceService.tawkitVersionCache) même quand la box
+     *  est temporairement injoignable. */
+    public String tawkitVersion;
     public String user;
     public List<String> tags = new ArrayList<>();
     public Instant created;

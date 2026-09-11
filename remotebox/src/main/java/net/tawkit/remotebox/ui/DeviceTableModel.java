@@ -19,7 +19,7 @@ class DeviceTableModel extends AbstractTableModel {
     static final int COL_TRAFFIC = 6;
     static final int COL_ACTION = 7;
 
-    private final String[] cols = {"", "Nom", "IP Tailscale", "OS", "Version", "Vu", "Trafic", "Action"};
+    private final String[] cols = {"", "Nom", "IP Tailscale", "OS", "Version Tawkit", "Vu", "Trafic", "Action"};
     private List<Device> rows = new ArrayList<>();
 
     void setDevices(List<Device> devices) {
@@ -74,9 +74,28 @@ class DeviceTableModel extends AbstractTableModel {
         };
     }
 
+    /** Version de NOTRE app (net.tawkit.mobile) installée sur la box — pas le client Tailscale
+     *  (cf. Device.tawkitVersion ; le client Tailscale reste visible en info-bulle, cf. MainFrame). */
     private static String versionCell(Device d) {
-        if (d.clientVersion == null || d.clientVersion.isBlank()) return "";
-        return d.updateAvailable ? d.clientVersion + "  ⬆" : d.clientVersion;
+        if (!d.isAndroid()) return "";
+        if (d.tawkitVersion == null || d.tawkitVersion.isBlank()) return "";
+        return d.tawkitVersion;
+    }
+
+    /** Info-bulle de la colonne Version : précise l'origine (adb) et rappelle, à titre indicatif,
+     *  la version du client Tailscale lui-même (qu'on n'affiche plus dans la cellule). */
+    String versionTooltip(Device d) {
+        if (!d.isAndroid()) return null;
+        StringBuilder sb = new StringBuilder();
+        if (d.tawkitVersion == null || d.tawkitVersion.isBlank()) {
+            sb.append("Version Tawkit inconnue — Rafraîchir l'interroge via adb");
+        } else {
+            sb.append("Version Tawkit (net.tawkit.mobile), obtenue via adb");
+        }
+        if (d.clientVersion != null && !d.clientVersion.isBlank()) {
+            sb.append("  ·  client Tailscale : ").append(d.clientVersion);
+        }
+        return sb.toString();
     }
 
     private static String traffic(Device d) {

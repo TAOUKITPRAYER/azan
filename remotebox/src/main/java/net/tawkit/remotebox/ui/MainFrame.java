@@ -2,6 +2,7 @@ package net.tawkit.remotebox.ui;
 
 import net.tawkit.remotebox.App;
 import net.tawkit.remotebox.config.AppConfig;
+import net.tawkit.remotebox.core.SessionLog;
 import net.tawkit.remotebox.model.BoxProfile;
 import net.tawkit.remotebox.model.BoxProfiles;
 import net.tawkit.remotebox.model.Device;
@@ -14,6 +15,7 @@ import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -31,6 +33,7 @@ public class MainFrame extends JFrame {
     private final JLabel accountStatus = new JLabel(" ");
     private final JTextArea console = new JTextArea(7, 20);
     private final JButton refreshButton = new JButton("Rafraîchir");
+    private final SessionLog sessionLog = new SessionLog();
     private Timer autoRefresh;
 
     public MainFrame(AppConfig cfg) {
@@ -52,7 +55,17 @@ public class MainFrame extends JFrame {
 
         installTable();
         setupAutoRefresh();
-        refresh();
+        installSessionLogLifecycle();
+        refresh(true);
+    }
+
+    /** Ouvre/ferme le fichier journal horodaté avec la vie de l'appli (cf. SessionLog). */
+    private void installSessionLogLifecycle() {
+        logSection("SESSION DÉMARRÉE", sessionLog.file == null ? "journal désactivé (voir stderr)" : sessionLog.file.toString());
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logSection("SESSION TERMINÉE", null);
+            sessionLog.close();
+        }));
     }
 
     // ---------- layout ----------
@@ -62,7 +75,7 @@ public class MainFrame extends JFrame {
         tb.setFloatable(false);
         tb.setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 8));
 
-        refreshButton.addActionListener(e -> refresh());
+        refreshButton.addActionListener(e -> refresh(true));
         JButton scrcpyBtn = new JButton("▶ scrcpy (sélection)");
         scrcpyBtn.addActionListener(e -> withSelected(this::launchScrcpy));
         JButton shellBtn = new JButton("adb shell");
@@ -158,6 +171,16 @@ public class MainFrame extends JFrame {
         };
         table.getColumnModel().getColumn(DeviceTableModel.COL_STATUS).setCellRenderer(statusRenderer);
 
+        DefaultTableCellRenderer versionRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable t, Object v, boolean sel, boolean foc, int row, int col) {
+                Component c = super.getTableCellRendererComponent(t, v, sel, foc, row, col);
+                setToolTipText(model.versionTooltip(model.deviceAt(t.convertRowIndexToModel(row))));
+                return c;
+            }
+        };
+        table.getColumnModel().getColumn(DeviceTableModel.COL_VERSION).setCellRenderer(versionRenderer);
+
         new ButtonColumn(table, DeviceTableModel.COL_ACTION, modelRow -> {
             Device d = model.deviceAt(modelRow);
             launchScrcpy(d);
@@ -182,6 +205,35 @@ public class MainFrame extends JFrame {
         });
 
         table.getSelectionModel().addListSelectionListener(e -> updateStatusForSelection());
+
+        // Clic droit sur une cellule = copier son texte affiché — sauf colonne Action (un bouton,
+        // pas une donnée à copier).
+        table.addMouseListener(new MouseAdapter() {
+            @Override public void mousePressed(MouseEvent e) { maybeShowCopyMenu(e); }
+            @Override public void mouseReleased(MouseEvent e) { maybeShowCopyMenu(e); }
+        });
+    }
+
+    private void maybeShowCopyMenu(MouseEvent e) {
+        if (!e.isPopupTrigger()) return;
+        int viewRow = table.rowAtPoint(e.getPoint());
+        int viewCol = table.columnAtPoint(e.getPoint());
+        if (viewRow < 0 || viewCol < 0) return;
+        if (table.convertColumnIndexToModel(viewCol) == DeviceTableModel.COL_ACTION) return;
+        table.setRowSelectionInterval(viewRow, viewRow);
+        Object value = table.getValueAt(viewRow, viewCol);
+        String text = value == null ? "" : value.toString();
+        if (text.isBlank()) return;
+
+        String preview = text.length() > 40 ? text.substring(0, 40) + "…" : text;
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem copy = new JMenuItem("Copier « " + preview + " »");
+        copy.addActionListener(a -> {
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
+            log("Copié : " + text);
+        });
+        menu.add(copy);
+        menu.show(table, e.getX(), e.getY());
     }
 
     // ---------- actions ----------
@@ -195,20 +247,72 @@ public class MainFrame extends JFrame {
         action.accept(model.deviceAt(table.convertRowIndexToModel(viewRow)));
     }
 
-    private void refresh() {
+    /**
+     * @param manual {@code true} pour un clic explicite sur "Rafraîchir" (ou l'ouverture de
+     *               l'appli) : journalise chaque étape (bannière, décompte, interrogation adb de
+     *               la version Tawkit sur les box Android joignables, bilan). {@code false} pour
+     *               le tick silencieux de l'auto-refresh ou un rafraîchissement incident (après un
+     *               scrcpy/réglages) : met juste la table à jour, sans bruit dans le journal — la
+     *               colonne Version garde alors sa dernière valeur connue (cf. DeviceService).
+     */
+    private void refresh(boolean manual) {
         refreshButton.setEnabled(false);
         status.setText("Actualisation…");
-        new SwingWorker<List<Device>, Void>() {
+        if (manual) logSection("RAFRAÎCHIR", null);
+        long t0 = System.nanoTime();
+
+        new SwingWorker<List<Device>, String>() {
             Exception error;
+            int versionQueried = 0, versionOk = 0;
 
             @Override
             protected List<Device> doInBackground() {
                 try {
-                    return deviceService.refresh();
+                    if (manual) publish("Interrogation Tailscale (CLI + API)…");
+                    List<Device> list = deviceService.refresh();
+                    if (manual) {
+                        long online = list.stream().filter(d -> d.reachability() >= 1).count();
+                        publish(list.size() + " machine(s) trouvée(s), " + online + " joignable(s).");
+                        queryTawkitVersions(list);
+                    }
+                    return list;
                 } catch (Exception ex) {
                     error = ex;
                     return null;
                 }
+            }
+
+            /** Interroge, séquentiellement (une box lente ne doit pas fausser le résultat des
+             *  autres), la version Tawkit de chaque box Android qui donne au moins un signe de vie
+             *  côté Tailscale — inutile d'essayer adb sur une box déjà signalée injoignable. */
+            private void queryTawkitVersions(List<Device> list) {
+                List<Device> androids = list.stream()
+                        .filter(d -> d.isAndroid() && d.reachability() >= 1)
+                        .toList();
+                if (androids.isEmpty()) return;
+                publish("Version Tawkit — interrogation de " + androids.size() + " boîtier(s) Android…");
+                for (Device d : androids) {
+                    versionQueried++;
+                    BoxProfile p = profiles.get(d.key());
+                    try {
+                        String v = scrcpyService.queryTawkitVersion(d, p);
+                        if (v == null) {
+                            publish("  ⚠ " + d.displayName() + " : app Tawkit introuvable sur cette box");
+                        } else {
+                            deviceService.recordTawkitVersion(d.key(), v);
+                            d.tawkitVersion = v;
+                            versionOk++;
+                            publish("  ✔ " + d.displayName() + " : Tawkit " + v);
+                        }
+                    } catch (Exception ex) {
+                        publish("  ✖ " + d.displayName() + " : " + ex.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            protected void process(List<String> chunks) {
+                chunks.forEach(MainFrame.this::log);
             }
 
             @Override
@@ -216,15 +320,28 @@ public class MainFrame extends JFrame {
                 refreshButton.setEnabled(true);
                 if (error != null) {
                     status.setText("Erreur : " + error.getMessage());
-                    log("ERREUR refresh : " + error.getMessage());
+                    log("✖ Échec du rafraîchissement : " + error.getMessage());
                     return;
                 }
-                model.setDevices(result());
+                List<Device> list = result();
+                model.setDevices(list);
                 String w = deviceService.lastWarning;
                 String stamp = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
                 status.setText(model.getRowCount() + " machines — maj " + stamp
                         + (w != null ? "   ⚠ " + w : ""));
-                if (w != null) log("⚠ " + w);
+                if (manual) {
+                    double secs = (System.nanoTime() - t0) / 1_000_000_000.0;
+                    long online = list.stream().filter(d -> d.reachability() >= 1).count();
+                    StringBuilder summary = new StringBuilder(String.format(
+                            "Terminé en %.1f s — %d machine(s), %d joignable(s)", secs, list.size(), online));
+                    if (versionQueried > 0) {
+                        summary.append(String.format(", %d/%d version(s) Tawkit obtenue(s)", versionOk, versionQueried));
+                    }
+                    if (w != null) summary.append("  ⚠ ").append(w);
+                    log(summary.toString());
+                } else if (w != null) {
+                    log("⚠ " + w);
+                }
                 updateAccountStatus();
                 updateStatusForSelection();
             }
@@ -246,8 +363,7 @@ public class MainFrame extends JFrame {
         }
         String host = d.key();
         BoxProfile p = profiles.get(host);
-        log("");
-        log("=== scrcpy → " + d.displayName() + " (" + d.tailscaleIp + ") ===");
+        logSection("SCRCPY", d.displayName() + " → " + d.tailscaleIp);
         new SwingWorker<ScrcpyService.LaunchResult, String>() {
             Exception error;
 
@@ -287,7 +403,7 @@ public class MainFrame extends JFrame {
                 }
                 if (res != null) {
                     // On vient de joindre la box : rafraîchir pour que l'indicateur d'état suive.
-                    refresh();
+                    refresh(false);
                 }
             }
         }.execute();
@@ -295,8 +411,7 @@ public class MainFrame extends JFrame {
 
     private void openShell(Device d) {
         BoxProfile p = profiles.get(d.key());
-        log("");
-        log("=== adb shell → " + d.displayName() + " (" + d.tailscaleIp + ") ===");
+        logSection("ADB SHELL", d.displayName() + " → " + d.tailscaleIp);
         // adb connect vers une box Tailscale inactive depuis un moment peut nécessiter quelques
         // tentatives (cf. ScrcpyService.connectAdb) — hors EDT pour ne pas geler la fenêtre.
         new SwingWorker<Void, String>() {
@@ -357,14 +472,14 @@ public class MainFrame extends JFrame {
             SwingUtilities.updateComponentTreeUI(this);
             setupAutoRefresh();
             log("Réglages enregistrés.");
-            refresh();
+            refresh(false);
         }
     }
 
     private void setupAutoRefresh() {
         if (autoRefresh != null) autoRefresh.stop();
         if (cfg.autoRefreshSeconds > 0) {
-            autoRefresh = new Timer(cfg.autoRefreshSeconds * 1000, e -> refresh());
+            autoRefresh = new Timer(cfg.autoRefreshSeconds * 1000, e -> refresh(false));
             autoRefresh.start();
         }
     }
@@ -396,7 +511,27 @@ public class MainFrame extends JFrame {
         }
     }
 
+    /**
+     * En-tête de section dans le journal, pour repérer d'un coup d'œil où commence chaque action
+     * (scrcpy, adb shell, rafraîchissement manuel…) — surtout utile une fois plusieurs actions
+     * enchaînées, ou en relisant le fichier historisé (cf. SessionLog). Largeur fixe, titre en
+     * MAJUSCULES à gauche : reste lisible quelle que soit la longueur du détail, contrairement à un
+     * habillage "centré" par comptage de caractères (fragile dès que le texte change de longueur).
+     */
+    private static final int SECTION_RULE_WIDTH = 96;
+    private static final DateTimeFormatter SECTION_STAMP = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+    private void logSection(String title, String detail) {
+        StringBuilder head = new StringBuilder("── ").append(title.toUpperCase());
+        if (detail != null && !detail.isBlank()) head.append(" · ").append(detail);
+        head.append(" · ").append(LocalDateTime.now().format(SECTION_STAMP)).append(' ');
+        while (head.length() < SECTION_RULE_WIDTH) head.append('─');
+        log("");
+        log(head.toString());
+    }
+
     private void log(String line) {
+        sessionLog.write(line);
         SwingUtilities.invokeLater(() -> {
             console.append(line + "\n");
             console.setCaretPosition(console.getDocument().getLength());

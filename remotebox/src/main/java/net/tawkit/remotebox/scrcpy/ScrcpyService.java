@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** Runs `adb connect` then launches a scrcpy window for a box, with output capture and encoder fallback. */
 public final class ScrcpyService {
@@ -229,6 +231,32 @@ public final class ScrcpyService {
             if (t.contains("ERROR") || t.startsWith("[server] ERROR")) last = t;
         }
         return last.isEmpty() ? "Voir le journal ci-dessus." : last;
+    }
+
+    private static final String TAWKIT_PACKAGE = "net.tawkit.mobile";
+    private static final long VERSION_QUERY_TIMEOUT_SECONDS = 6;
+    private static final Pattern VERSION_NAME = Pattern.compile("versionName=(\\S+)");
+
+    /**
+     * Version de l'app Tawkit installée sur la box, via `adb shell dumpsys package`. Un seul essai
+     * `adb connect` sans la boucle de retentatives de {@link #connectAdb} — utilisée en rafale sur
+     * plusieurs box à la fois (cf. MainFrame.refresh), pas un lancement interactif unique où
+     * patienter le temps qu'il faut a du sens.
+     *
+     * @return la version, ou {@code null} si l'app n'est pas installée sur cette box.
+     * @throws Exception si adb échoue/timeout ou renvoie une sortie inattendue.
+     */
+    public String queryTawkitVersion(Device d, BoxProfile p) throws Exception {
+        String target = adbTarget(d, p);
+        ProcessRunner.run(List.of(Tools.adb(cfg), "connect", target), VERSION_QUERY_TIMEOUT_SECONDS);
+        ProcessRunner.Result r = ProcessRunner.run(
+                List.of(Tools.adb(cfg), "-s", target, "shell", "dumpsys package " + TAWKIT_PACKAGE),
+                VERSION_QUERY_TIMEOUT_SECONDS);
+        String out = r.stdout() + r.stderr();
+        Matcher m = VERSION_NAME.matcher(out);
+        if (m.find()) return m.group(1);
+        if (out.toLowerCase().contains("unable to find package")) return null;
+        throw new IllegalStateException("réponse adb inattendue : " + lastMeaningfulLine(out));
     }
 
     /** `adb -s target shell` in a new console window (Windows). {@code log} may be a no-op. */
