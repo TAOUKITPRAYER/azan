@@ -22,7 +22,7 @@
 //      Body = { type: "remote_action", mosque_id, pin, action, target? }
 //      action: "quran_play" | "quran_stop" | "quran_toggle" | "azan_play" |
 //              "azan_preview" | "azan_stop" | "audio_refresh" | "light_on" |
-//              "light_off" | "lights_refresh" | "reload" | "send_debug" | "update_app"
+//              "light_off" | "lights_refresh" | "reload" | "send_debug" | "update_app" | "reboot_box"
 //      target (lumières uniquement): "ampliExt" | "ampliInt" | "minaret" | "mihrab"
 //      AUCUNE écriture dans mosques (commande ponctuelle, pas un changement de
 //      configuration) -- donc PAS de notif visible "horaires mis à jour", juste
@@ -246,7 +246,7 @@ const REMOTE_ACTIONS = [
   "quran_play", "quran_stop", "quran_toggle",
   "azan_play", "azan_preview", "azan_stop", "audio_refresh",
   "light_on", "light_off", "lights_refresh",
-  "reload", "send_debug", "update_app",
+  "reload", "send_debug", "update_app", "reboot_box",
 ];
 const REMOTE_ACTION_TARGETS = ["ampliExt", "ampliInt", "minaret", "mihrab"];
 

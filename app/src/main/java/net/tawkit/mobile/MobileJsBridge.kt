@@ -4,8 +4,10 @@ import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.admin.DevicePolicyManager
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
@@ -1559,5 +1561,100 @@ class MobileJsBridge(
         } catch (e: Exception) {
             Log.e("TWKT", "shareText failed: ${e.message}")
         }
+    }
+
+    /**
+     * Redemarre le boitier physique -- appele depuis custom.js (action distante
+     * "reboot_box" de l'onglet Actions, cf. _ucDispatchRemoteAction). AUCUNE API
+     * publique Android ne permet a une appli tierce ordinaire de redemarrer
+     * l'appareil (android.permission.REBOOT est signature-only) -- deux chemins
+     * possibles seulement, essayes dans l'ordre :
+     *
+     *  1. Device Owner (cf. DeviceOwnerInstaller) : DevicePolicyManager.reboot(),
+     *     API officielle, aucun root necessaire -- mais la plupart de nos box ne
+     *     sont PAS encore passees Device Owner (verifie 11/09/2026 sur aboubakr
+     *     et hidaya : aucun admin actif).
+     *  2. Root (`su`) : chemin resolu via SilentUpdateHelper.resolveSuPath()
+     *     -- JAMAIS un nom nu ("su"), pour la meme raison que cette classe
+     *     (le process de l'app, forke par Zygote, n'herite pas forcement d'un
+     *     PATH incluant /system/xbin ; un ProcessBuilder("su", ...) peut
+     *     echouer silencieusement la ou le chemin absolu marche). La commande
+     *     "reboot" elle-meme varie selon le binaire `su` du ROM -- constate en
+     *     conditions reelles (11/09/2026, hidaya) que CE `su` rejette `-c`
+     *     comme un flag ("su: invalid uid/gid '-c'"), il attend un UID
+     *     numerique en 1er argument (`su 0 <cmd>`, cf. toutes les commandes
+     *     adb de maintenance de ce depot). D'autres box (Magisk...)
+     *     comprennent `-c` normalement. On essaie donc les deux formes.
+     *
+     * Un vrai reboot reussi tue ce process avant qu'on puisse lire son code de
+     * sortie -- on ne peut donc jamais etre certain a 100% qu'une tentative a
+     * "reussi" cote natif, seulement qu'elle n'a PAS echoue immediatement
+     * (permission refusee = sortie quasi instantanee, code non-nul). La
+     * confirmation reelle est indirecte : le boitier redevient joignable
+     * quelques dizaines de secondes plus tard avec un nouveau BOOT_RECEIVER
+     * "likelyRealReboot=true" dans le journal natif (cf. BootReceiver.kt).
+     *
+     * @return descriptif de la methode qui a fonctionne ("device_owner",
+     *         "root:<cmd>"), ou "" si ni Device Owner ni root ne sont
+     *         disponibles sur ce boitier -- custom.js affiche alors une erreur
+     *         explicite plutot que de laisser croire que la commande est partie.
+     */
+    @JavascriptInterface
+    fun rebootDevice(): String {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && DeviceOwnerInstaller.isDeviceOwner(context)) {
+            try {
+                val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+                val admin = ComponentName(context, TawkitDeviceAdminReceiver::class.java)
+                NativeEventLog.log(context, "SYS", "REBOOT_REQUESTED method=device_owner")
+                dpm.reboot(admin)
+                return "device_owner"
+            } catch (e: Exception) {
+                Log.e("TWKT", "rebootDevice: DevicePolicyManager.reboot failed: ${e.message}")
+            }
+        }
+
+        // BUG corrige 12/09/2026, avant tout test reel : la version precedente
+        // lancait Runtime.exec(arrayOf("su", ...)) -- un nom nu. Deja documente
+        // et corrige pour ce meme probleme dans SilentUpdateHelper (31/07/2026,
+        // X88 Pro 20) : le process de l'app (forke par Zygote) n'herite pas
+        // forcement d'un PATH incluant /system/xbin, contrairement a un shell
+        // adb -- "su" nu peut echouer silencieusement (IOException avalee)
+        // alors qu'un chemin absolu (/system/xbin/su, etc.) fonctionne. Reprend
+        // ici EXACTEMENT le meme chemin resolu, deja verifie utilisable depuis
+        // le process de l'app elle-meme (pas juste via adb) sur ce type de
+        // boitier (Z6/Oranth) -- cf. mosque_device_status.silent_update_capable.
+        val suPath = SilentUpdateHelper.resolveSuPath()
+        if (suPath == null) {
+            NativeEventLog.log(context, "SYS", "REBOOT_FAILED reason=no_device_owner_no_su_binary")
+            return ""
+        }
+
+        val rootAttempts = listOf(
+            arrayOf(suPath, "0", "reboot"),   // cf. commentaire ci-dessus : marche sur nos box de terrain
+            arrayOf(suPath, "-c", "reboot")   // repli pour un su de style Magisk/SuperSU classique
+        )
+        for (cmd in rootAttempts) {
+            try {
+                NativeEventLog.log(context, "SYS", "REBOOT_REQUESTED method=root cmd=${cmd.joinToString(" ")}")
+                val process = ProcessBuilder(*cmd).redirectErrorStream(true).start()
+                process.outputStream.close()   // EOF immediat sur stdin, au cas ou su attendrait une entree
+                val exited = process.waitFor(3, java.util.concurrent.TimeUnit.SECONDS)
+                if (!exited) {
+                    // Toujours en cours 3s plus tard -- vraisemblablement en train de
+                    // redemarrer (ou bloque, rare) : on ne tente pas d'autre repli.
+                    return "root:${cmd.joinToString(" ")}"
+                }
+                if (process.exitValue() == 0) {
+                    return "root:${cmd.joinToString(" ")}"
+                }
+                val output = process.inputStream.bufferedReader().readText()
+                Log.w("TWKT", "rebootDevice: '${cmd.joinToString(" ")}' exit=${process.exitValue()} output='${output.trim()}'")
+            } catch (e: Exception) {
+                Log.e("TWKT", "rebootDevice: '${cmd.joinToString(" ")}' failed: ${e.message}")
+            }
+        }
+
+        NativeEventLog.log(context, "SYS", "REBOOT_FAILED reason=no_device_owner_no_root")
+        return ""
     }
 }

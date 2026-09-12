@@ -43,7 +43,11 @@ object SilentUpdateHelper {
         "/system/xbin/su", "/system/bin/su", "/su/bin/su", "/sbin/su", "/vendor/bin/su"
     )
 
-    private fun resolveSuPath(): String? = SU_CANDIDATES.firstOrNull { File(it).exists() }
+    // Pas privee : reutilisee par MobileJsBridge.rebootDevice() -- meme piege de
+    // resolution par nom nu que celui documente ci-dessus, meme liste de
+    // candidats, pas de raison d'avoir deux implementations qui pourraient
+    // diverger.
+    fun resolveSuPath(): String? = SU_CANDIDATES.firstOrNull { File(it).exists() }
 
     /**
      * Sonde en lecture seule : ne modifie rien sur l'appareil, vérifie
