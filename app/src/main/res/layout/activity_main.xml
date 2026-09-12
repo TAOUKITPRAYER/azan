@@ -65,4 +65,33 @@
 
     </LinearLayout>
 
+    <!-- Ecran de verrouillage Tawkit (telephone uniquement, cf. LockScreenPrefs/
+         LockScreenWatcherService/MainActivity.maybeActivateLockScreenGuard) :
+         copie conforme de la page principale (le MEME WebView, pas une copie
+         separee), avec une couverture totalement transparente par-dessus qui
+         capte tous les touchers (meme "clickable + focusable" trick que
+         splashOverlay ci-dessus, invisible ici au lieu de noire) : seul un
+         glissement vers le haut est reconnu (MainActivity), qui declenche
+         KeyguardManager.requestDismissKeyguard(). Masquee par defaut. -->
+    <FrameLayout
+        android:id="@+id/lockScreenGuardOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/lockScreenGuardHint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="48dp"
+            android:text="⌃ اسحب للأعلى لفتح القفل"
+            android:textColor="#C8C8C8"
+            android:textSize="13sp" />
+
+    </FrameLayout>
+
 </FrameLayout>

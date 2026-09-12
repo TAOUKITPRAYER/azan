@@ -2,8 +2,11 @@ package net.tawkit.mobile
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.KeyguardManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -69,6 +72,12 @@ class MainActivity : AppCompatActivity() {
          *  auto-finish quelques secondes plus tard) juste pour recalculer les
          *  heures du jour et reprogrammer les alarmes natives. */
         const val EXTRA_SILENT_BOOT = "net.tawkit.mobile.SILENT_BOOT"
+
+        /** Extra pose par LockScreenWatcherService (notification a intention
+         *  plein ecran, telephone uniquement) : demande a MainActivity
+         *  d'activer la couverture de verrouillage (cf.
+         *  maybeActivateLockScreenGuard) plutot que de s'ouvrir normalement. */
+        const val EXTRA_LOCK_SCREEN_LAUNCH = "net.tawkit.mobile.LOCK_SCREEN_LAUNCH"
 
         private const val SILENT_BOOT_FINISH_DELAY_MS = 8000L
 
@@ -186,6 +195,29 @@ class MainActivity : AppCompatActivity() {
     private lateinit var splashOverlay: View
     private lateinit var splashProgress: CircularProgressView
     private lateinit var splashProgressText: TextView
+    private lateinit var lockScreenGuardOverlay: View
+    private var lockScreenOffReceiver: BroadcastReceiver? = null
+
+    /** true tant que la couverture de verrouillage est active (cf.
+     *  maybeActivateLockScreenGuard/deactivateLockScreenGuard). */
+    private var lockScreenGuardActive = false
+    private var lockScreenGuardDownY = 0f
+    private var lockScreenGuardDismissing = false
+
+    /** Instantane de LockScreenPrefs.wasForegroundAtScreenOff() pris a
+     *  l'activation de la couverture -- decide s'il faut ramener Tawkit en
+     *  arriere-plan apres deverrouillage (retour utilisateur 12/09/2026 : ne
+     *  jamais forcer systematiquement, restaurer l'etat reel d'avant
+     *  verrouillage). Lu depuis les SharedPreferences plutot que deduit d'un
+     *  onStop()/onPause() cote Activity : ces callbacks se sont averes
+     *  declenches de facon transitoire pendant la choregraphie interne
+     *  d'Android/One UI pour afficher une Activity par-dessus un
+     *  verrouillage actif, independamment de l'etat reel avant verrouillage
+     *  (constate en conditions reelles, cf. NativeEventLog) -- la valeur
+     *  fiable est capturee par LockScreenWatcherService exactement au moment
+     *  ou l'ecran s'eteint (ACTION_SCREEN_OFF), avant toute intervention de
+     *  ce mecanisme. */
+    private var lockScreenGuardWasAlreadyForeground = false
     private val mainHandler = Handler(Looper.getMainLooper())
     private var splashHidden = false
 
@@ -224,6 +256,20 @@ class MainActivity : AppCompatActivity() {
      *  cours pour un aller-retour trivial (ex. dialogue systeme). */
     private var pausedAtMs = 0L
     private val RESYNC_THRESHOLD_MS = 5000L
+
+    /** Meme instant que pausedAtMs, mais JAMAIS consomme/remis a zero (cf.
+     *  maybeTriggerJsResync qui vide pausedAtMs des le resume suivant) --
+     *  sert UNIQUEMENT a la correlation temporelle du recepteur SCREEN_OFF
+     *  ci-dessous (registerLockScreenOffReceiver) : isAppInForeground est
+     *  DEJA remis a false par cette meme fonction onPause() avant que le
+     *  recepteur ne s'execute (broadcasts et lifecycle ne sont pas
+     *  strictement ordonnes, mais onPause() se declenche en pratique en
+     *  premier -- constate via NativeEventLog, 12/09/2026 : APP_PAUSE puis
+     *  LOCK_SCREEN_SCREEN_OFF wasForeground=false a chaque fois, meme quand
+     *  Tawkit etait bien la juste avant). Comparer "l'ecran vient-il de
+     *  s'eteindre dans la seconde qui suit CETTE pause precise" contourne le
+     *  probleme sans dependre de l'ordre exact pause/broadcast. */
+    private var lastPauseAtMs = 0L
 
     // Request notification permission (Android 13+)
     private val notifPermLauncher = registerForActivityResult(
@@ -343,6 +389,11 @@ class MainActivity : AppCompatActivity() {
         splashOverlay = findViewById(R.id.splashOverlay)
         splashProgress = findViewById(R.id.splashProgress)
         splashProgressText = findViewById(R.id.splashProgressText)
+        lockScreenGuardOverlay = findViewById(R.id.lockScreenGuardOverlay)
+        lockScreenGuardOverlay.setOnTouchListener { _, event -> handleLockScreenGuardTouch(event) }
+
+        maybeActivateLockScreenGuard(intent)
+        registerLockScreenOffReceiver()
 
         if (isSilentBoot) {
             // Fenetre deja invisible (theme) : l'ecran de chargement natif
@@ -381,6 +432,14 @@ class MainActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                // Couverture de verrouillage active (cf. lockScreenGuardActive) :
+                // convention écran de verrouillage, Retour renvoie à l'accueil du
+                // téléphone plutôt que de naviguer dans l'historique WebView (qui
+                // resterait de toute façon inatteignable, capté par la couverture).
+                if (lockScreenGuardActive) {
+                    moveTaskToBack(true)
+                    return
+                }
                 // Vérification DIRECTE de l'état réel des modales côté JS, avant de
                 // se fier à webView.canGoBack() -- retour utilisateur (22/08/2026,
                 // téléphone en mode vertical, menu principal ouvert) : la boîte
@@ -1081,6 +1140,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 maybeShowAutoStartSetupPrompt(view)
                 maybeShowTvHomeLauncherPrompt(view)
+                maybeShowLockScreenSetupPrompt(view)
 
                 // Boitier (aucun humain devant l'ecran pour toucher/cliquer une fois) :
                 // simule un geste utilisateur reel au niveau du systeme de saisie
@@ -1188,6 +1248,259 @@ class MainActivity : AppCompatActivity() {
                 }
                 .show()
         }, 1200)
+    }
+
+    /**
+     * Demande une seule fois, au premier lancement reel (jamais en lancement
+     * silencieux, jamais sur TV -- ce reglage n'a pas de sens pour un
+     * boitier toujours au premier plan), si l'utilisateur veut que Tawkit
+     * s'affiche par-dessus l'ecran de verrouillage du telephone (horaires,
+     * prochain azan, compte a rebours -- cf. LockScreenActivity). Le
+     * reglage reste modifiable ensuite depuis l'onglet الإعدادات (cf.
+     * custom.js / MobileJsBridge.setLockScreenModeEnabled).
+     */
+    private fun maybeShowLockScreenSetupPrompt(view: WebView) {
+        if (isSilentBoot) return
+        if (LockScreenPrefs.hasAskedSetup(this)) return
+        if (DeviceType.isAndroidTv(this)) return
+        view.postDelayed({
+            if (isFinishing || isDestroyed) return@postDelayed
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.lock_screen_prompt_title))
+                .setMessage(getString(R.string.lock_screen_prompt_message))
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.lock_screen_prompt_yes)) { _, _ ->
+                    LockScreenPrefs.setEnabled(this, true)
+                    LockScreenPrefs.markSetupAsked(this)
+                    LockScreenWatcherService.start(this)
+                    // Sans cette exemption, One UI (Samsung) et la plupart des
+                    // constructeurs peuvent geler LockScreenWatcherService apres
+                    // quelques heures/jours d'inactivite apparente -> le reveil
+                    // de l'ecran ne declenche alors plus jamais la couverture
+                    // (retour utilisateur 12/09/2026 : "dans la version
+                    // precedente ca ne fonctionnait pas systematiquement").
+                    // No-op si deja accordee (cf. garde interne de la fonction).
+                    requestIgnoreBatteryOptimizations()
+                    maybeRequestFullScreenIntentAccess()
+                }
+                .setNegativeButton(getString(R.string.lock_screen_prompt_no)) { _, _ ->
+                    LockScreenPrefs.setEnabled(this, false)
+                    LockScreenPrefs.markSetupAsked(this)
+                }
+                .show()
+        }, 2400)
+    }
+
+    /**
+     * Capture, au moment ou l'ecran s'eteint, si Tawkit etait ce que
+     * l'utilisateur utilisait juste avant -- persiste ce constat pour
+     * LockScreenPrefs.wasForegroundAtScreenOff(), lu plus tard par
+     * activateLockScreenGuard() pour decider s'il faut restaurer Tawkit ou
+     * la renvoyer en arriere-plan apres deverrouillage.
+     *
+     * Enregistre ICI (recepteur tenu par MainActivity elle-meme, pas par
+     * LockScreenWatcherService) : ce dernier, foreground mais priorite MIN,
+     * se fait regulierement tuer par Samsung entre deux cycles (constate via
+     * dumpsys activity services -- restartTime != createTime), ce qui lui a
+     * fait manquer la quasi-totalite des ACTION_SCREEN_OFF au fil des tests.
+     * Un recepteur tenu par l'Activity elle-meme, tant qu'elle est reellement
+     * au premier plan, ne peut par definition pas etre mis en veille --
+     * livraison fiable garantie pour la seule fenetre qui nous interesse ici.
+     *
+     * NE LIT PAS isAppInForeground directement : confirme en conditions
+     * reelles (NativeEventLog, 12/09/2026) que onPause() -- qui remet ce
+     * flag a false -- se declenche AVANT que ce recepteur ne s'execute, meme
+     * quand Tawkit etait bien la juste avant le verrouillage (broadcasts et
+     * cycle de vie ne sont pas strictement ordonnes l'un par rapport a
+     * l'autre). On compare a la place l'instant de la DERNIERE pause
+     * (lastPauseAtMs, jamais consomme) a l'instant present : si l'ecran
+     * s'eteint dans la seconde qui suit cette pause, c'est cette meme pause
+     * qui a cause l'extinction -> Tawkit etait bien au premier plan.
+     */
+    private fun registerLockScreenOffReceiver() {
+        if (lockScreenOffReceiver != null) return
+        val r = object : BroadcastReceiver() {
+            override fun onReceive(ctx: Context, intent: Intent) {
+                val wasForeground = (System.currentTimeMillis() - lastPauseAtMs) < 1000L
+                LockScreenPrefs.setWasForegroundAtScreenOff(ctx, wasForeground)
+                NativeEventLog.log(ctx, "SYS", "LOCK_SCREEN_SCREEN_OFF wasForeground=$wasForeground")
+            }
+        }
+        lockScreenOffReceiver = r
+        registerReceiver(r, IntentFilter(Intent.ACTION_SCREEN_OFF))
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        lockScreenOffReceiver?.let { r -> runCatching { unregisterReceiver(r) } }
+        lockScreenOffReceiver = null
+    }
+
+    /**
+     * Active la couverture de verrouillage si cette Activity vient d'etre
+     * lancee/reprise pour ca (EXTRA_LOCK_SCREEN_LAUNCH, cf.
+     * LockScreenWatcherService) ET que le telephone est reellement verrouille
+     * au moment present (double verification -- ne jamais faire confiance
+     * aveuglement a l'appelant : la notification a intention plein ecran peut
+     * arriver avec un leger delai pendant lequel l'utilisateur a deja
+     * deverrouille par un autre moyen). Applique setShowWhenLocked/
+     * setTurnScreenOn (deja avec repli pre-API 27) et affiche la couverture
+     * transparente qui capte tous les touchers sauf le glissement vers le
+     * haut -- cf. commentaire de lockScreenGuardOverlay dans activity_main.xml
+     * pour la raison (une Activity affichee par-dessus le verrouillage
+     * possede entierement le tactile, rien ne le transmet automatiquement a
+     * l'authentification systeme).
+     *
+     * Volontairement la VRAIE MainActivity/WebView, pas une vue separee : demande
+     * explicite du 12/09/2026 (l'ecran natif minimal precedent etait juge "peu
+     * utile", l'utilisateur voulait une copie conforme de la page principale).
+     */
+    private fun maybeActivateLockScreenGuard(intent: Intent?) {
+        val hasExtra = intent?.getBooleanExtra(EXTRA_LOCK_SCREEN_LAUNCH, false) == true
+        if (!hasExtra) return
+        if (DeviceType.isAndroidTv(this)) {
+            NativeEventLog.log(this, "SYS", "LOCK_SCREEN_GUARD_SKIP reason=android_tv")
+            return
+        }
+        val km = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        if (!km.isKeyguardLocked) {
+            NativeEventLog.log(this, "SYS", "LOCK_SCREEN_GUARD_SKIP reason=not_locked")
+            return
+        }
+        activateLockScreenGuard("intent_extra")
+    }
+
+    /**
+     * Revalide l'etat de la couverture de verrouillage a CHAQUE reprise au
+     * premier plan, a partir de l'etat REEL du verrouillage (pas de l'intent
+     * qui a declenche la reprise) -- seul point de decision desormais (cf.
+     * commentaire d'onPause : l'ancienne logique reactive depuis onPause
+     * provoquait une boucle ACTIVATED/PAUSE/RESUME en rafale sur One UI).
+     * Auto-cicatrisant : peu importe COMMENT/COMBIEN DE FOIS onPause/onResume
+     * s'enchainent entre-temps, cette fonction ramene toujours l'etat a ce
+     * qu'il doit reellement etre au moment ou l'Activity est effectivement
+     * au premier plan.
+     */
+    private fun syncLockScreenGuardWithKeyguardState() {
+        if (DeviceType.isAndroidTv(this)) return
+        val km = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        if (km.isKeyguardLocked) {
+            if (!lockScreenGuardActive) activateLockScreenGuard("resume_sync")
+        } else if (lockScreenGuardActive) {
+            // Deverrouillage constate ici (ex. biometrie/PIN utilise
+            // directement, sans passer par le glissement sur notre
+            // couverture) -- meme traitement que onDismissSucceeded (cf.
+            // handleLockScreenGuardUnlocked), sinon Tawkit restait bloque au
+            // premier plan dans ce cas precis (retour utilisateur 12/09/2026).
+            handleLockScreenGuardUnlocked("resume_sync_unlocked")
+        }
+    }
+
+    private fun activateLockScreenGuard(reason: String) {
+        // Instantane pris depuis LockScreenPrefs (cf. commentaire de
+        // declaration de lockScreenGuardWasAlreadyForeground pour le detail
+        // complet de la raison) : capture fidelement si Tawkit etait deja ce
+        // que l'utilisateur utilisait juste avant le verrouillage.
+        lockScreenGuardWasAlreadyForeground = LockScreenPrefs.wasForegroundAtScreenOff(this)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        } else {
+            @Suppress("DEPRECATION")
+            window.addFlags(
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+            )
+        }
+        lockScreenGuardActive = true
+        lockScreenGuardDismissing = false
+        lockScreenGuardOverlay.visibility = View.VISIBLE
+        NativeEventLog.log(this, "SYS", "LOCK_SCREEN_GUARD_ACTIVATED reason=$reason")
+    }
+
+    /**
+     * Coupe la couverture de verrouillage et retire setShowWhenLocked --
+     * appelee soit apres un deverrouillage systeme reussi
+     * (requestLockScreenUnlock), soit depuis syncLockScreenGuardWithKeyguardState()
+     * si onResume() constate que le telephone n'est plus verrouille (retour
+     * au premier plan par un moyen normal, sans jamais avoir eu besoin de la
+     * couverture). `reason` est uniquement diagnostique (cf. NativeEventLog).
+     */
+    private fun deactivateLockScreenGuard(reason: String = "unknown") {
+        NativeEventLog.log(this, "SYS", "LOCK_SCREEN_GUARD_DEACTIVATED reason=$reason")
+        lockScreenGuardActive = false
+        lockScreenGuardDismissing = false
+        lockScreenGuardOverlay.visibility = View.GONE
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(false)
+            setTurnScreenOn(false)
+        } else {
+            @Suppress("DEPRECATION")
+            window.clearFlags(
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+            )
+        }
+    }
+
+    /**
+     * Point unique appele des qu'un deverrouillage REEL est constate,
+     * quel qu'en soit le moyen (glissement sur notre couverture ->
+     * onDismissSucceeded, OU biometrie/PIN utilise directement sans jamais
+     * toucher notre couverture -> syncLockScreenGuardWithKeyguardState
+     * detecte isKeyguardLocked==false au resume suivant). Restaure l'etat
+     * REEL d'avant verrouillage, ni plus ni moins (retour utilisateur
+     * 12/09/2026) :
+     *  - Tawkit etait deja ce que l'utilisateur utilisait avant le
+     *    verrouillage (lockScreenGuardWasAlreadyForeground) -> ne rien
+     *    faire de plus, il la retrouve normalement.
+     *  - Autre chose etait actif (accueil, autre appli) -> notre tache
+     *    s'est mise devant UNIQUEMENT pour afficher la couverture ;
+     *    moveTaskToBack (jamais finish(), on garde l'instance/etat WebView
+     *    deja charge) revele ce qui etait reellement la avant, exactement
+     *    comme le vrai geste de deverrouillage Android.
+     */
+    private fun handleLockScreenGuardUnlocked(reason: String) {
+        deactivateLockScreenGuard(reason)
+        if (!lockScreenGuardWasAlreadyForeground) {
+            moveTaskToBack(true)
+        }
+    }
+
+    /**
+     * Seul geste reconnu par lockScreenGuardOverlay tant que la couverture de
+     * verrouillage est active : un glissement vers le haut (convention
+     * standard Android) declenche l'authentification systeme reelle. Tout le
+     * reste (tap, glissement dans une autre direction...) est capte sans
+     * effet -- return true inconditionnel, jamais transmis au WebView en
+     * dessous.
+     */
+    private fun handleLockScreenGuardTouch(event: MotionEvent): Boolean {
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> lockScreenGuardDownY = event.y
+            MotionEvent.ACTION_UP -> {
+                val dy = lockScreenGuardDownY - event.y
+                if (dy > resources.displayMetrics.heightPixels * 0.15f) requestLockScreenUnlock()
+            }
+        }
+        return true
+    }
+
+    private fun requestLockScreenUnlock() {
+        if (lockScreenGuardDismissing) return
+        lockScreenGuardDismissing = true
+        val km = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        km.requestDismissKeyguard(this, object : KeyguardManager.KeyguardDismissCallback() {
+            override fun onDismissSucceeded() {
+                handleLockScreenGuardUnlocked("dismiss_succeeded")
+            }
+            override fun onDismissCancelled() {
+                lockScreenGuardDismissing = false
+            }
+            override fun onDismissError() {
+                lockScreenGuardDismissing = false
+            }
+        })
     }
 
     /**
@@ -1315,6 +1628,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Depuis Android 14, USE_FULL_SCREEN_INTENT (requise par
+     * LockScreenWatcherService pour afficher la couverture de verrouillage a
+     * l'allumage de l'ecran) est revocable manuellement par l'utilisateur --
+     * verifie et redirige vers l'ecran systeme correspondant si besoin, une
+     * seule fois au moment ou l'utilisateur active le reglage.
+     */
+    private fun maybeRequestFullScreenIntentAccess() {
+        if (Build.VERSION.SDK_INT < 34) return
+        try {
+            val nm = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
+            if (nm.canUseFullScreenIntent()) return
+            val intent = Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT).apply {
+                data = Uri.parse("package:$packageName")
+            }
+            expectSystemHandoff()
+            startActivity(intent)
+        } catch (e: Exception) {
+            Log.e("TWKT", "maybeRequestFullScreenIntentAccess failed: ${e.message}")
+        }
+    }
+
     /* Removed deprecated onBackPressed */
 
     override fun onResume() {
@@ -1328,10 +1663,11 @@ class MainActivity : AppCompatActivity() {
         NativeEventLog.log(this, "AZAN", "APP_RESUME")
         maybeTriggerJsResync()
         maybeReassertTvHomeLauncher()
+        syncLockScreenGuardWithKeyguardState()
         // On est de retour au premier plan par un moyen ou un autre (nous-memes
         // ou le watchdog) -- neutralise toute fenetre de tolerance restante et
-        // annule un rattrapage deja programme (cf. onStop()) pour ne pas
-        // rappeler MainActivity inutilement quelques secondes apres coup.
+        // annule un rattrapage deja programme pour ne pas rappeler
+        // MainActivity inutilement quelques secondes apres coup.
         expectSystemHandoffUntil = 0L
         AppForegroundWatchdogReceiver.cancel(this)
     }
@@ -1393,6 +1729,20 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         isAppInForeground = false
+        // AUCUNE decision liee a la couverture de verrouillage ici (retire le
+        // 12/09/2026) : un onPause() peut se declencher de facon parfaitement
+        // normale et transitoire pendant la choregraphie interne d'Android
+        // pour afficher une Activity par-dessus un verrouillage actif (constate
+        // en conditions reelles, One UI/Samsung -- boucle ACTIVATED/RESUME/
+        // PAUSE/RESUME/PAUSE en rafale a chaque tentative, cf. NativeEventLog).
+        // Desactiver setShowWhenLocked ICI, a tort, pendant cette pause
+        // transitoire, forcait reellement le systeme a masquer l'ecran --
+        // c'etait la cause exacte de la disparition quasi instantanee
+        // rapportee. La decision est desormais prise UNIQUEMENT dans
+        // onResume() (syncLockScreenGuardWithKeyguardState), qui revalide
+        // l'etat REEL du verrouillage a chaque reprise plutot que de deviner
+        // depuis onPause -- auto-cicatrisant quel que soit le nombre de
+        // cycles pause/resume intermediaires.
         // Suspend reellement l'execution JS du WebView (setInterval de
         // m2body.js inclus) quand l'appli passe en arriere-plan (ecran
         // verrouille/eteint pendant que l'appli reste ouverte, changement
@@ -1406,6 +1756,7 @@ class MainActivity : AppCompatActivity() {
         webView.onPause()
         webView.pauseTimers()
         pausedAtMs = System.currentTimeMillis()
+        lastPauseAtMs = pausedAtMs
         NativeEventLog.log(this, "AZAN", "APP_PAUSE")
         maybeArmForegroundWatchdog()
     }
@@ -1461,6 +1812,7 @@ class MainActivity : AppCompatActivity() {
     // Called when notification is tapped and app is already open
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        maybeActivateLockScreenGuard(intent)
         val prayer = intent.getStringExtra("prayer")
         if (prayer != null) {
             webView.evaluateJavascript(

@@ -42,6 +42,16 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Ecran de verrouillage Tawkit (telephone uniquement, cf. LockScreenPrefs/
+         LockScreenWatcherService/MainActivity) : foreground service qui
+         surveille l'allumage de l'ecran (aucune categorie standard ne
+         correspond, d'ou specialUse, requis par targetSdk 34) + notification
+         a intention plein ecran, seul mecanisme sanctionne pour afficher une
+         Activity par-dessus un verrouillage actif depuis Android 10. Sur
+         Android 14+, l'utilisateur peut revoquer cette derniere manuellement
+         (cf. MobileJsBridge.hasFullScreenIntentAccess/requestFullScreenIntentAccess). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
     <application
         android:allowBackup="false"
@@ -211,6 +221,24 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info" />
         </receiver>
+
+        <!-- Ecran de verrouillage Tawkit (telephone uniquement) : foreground
+             service qui surveille l'allumage de l'ecran pour afficher
+             MainActivity (couverture de verrouillage, cf.
+             MainActivity.maybeActivateLockScreenGuard) par-dessus un
+             verrouillage actif, cf. LockScreenWatcherService. Aucune
+             categorie standard de
+             foregroundServiceType ne correspond a cet usage -> specialUse
+             (obligatoire depuis Android 14/targetSdk 34), avec la propriete
+             de justification requise pour la revue Play Store le cas echeant. -->
+        <service
+            android:name=".LockScreenWatcherService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="lockScreenDisplay" />
+        </service>
 
         <!-- Déclare le type de foreground service utilisé par WorkManager pour
              le téléchargement resumable des récitateurs Coran (obligatoire à

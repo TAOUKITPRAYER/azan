@@ -140,6 +140,14 @@ class BootReceiver : BroadcastReceiver() {
             return
         }
 
+        // Reglage independant de AutoStartPrefs (l'un peut etre actif sans
+        // l'autre) : relance le service de surveillance de l'ecran de
+        // verrouillage si l'utilisateur l'a active, cf. LockScreenPrefs/
+        // LockScreenWatcherService.
+        if (LockScreenPrefs.isEnabled(context)) {
+            LockScreenWatcherService.start(context)
+        }
+
         if (!AutoStartPrefs.isEnabled(context)) {
             Log.d("TWKT", "Boot completed (phone) — autostart disabled by user, skipping")
             return

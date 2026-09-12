@@ -11,7 +11,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
+import android.net.Uri
 import android.os.Build
+import android.os.PowerManager
 import android.provider.Settings
 import android.util.Log
 import android.webkit.JavascriptInterface
@@ -105,6 +107,19 @@ class MobileJsBridge(
         const val AZAN_PLAYBACK_CHANNEL_ID = "tawkit_azan_playback_channel"
         const val AZAN_PLAYBACK_CHANNEL_NAME = "Lecture de l'azan"
 
+        /** Canal discret : notification "ongoing" du foreground service
+         *  LockScreenWatcherService (telephone uniquement, cf. LockScreenPrefs). */
+        const val LOCK_SCREEN_WATCHER_CHANNEL_ID = "tawkit_lockscreen_watcher_channel"
+        const val LOCK_SCREEN_WATCHER_CHANNEL_NAME = "Ecran de verrouillage Tawkit"
+
+        /** Canal IMPORTANCE_HIGH : seule une notification a intention plein
+         *  ecran (setFullScreenIntent) sur un canal de priorite suffisante
+         *  peut afficher LockScreenActivity par-dessus le verrouillage sans
+         *  passer par un startActivity() direct depuis l'arriere-plan (interdit
+         *  depuis Android 10) -- meme mecanisme que les apps de reveil/appel. */
+        const val LOCK_SCREEN_DISPLAY_CHANNEL_ID = "tawkit_lockscreen_display_channel"
+        const val LOCK_SCREEN_DISPLAY_CHANNEL_NAME = "Affichage sur ecran verrouille"
+
         /** Index stable par priere, utilise pour deriver un requestCode de
          *  PendingIntent deterministe (cf. requestCodeFor ci-dessous) -
          *  independant de la position de l'entree dans le tableau JSON envoye
@@ -166,10 +181,37 @@ class MobileJsBridge(
                     setSound(null, null)
                     enableVibration(false)
                 }
+                val lockScreenWatcherChannel = NotificationChannel(
+                    LOCK_SCREEN_WATCHER_CHANNEL_ID,
+                    LOCK_SCREEN_WATCHER_CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_MIN
+                ).apply {
+                    // IMPORTANCE_MIN (pas LOW) : demande explicite (12/09/2026,
+                    // retour utilisateur) -- minimum technique possible sur
+                    // Android pour un foreground service (obligation systeme,
+                    // aucun moyen de la supprimer entierement), mais MIN la
+                    // rend invisible dans la barre de statut et le volet
+                    // deroulant ne la montre que repliee/discrete, jamais
+                    // d'aperçu ni de son.
+                    description = "Notification discrete du service qui surveille l'allumage de l'ecran"
+                    setSound(null, null)
+                    enableVibration(false)
+                    setShowBadge(false)
+                }
+                val lockScreenDisplayChannel = NotificationChannel(
+                    LOCK_SCREEN_DISPLAY_CHANNEL_ID,
+                    LOCK_SCREEN_DISPLAY_CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = "Declenche l'affichage de Tawkit par-dessus l'ecran de verrouillage"
+                    setSound(null, null)
+                }
                 val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                 nm.createNotificationChannel(channel)
                 nm.createNotificationChannel(downloadChannel)
                 nm.createNotificationChannel(azanPlaybackChannel)
+                nm.createNotificationChannel(lockScreenWatcherChannel)
+                nm.createNotificationChannel(lockScreenDisplayChannel)
             }
         }
     }
@@ -1206,6 +1248,88 @@ class MobileJsBridge(
 
     @JavascriptInterface
     fun isAutoStartEnabled(): Boolean = AutoStartPrefs.isEnabled(context)
+
+    /**
+     * Reglage "afficher Tawkit sur l'ecran de verrouillage" (telephone
+     * uniquement, cf. LockScreenPrefs/LockScreenActivity/
+     * LockScreenWatcherService). Meme schema que setAutoStartEnabled :
+     * stocke en SharedPreferences, demarre/arrete immediatement le service
+     * de surveillance -- sans effet sur boitier Android TV (cf. isAndroidTv
+     * ci-dessous, qui masque la ligne de reglage correspondante cote JS).
+     */
+    @JavascriptInterface
+    fun setLockScreenModeEnabled(enabled: Boolean) {
+        LockScreenPrefs.setEnabled(context, enabled)
+        if (enabled) {
+            LockScreenWatcherService.start(context)
+            requestBatteryExemptionForLockScreen()
+            if (!hasFullScreenIntentAccess()) requestFullScreenIntentAccess()
+        } else {
+            LockScreenWatcherService.stop(context)
+        }
+        Log.d("TWKT", "Lock screen mode: $enabled")
+    }
+
+    /**
+     * Meme exemption que MainActivity.requestIgnoreBatteryOptimizations(),
+     * dupliquee ici (pas d'Activity disponible depuis ce bridge) : sans elle,
+     * la plupart des constructeurs (Samsung/One UI inclus) peuvent geler
+     * LockScreenWatcherService apres quelques heures d'inactivite apparente,
+     * empechant le reveil d'ecran de systematiquement afficher la couverture
+     * (retour utilisateur 12/09/2026). No-op si deja accordee.
+     */
+    private fun requestBatteryExemptionForLockScreen() {
+        try {
+            val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+            if (pm.isIgnoringBatteryOptimizations(context.packageName)) return
+            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                data = Uri.parse("package:${context.packageName}")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            MainActivity.expectSystemHandoff()
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            Log.e("TWKT", "requestBatteryExemptionForLockScreen failed: ${e.message}")
+        }
+    }
+
+    @JavascriptInterface
+    fun isLockScreenModeEnabled(): Boolean = LockScreenPrefs.isEnabled(context)
+
+    /**
+     * true si la permission USE_FULL_SCREEN_INTENT (requise pour que
+     * LockScreenWatcherService puisse afficher LockScreenActivity par-dessus
+     * un verrouillage actif) est accordee. Toujours true avant Android 14 --
+     * permission "normale", accordee automatiquement a l'installation ;
+     * revocable manuellement par l'utilisateur seulement depuis Android 14
+     * (cf. requestFullScreenIntentAccess ci-dessous, meme schema que
+     * hasDndAccess/requestDndAccess juste au-dessus).
+     */
+    @JavascriptInterface
+    fun hasFullScreenIntentAccess(): Boolean {
+        if (Build.VERSION.SDK_INT < 34) return true
+        return try {
+            val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            nm.canUseFullScreenIntent()
+        } catch (e: Exception) {
+            true
+        }
+    }
+
+    @JavascriptInterface
+    fun requestFullScreenIntentAccess() {
+        if (Build.VERSION.SDK_INT < 34) return
+        try {
+            val intent = Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT).apply {
+                data = android.net.Uri.parse("package:${context.packageName}")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            MainActivity.expectSystemHandoff()
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            Log.e("TWKT", "requestFullScreenIntentAccess failed: ${e.message}")
+        }
+    }
 
     @JavascriptInterface
     fun requestNotificationPermission() = onRequestNotificationPermission()

@@ -15,4 +15,10 @@
     <string name="tv_menu_title">أدوات الجهاز</string>
     <string name="tv_menu_open_android_settings">فتح إعدادات أندرويد (واي فاي...)</string>
     <string name="tv_menu_change_home_launcher">تغيير الشاشة الرئيسية الافتراضية</string>
+    <string name="lock_screen_prompt_title">إظهار توقيت على شاشة القفل</string>
+    <string name="lock_screen_prompt_message">هل تريد أن يظهر تطبيق توقيت (مواقيت الصلاة، الأذان القادم) فوق شاشة قفل الهاتف عند تشغيل الشاشة؟ يمكن تغيير هذا لاحقًا من الإعدادات.</string>
+    <string name="lock_screen_prompt_yes">نعم</string>
+    <string name="lock_screen_prompt_no">لا</string>
+    <string name="lock_screen_watcher_notif_title">توقيت — شاشة القفل نشطة</string>
+    <string name="lock_screen_display_notif_title">توقيت</string>
 </resources>
