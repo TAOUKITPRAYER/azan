@@ -13,6 +13,7 @@ import java.io.File
 import java.io.FileInputStream
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Installation silencieuse via l'API officielle PackageInstaller -- disponible
@@ -31,6 +32,21 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 object DeviceOwnerInstaller {
 
     private const val ACTION_INSTALL_RESULT = "net.tawkit.mobile.DEVICE_OWNER_INSTALL_RESULT"
+
+    // Filet de sécurité (ajouté 14/09/2026) : sans lui, la suspendCancellableCoroutine
+    // ci-dessous attend indéfiniment le broadcast ACTION_INSTALL_RESULT -- si ce
+    // broadcast n'arrive jamais pour une raison quelconque (bug firmware, session
+    // PackageInstaller qui n'aboutit jamais, receiver perdu après un
+    // MY_PACKAGE_REPLACED partiel...), le coroutine reste suspendu POUR TOUJOURS,
+    // ce qui bloque aussi RemoteSilentUpdater.run() en amont (jamais de repli su/
+    // installateur système, jamais de rapport d'échec). Découvert en creusant un
+    // autre incident (box tn.raoued.nour-chaker, 14/09/2026, cf. commentaire de
+    // MainActivity.maybeRequestInstallUnknownAppsAccess) où CE chemin-ci n'était
+    // pas en cause (box non Device Owner) mais le risque de blocage permanent est
+    // le même pour toute box qui l'est. ~96 Mo : dexopt/vérification peuvent
+    // légitimement prendre du temps, d'où une marge large plutôt qu'un timeout
+    // serré comme SilentUpdateHelper (pm install en ligne de commande, plus rapide).
+    private const val INSTALL_TIMEOUT_MS = 90_000L
 
     fun isDeviceOwner(context: Context): Boolean {
         return try {
@@ -52,6 +68,15 @@ object DeviceOwnerInstaller {
         if (!isDeviceOwner(context)) return false
         if (!apkFile.exists()) return false
 
+        // withTimeoutOrNull annule le coroutine interne si INSTALL_TIMEOUT_MS
+        // s'écoule sans réponse -- cont.invokeOnCancellation (ci-dessous) se
+        // charge de désenregistrer le receiver proprement dans ce cas, comme
+        // pour toute autre annulation.
+        return withTimeoutOrNull(INSTALL_TIMEOUT_MS) { installSilentlyInternal(context, apkFile) } ?: false
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun installSilentlyInternal(context: Context, apkFile: File): Boolean {
         return suspendCancellableCoroutine { cont ->
             var receiver: BroadcastReceiver? = null
             try {

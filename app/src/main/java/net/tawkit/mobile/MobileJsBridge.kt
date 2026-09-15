@@ -1144,6 +1144,22 @@ class MobileJsBridge(
     }
 
     /**
+     * Miroir natif de JS_CUSTOM.ucSilenceShortAlerts (custom.js, case
+     * "تعطيل التنبيهات الصوتية " -- ucSilenceAlertsCheckbox /
+     * _ucToggleSilenceAlerts). Meme garantie que syncAzanPlaybackFlags
+     * ci-dessus : AzanPlaybackService relit cette valeur juste avant de jouer
+     * le son reel, prioritaire sur tout le reste (voix complete/bip/court) --
+     * coche = aucun son nativement, azan complet inclus.
+     */
+    @JavascriptInterface
+    fun syncSilenceAlertsFlag(silenced: Boolean) {
+        context.getSharedPreferences(AzanPlaybackService.PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(AzanPlaybackService.PREF_SILENCE_ALERTS, silenced)
+            .apply()
+    }
+
+    /**
      * Miroir natif de JS_CUSTOM.ucAzanVoiceEnabledFajr/Dohr/Assr/Mgrb/Isha
      * (custom.js, modale "تفعيل الأذان حسب الصلاة") -- même raison/garantie que
      * syncAzanPlaybackFlags ci-dessus : AzanPlaybackService relit ces valeurs

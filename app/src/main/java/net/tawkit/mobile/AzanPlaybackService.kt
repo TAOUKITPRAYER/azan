@@ -62,6 +62,15 @@ class AzanPlaybackService : Service() {
         const val PREF_VOICE_MODE  = "voice_mode_enabled"
         const val PREF_SHORT_AZAN  = "short_azan_active"
 
+        /** Miroir de JS_CUSTOM.ucSilenceShortAlerts (custom.js, case
+         *  "تعطيل التنبيهات الصوتية " -- ucSilenceAlertsCheckbox),
+         *  synchronise a chaque sauvegarde (MobileJsBridge.syncSilenceAlertsFlag)
+         *  -- meme garantie que PREF_VOICE_MODE ci-dessus : relu ICI juste avant
+         *  de jouer, prioritaire sur TOUT le reste (voix complete, bip, azan
+         *  court, Jumu'a...). Coche = aucun son nativement, quel que soit le
+         *  contexte, y compris l'azan complet. */
+        const val PREF_SILENCE_ALERTS = "silence_alerts_enabled"
+
         /** Miroir natif de JS_CUSTOM.ucAzanVoiceEnabledFajr/Dohr/Assr/Mgrb/Isha
          *  (custom.js, modale "تفعيل الأذان حسب الصلاة" -- accessible seulement
          *  quand PREF_VOICE_MODE ci-dessus est actif). Combiné en ET avec
@@ -205,6 +214,21 @@ class AzanPlaybackService : Service() {
         startForeground(NOTIF_ID, buildNotification(prayer, prayerHour, prayerMinute))
 
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+        // ── Garde-fou SILENCE TOTAL ─────────────────────────────────────────
+        // Case "تعطيل التنبيهات الصوتية " (custom.js, ucSilenceAlertsCheckbox)
+        // etendue a l'azan reel : relu ici, au tout dernier moment avant lecture,
+        // pas seulement au moment ou l'alarme a ete programmee -- garantit qu'une
+        // case cochee APRES la programmation mais AVANT que l'alarme sonne coupe
+        // quand meme le son. Prioritaire sur tout le reste (mode voix complete,
+        // bip, azan court, Jumu'a...) : aucun son nativement, quel que soit le
+        // contexte, tant que ce reglage est actif.
+        if (prefs.getBoolean(PREF_SILENCE_ALERTS, false)) {
+            NativeEventLog.log(this, "AZAN", "NATIVE_SKIP_SILENCED prayer=$prayer")
+            stopSelfCleanly()
+            return START_NOT_STICKY
+        }
+
         val intentShortAzan = intent?.getBooleanExtra("shortAzan", false) ?: false
         val intentVoiceMode = intent?.getBooleanExtra("voiceMode", true) ?: true
         val shortAzan = prefs.getBoolean(PREF_SHORT_AZAN, intentShortAzan)

@@ -226,6 +226,17 @@ class MainActivity : AppCompatActivity() {
     /** mosque_id reçu via deep link tawkit://mosque/<id> avant que la page soit chargée */
     private var pendingMosqueDeepLink: String? = null
 
+    /** Dernière étape de RemoteSilentUpdater.run() reçue pendant que la page
+     *  n'était pas chargée (rechargement en cours) -- cf.
+     *  dispatchSilentUpdateProgress/onPageFinished. Un seul slot (pas une
+     *  file) : seule la DERNIÈRE étape compte pour refléter l'état réel côté
+     *  Supabase, les étapes intermédiaires perdues (checking/downloading)
+     *  n'ont plus d'intérêt une fois qu'une étape plus récente est connue. */
+    private var pendingSilentUpdateProgress: RemoteSilentUpdater.Progress? = null
+    /** Même principe pour le résultat final (ucSilentUpdateResult, débogage
+     *  uniquement -- cf. dispatchSilentUpdateOutcome). */
+    private var pendingSilentUpdateOutcome: RemoteSilentUpdater.Outcome? = null
+
     /** Langue courante de la page (JS_DATA.ucLangNOW), mise en cache à chaque
      *  onPageFinished (cf. setupWebView) -- lue par onJsAlert/onJsConfirm SANS
      *  appeler evaluateJavascript à cet instant précis : le faire depuis ces
@@ -724,7 +735,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun dispatchSilentUpdateProgress(progress: RemoteSilentUpdater.Progress) {
-        if (!isPageLoaded) return
+        // NE JAMAIS abandonner silencieusement une étape (retiré le
+        // 14/09/2026) : si la page recharge exactement au moment où
+        // RemoteSilentUpdater atteint son étape finale (success/failed), un
+        // simple `return` ici laissait mosque_device_status.update_phase figé
+        // pour toujours sur la dernière étape transmise avec succès (souvent
+        // "installing") -- aucun retry, rien de persisté nulle part d'autre.
+        // Constaté en conditions réelles (box tn.raoued.nour-chaker,
+        // 14/09/2026) : 22h avec le dashboard affichant "installation…" alors
+        // que la mise à jour avait déjà échoué (dialogue système bloqué,
+        // cf. maybeRequestInstallUnknownAppsAccess). On mémorise l'étape et on
+        // la rejoue dès que onPageFinished repasse isPageLoaded à true.
+        if (!isPageLoaded) { pendingSilentUpdateProgress = progress; return }
         val safePhase = progress.phase.replace("'", "\\'")
         val safeMsg = progress.message.replace("'", "\\'").replace("\n", " ")
         val pctJs = progress.pct?.toString() ?: "null"
@@ -737,7 +759,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun dispatchSilentUpdateOutcome(outcome: RemoteSilentUpdater.Outcome) {
-        if (!isPageLoaded) return
+        // Même correctif que dispatchSilentUpdateProgress ci-dessus : mémoriser
+        // plutôt que perdre si la page n'est pas encore rechargée.
+        if (!isPageLoaded) { pendingSilentUpdateOutcome = outcome; return }
         val safeMsg = outcome.message.replace("'", "\\'").replace("\n", " ")
         webView.evaluateJavascript(
             "window.dispatchEvent(new CustomEvent('ucSilentUpdateResult'," +
@@ -1104,6 +1128,20 @@ class MainActivity : AppCompatActivity() {
                     pendingMosqueDeepLink = null
                     view.postDelayed({ dispatchMosqueDeepLink(deepLinkMid) }, 1200)
                 }
+                // Rejoue la dernière étape/résultat de mise à jour silencieuse
+                // manquée pendant que la page rechargeait (cf. déclaration de
+                // pendingSilentUpdateProgress/Outcome) -- évite que
+                // mosque_device_status.update_phase reste figé indéfiniment.
+                val pendingProgress = pendingSilentUpdateProgress
+                if (pendingProgress != null) {
+                    pendingSilentUpdateProgress = null
+                    view.postDelayed({ dispatchSilentUpdateProgress(pendingProgress) }, 1200)
+                }
+                val pendingOutcome = pendingSilentUpdateOutcome
+                if (pendingOutcome != null) {
+                    pendingSilentUpdateOutcome = null
+                    view.postDelayed({ dispatchSilentUpdateOutcome(pendingOutcome) }, 1200)
+                }
                 if (!automaticUpdateCheckStarted) {
                     automaticUpdateCheckStarted = true
                     view.postDelayed(
@@ -1141,6 +1179,7 @@ class MainActivity : AppCompatActivity() {
                 maybeShowAutoStartSetupPrompt(view)
                 maybeShowTvHomeLauncherPrompt(view)
                 maybeShowLockScreenSetupPrompt(view)
+                maybeRequestInstallUnknownAppsAccess()
 
                 // Boitier (aucun humain devant l'ecran pour toucher/cliquer une fois) :
                 // simule un geste utilisateur reel au niveau du systeme de saisie
@@ -1324,6 +1363,29 @@ class MainActivity : AppCompatActivity() {
                 val wasForeground = (System.currentTimeMillis() - lastPauseAtMs) < 1000L
                 LockScreenPrefs.setWasForegroundAtScreenOff(ctx, wasForeground)
                 NativeEventLog.log(ctx, "SYS", "LOCK_SCREEN_SCREEN_OFF wasForeground=$wasForeground")
+                // Ferme toute modale laissee ouverte (reglages, admin distant,
+                // console debug...) AVANT que le verrouillage n'affiche la
+                // couverture par-dessus l'ecran de verrouillage
+                // (maybeActivateLockScreenGuard) : cette derniere montre la
+                // VRAIE WebView telle quelle, sans ceci une modale resterait
+                // visible par-dessus le verrouillage au lieu du seul ecran
+                // principal (demande explicite du 14/09/2026). Uniquement
+                // pertinent quand ce reglage est actif -- sinon la couverture
+                // ne s'affiche jamais et fermer les modales a chaque
+                // verrouillage d'ecran serait une regression de comportement
+                // pour les utilisateurs n'ayant pas active cette fonction.
+                // evaluateJavascript() s'execute meme WebView.pauseTimers()
+                // deja actif (app deja en arriere-plan avant verrouillage) --
+                // seuls les timers JS (setTimeout/setInterval) sont geles, pas
+                // l'execution explicite d'un script.
+                if (LockScreenPrefs.isEnabled(ctx)) {
+                    runCatching {
+                        webView.evaluateJavascript(
+                            "window._ucCloseAllModalsForLockScreen && window._ucCloseAllModalsForLockScreen();",
+                            null
+                        )
+                    }
+                }
             }
         }
         lockScreenOffReceiver = r
@@ -1517,6 +1579,47 @@ class MainActivity : AppCompatActivity() {
         if (!DeviceType.isAndroidTv(this)) return
         if (TvHomeLauncherPrefs.hasAskedSetup(this)) return
         view.postDelayed({ showTvHomeLauncherDialog() }, 1800)
+    }
+
+    /**
+     * Demande une seule fois, au premier lancement reel sur boitier Android
+     * TV, l'autorisation "installer des applications inconnues" pour Tawkit
+     * -- necessaire au repli non-silencieux de RemoteSilentUpdater
+     * (AppUpdateDownloader.installApk) quand ni Device Owner ni root (su) ne
+     * permettent une installation vraiment silencieuse (cf. commentaire de
+     * classe SilentUpdateHelper : le cas le plus frequent). SANS cette
+     * autorisation deja accordee, ce repli affiche un dialogue Android SANS
+     * bouton "Installer" (uniquement Parametres/Annuler) -- un cul-de-sac
+     * total sur une box sans personne devant l'ecran pour naviguer jusqu'aux
+     * reglages a ce moment-la.
+     *
+     * Investigation reelle (14/09/2026, box tn.raoued.nour-chaker) : la
+     * verification automatique quotidienne a telecharge la 14.48 puis s'est
+     * bloquee 22h sur exactement ce dialogue mort, sans jamais remonter
+     * d'echec cote Supabase (cf. aussi le correctif de
+     * dispatchSilentUpdateProgress/Outcome plus bas, qui perdait ce rapport
+     * final). Un technicien est presume present lors de la configuration
+     * physique initiale de la box -- meme logique que
+     * maybeShowTvHomeLauncherPrompt/maybeRequestFullScreenIntentAccess : un
+     * seul geste ici evite un blocage silencieux permanent a chaque
+     * verification automatique ulterieure.
+     */
+    private fun maybeRequestInstallUnknownAppsAccess() {
+        if (isSilentBoot) return
+        if (!DeviceType.isAndroidTv(this)) return
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        if (packageManager.canRequestPackageInstalls()) return
+        if (InstallUnknownAppsPrefs.hasAskedSetup(this)) return
+        InstallUnknownAppsPrefs.markSetupAsked(this)
+        try {
+            val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                data = Uri.parse("package:$packageName")
+            }
+            expectSystemHandoff()
+            startActivity(intent)
+        } catch (e: Exception) {
+            Log.e("TWKT", "maybeRequestInstallUnknownAppsAccess failed: ${e.message}")
+        }
     }
 
     /**

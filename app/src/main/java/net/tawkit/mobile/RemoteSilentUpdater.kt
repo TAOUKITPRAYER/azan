@@ -2,6 +2,7 @@ package net.tawkit.mobile
 
 import android.app.DownloadManager
 import android.content.Context
+import android.os.Build
 import kotlinx.coroutines.delay
 
 /**
@@ -57,6 +58,35 @@ object RemoteSilentUpdater {
             // faire -- pas de dialogue/rapport à afficher pour un cas aussi
             // fréquent.
             return Outcome(false, "Déjà à jour (installée: $localName, distante: ${remote.versionName})", false)
+        }
+
+        // Pré-vol AVANT de télécharger ~96 Mo pour rien : si ni Device Owner
+        // ni root (su) ne permettront une installation silencieuse, ET que
+        // l'autorisation "installer des applications inconnues" n'a pas été
+        // accordée, le repli AppUpdateDownloader.installApk() plus bas
+        // affichera un dialogue Android SANS bouton "Installer" (seulement
+        // Paramètres/Annuler) -- un cul-de-sac total sur une box sans
+        // personne devant l'écran. Investigation réelle (14/09/2026, box
+        // tn.raoued.nour-chaker) : exactement ce cas, découvert seulement
+        // après un téléchargement complet et 22h bloquées sur ce dialogue
+        // mort. cf. MainActivity.maybeRequestInstallUnknownAppsAccess() pour
+        // la demande one-shot côté provisioning qui doit normalement éviter
+        // ce cas ; ce garde-fou couvre les box déjà déployées avant ce
+        // correctif, ou dont l'admin a révoqué l'autorisation depuis.
+        val canInstallDirectly = DeviceOwnerInstaller.isDeviceOwner(context) || SilentUpdateHelper.checkCapability()
+        val canOpenFallbackInstaller = Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
+            context.packageManager.canRequestPackageInstalls()
+        if (!canInstallDirectly && !canOpenFallbackInstaller) {
+            val outcome = Outcome(
+                false,
+                "Mise à jour disponible (${remote.versionName}) mais bloquée : autorisation " +
+                    "\"installer des applications inconnues\" non accordée sur cette box " +
+                    "(Réglages > Applis > Accès spécial > Installer des applis inconnues > Tawkit). " +
+                    "Aucun téléchargement lancé.",
+                false
+            )
+            onProgress?.invoke(Progress("failed", outcome.message))
+            return outcome
         }
 
         onProgress?.invoke(Progress("checking", "Nouvelle version détectée (${remote.versionName})…"))
