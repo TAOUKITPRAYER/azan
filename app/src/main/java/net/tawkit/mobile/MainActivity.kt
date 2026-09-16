@@ -1068,6 +1068,45 @@ class MainActivity : AppCompatActivity() {
         }
 
         webView.webViewClient = object : WebViewClient() {
+            // FIX 16/09/2026 (incident reel boitier tn.raoued.nour-chaker,
+            // data_app_native_crash 12:20:03, ~1min avant l'azan Dhuhr) : sans
+            // cet override, un crash du process de rendu Chromium ("Render
+            // process crash wasn't handled by all associated webviews") tue
+            // TOUT le process de l'appli (SIGTRAP via crashpad) -- pas
+            // seulement la page, mais l'Activity ET tous les services natifs
+            // en cours. Aucun de nos mecanismes de reprise habituels
+            // (onPause/watchdog kiosque, BootReceiver) ne peut reagir : ils
+            // dependent tous d'un cycle de vie Android normal, absent ici (le
+            // process est abattu net). Resultat observe : ecran reste sur le
+            // launcher jusqu'a ce qu'une alarme AlarmManager deja programmee
+            // (ex. azan suivant) cold-demarre un process nu -- qui lance le
+            // SERVICE natif concerne mais jamais l'Activity -- ou jusqu'a
+            // intervention manuelle.
+            // Retourner true signale a Android qu'on gere nous-memes la
+            // reprise -- on reutilise GpuRecovery.requestRestart() (deja
+            // eprouve pour le gel compositeur Mali-G31, meme necessite :
+            // seul un vrai kill+relance du process repare un etat WebView
+            // corrompu) plutot que d'ecrire un nouveau mecanisme : programme
+            // la relance de MainActivity via AlarmManager (exemption
+            // demarrage-activite-en-arriere-plan) PUIS tue le process,
+            // garde-fous cooldown/plafond deja inclus. S'applique a tout
+            // type d'appareil (pas seulement boitier TV) : sans ce handler,
+            // Android tue de toute facon tout le process sur un telephone
+            // aussi -- gerer nous-memes est strictement une amelioration.
+            override fun onRenderProcessGone(view: WebView, detail: android.webkit.RenderProcessGoneDetail): Boolean {
+                val didCrash = try { detail.didCrash() } catch (e: Exception) { true }
+                Log.e("TWKT", "onRenderProcessGone: didCrash=$didCrash")
+                NativeEventLog.log(this@MainActivity, "SYS", "WEBVIEW_RENDER_PROCESS_GONE didCrash=$didCrash")
+                Thread {
+                    try {
+                        GpuRecovery.requestRestart(this@MainActivity, "render_process_gone")
+                    } catch (e: Exception) {
+                        Log.e("TWKT", "onRenderProcessGone restart failed: ${e.message}")
+                    }
+                }.start()
+                return true
+            }
+
             // Sans cet override, le WebView tente de NAVIGUER lui-meme vers les
             // schemas non http(s) (tel:, mailto:, sms:, geo:...) utilises par
             // la fiche mosquee (appel/email, cf. custom.js _wireMosqueProfileBlock)
