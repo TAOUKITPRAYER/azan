@@ -123,34 +123,59 @@ object AppUpdateDownloader {
         val file = apkFile(context)
 
         // Reprise possible uniquement si le partiel vient du MÊME url (release
-        // inchangée). URL différente = nouvelle version -> le partiel est
-        // obsolète, on repart propre.
+        // inchangée). ATTENTION : cette URL est une release GitHub ROULANTE
+        // (tag fixe "taoukit", republiée via `gh release upload --clobber` à
+        // CHAQUE version) -- "URL inchangée" ne veut PAS dire "même contenu"
+        // comme le sous-entendait le commentaire précédent, contrairement à
+        // une release versionnée classique. D'où le re-probe systématique un
+        // peu plus bas (dans la coroutine, PAS ici -- enqueue() est appelée
+        // depuis le thread UI par UpdateProgressDialog.start(), un appel
+        // réseau synchrone ici ferait planter l'appli).
         val haveBytes = if (file.exists() && prevUrl == url) file.length() else 0L
         if (haveBytes == 0L) {
             if (file.exists()) file.delete()
             // URL différente (nouvelle version) ou pas de partiel : le
             // validateur mémorisé ne vaut plus rien.
             prefs.edit().remove(PREF_DOWNLOAD_VALIDATOR).remove(PREF_DOWNLOAD_TOTAL).apply()
-        }
-
-        // Déjà complet (partiel == taille totale connue d'un passage précédent) :
-        // rien à télécharger, on signale succès tout de suite.
-        if (haveBytes > 0L && prevTotal > 0L && haveBytes >= prevTotal && prevUrl == url) {
-            Log.d("TWKT", "AppUpdateDownloader: APK déjà complet en cache ($haveBytes octets), pas de téléchargement")
-            currentTotal = prevTotal
-            currentBytes = haveBytes
-            currentStatus = DownloadManager.STATUS_SUCCESSFUL
-            return id
-        }
-
-        if (haveBytes > 0L) {
+        } else {
             currentBytes = haveBytes
             if (prevTotal > 0L) currentTotal = prevTotal
-            Log.d("TWKT", "AppUpdateDownloader: reprise à $haveBytes octets (url inchangée)")
+            Log.d("TWKT", "AppUpdateDownloader: partiel local $haveBytes octets (url inchangée)")
         }
+
+        // BUG réel corrigé le 16/09/2026 -- avant ce correctif, un cache local
+        // "complet" (haveBytes >= prevTotal) était accepté tel quel comme
+        // "déjà à jour", décidé UNIQUEMENT à partir de prevTotal (la taille
+        // mémorisée lors du dernier téléchargement), jamais revérifié contre
+        // le serveur. Comme l'URL ne change jamais entre deux versions (cf.
+        // commentaire ci-dessus), un appareil ayant déjà entièrement
+        // téléchargé une VIEILLE version se voyait annoncer "mise à jour
+        // téléchargée" INSTANTANÉMENT pour toute version suivante, sans
+        // jamais récupérer les nouveaux octets (constaté en conditions
+        // réelles, 16/09/2026 : téléphone resté bloqué en boucle sur 14.49 en
+        // tentant de passer à 14.50, "téléchargé" en un instant). Le
+        // re-probe (network-safe car dans la coroutine IO ci-dessous) purge
+        // le cache si la taille distante ne correspond plus.
+        val looksAlreadyComplete = haveBytes > 0L && prevTotal > 0L && haveBytes >= prevTotal && prevUrl == url
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                if (looksAlreadyComplete) {
+                    val remoteTotal = probeTotal(url)
+                    if (remoteTotal > 0L && remoteTotal == haveBytes) {
+                        Log.d("TWKT", "AppUpdateDownloader: APK déjà complet en cache ($haveBytes octets, taille distante confirmée), pas de téléchargement")
+                        if (currentId == id) {
+                            currentTotal = remoteTotal
+                            currentBytes = haveBytes
+                            currentStatus = DownloadManager.STATUS_SUCCESSFUL
+                        }
+                        return@launch
+                    }
+                    Log.d("TWKT", "AppUpdateDownloader: cache \"complet\" ($haveBytes octets) mais taille distante différente/indéterminée ($remoteTotal) -> périmé, reprise de zéro")
+                    file.delete()
+                    prefs.edit().remove(PREF_DOWNLOAD_VALIDATOR).remove(PREF_DOWNLOAD_TOTAL).apply()
+                    if (currentId == id) { currentBytes = 0L; currentTotal = 0L }
+                }
                 downloadWithResume(context, url, file, id)
                 if (currentId == id) {
                     currentStatus = if (cancelRequested) DownloadManager.STATUS_FAILED
