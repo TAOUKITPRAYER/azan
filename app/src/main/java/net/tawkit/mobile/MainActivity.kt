@@ -1179,6 +1179,7 @@ class MainActivity : AppCompatActivity() {
                 maybeShowAutoStartSetupPrompt(view)
                 maybeShowTvHomeLauncherPrompt(view)
                 maybeShowLockScreenSetupPrompt(view)
+                maybeReRequestFullScreenIntentAccess(view)
                 maybeRequestInstallUnknownAppsAccess()
 
                 // Boitier (aucun humain devant l'ecran pour toucher/cliquer une fois) :
@@ -1734,23 +1735,89 @@ class MainActivity : AppCompatActivity() {
     /**
      * Depuis Android 14, USE_FULL_SCREEN_INTENT (requise par
      * LockScreenWatcherService pour afficher la couverture de verrouillage a
-     * l'allumage de l'ecran) est revocable manuellement par l'utilisateur --
-     * verifie et redirige vers l'ecran systeme correspondant si besoin, une
-     * seule fois au moment ou l'utilisateur active le reglage.
+     * l'allumage de l'ecran) n'est PAS accordee automatiquement pour une appli
+     * installee hors Play Store (notre cas) -- meme declaree dans le manifest,
+     * elle reste refusee (AppOps "deny") tant que l'utilisateur ne l'active pas
+     * manuellement dans l'ecran systeme ouvert ici. Verifie et redirige si
+     * besoin -- no-op silencieux si deja accordee (garde interne ci-dessous).
+     *
+     * IMPORTANT (ajoute 16/09/2026, cause racine du bug fleet-wide identifie
+     * ce jour-la -- cf. commentaire de maybeReRequestFullScreenIntentAccess) :
+     * ce correctif etait DEJA present depuis la toute premiere version du
+     * verrouillage (v14.48) sous forme d'un startActivity() direct, SANS
+     * aucune explication prealable -- l'ecran systeme qui s'ouvrait
+     * ("Notifications plein ecran") ne dit nulle part a l'utilisateur qu'il
+     * doit y activer un bouton pour que la fonction qu'il vient d'accepter
+     * fonctionne. Resultat tres probable chez la plupart des utilisateurs
+     * ayant active ce reglage sur 14.48 : ecran ouvert, referme sans
+     * comprendre pourquoi, fonction cassee silencieusement pour toujours.
+     * On affiche desormais un dialogue explicatif AVANT d'ouvrir cet ecran,
+     * a chaque appel (premiere demande ET relances periodiques) -- meme
+     * necessite que pour n'importe quel autre reglage systeme peu explicite
+     * ailleurs dans l'appli (cf. maybeShowLockScreenSetupPrompt).
+     * Enregistre l'horodatage de la redirection (LockScreenPrefs) pour que
+     * maybeReRequestFullScreenIntentAccess() puisse throttler ses propres
+     * relances (cf. son commentaire).
      */
     private fun maybeRequestFullScreenIntentAccess() {
         if (Build.VERSION.SDK_INT < 34) return
         try {
             val nm = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
             if (nm.canUseFullScreenIntent()) return
-            val intent = Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT).apply {
-                data = Uri.parse("package:$packageName")
-            }
-            expectSystemHandoff()
-            startActivity(intent)
+            if (isFinishing || isDestroyed) return
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.full_screen_intent_prompt_title))
+                .setMessage(getString(R.string.full_screen_intent_prompt_message))
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.full_screen_intent_prompt_ok)) { _, _ ->
+                    LockScreenPrefs.setLastFsiPromptAtMs(this, System.currentTimeMillis())
+                    try {
+                        val intent = Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT).apply {
+                            data = Uri.parse("package:$packageName")
+                        }
+                        expectSystemHandoff()
+                        startActivity(intent)
+                    } catch (e: Exception) {
+                        Log.e("TWKT", "maybeRequestFullScreenIntentAccess (settings launch) failed: ${e.message}")
+                    }
+                }
+                .show()
         } catch (e: Exception) {
             Log.e("TWKT", "maybeRequestFullScreenIntentAccess failed: ${e.message}")
         }
+    }
+
+    /**
+     * Filet de sécurité (ajouté 16/09/2026, incident réel constaté sur
+     * SM-S938B) : maybeRequestFullScreenIntentAccess() ci-dessus n'est
+     * normalement déclenchée qu'UNE fois, au moment où l'utilisateur répond
+     * "Oui" au dialogue initial (maybeShowLockScreenSetupPrompt). Si
+     * l'utilisateur ferme l'écran système ouvert à ce moment-là SANS activer
+     * le bouton (l'écran "Notifications plein écran" d'Android n'explique pas
+     * clairement à quoi il sert), le réglage "écran de verrouillage" reste
+     * actif côté Tawkit mais ne peut plus JAMAIS fonctionner : la couverture
+     * ne s'affiche plus au réveil de l'écran, sans aucune erreur visible ---
+     * seule la notification plein écran invisible échoue silencieusement (cf.
+     * NativeEventLog LOCK_SCREEN_FSI_DENIED, LockScreenWatcherService). Rien
+     * ne permettait de le détecter/corriger avant ce correctif, sauf via adb.
+     * Rappelée à chaque chargement de page (onPageFinished, même schéma que
+     * maybeShowLockScreenSetupPrompt, delai inclus pour ne pas se superposer
+     * au splash) : re-tente automatiquement -- desormais avec le dialogue
+     * explicatif ajoute dans maybeRequestFullScreenIntentAccess() ci-dessus,
+     * donc une bien meilleure chance d'aboutir que la toute premiere demande
+     * (v14.48) qui n'en avait pas -- throttlee a une fois tous les 3 jours
+     * pour ne pas rouvrir les réglages système en boucle à chaque lancement
+     * si l'utilisateur laisse déjà cet écran ouvert sans y toucher.
+     */
+    private fun maybeReRequestFullScreenIntentAccess(view: WebView) {
+        if (Build.VERSION.SDK_INT < 34) return
+        if (DeviceType.isAndroidTv(this)) return
+        if (!LockScreenPrefs.isEnabled(this)) return
+        val elapsed = System.currentTimeMillis() - LockScreenPrefs.getLastFsiPromptAtMs(this)
+        if (elapsed < 3L * 24 * 60 * 60 * 1000) return
+        view.postDelayed({
+            if (!isFinishing && !isDestroyed) maybeRequestFullScreenIntentAccess()
+        }, 2600)
     }
 
     /* Removed deprecated onBackPressed */

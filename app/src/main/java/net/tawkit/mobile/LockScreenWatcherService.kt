@@ -116,6 +116,23 @@ class LockScreenWatcherService : Service() {
             NativeEventLog.log(context, "SYS", "LOCK_SCREEN_SCREEN_ON isKeyguardLocked=${km.isKeyguardLocked}")
             if (!km.isKeyguardLocked) return
 
+            // Diagnostic explicite (ajoute 16/09/2026, incident reel SM-S938B) :
+            // sans USE_FULL_SCREEN_INTENT accordee (Android 14+, jamais
+            // auto-accordee pour une appli installee hors Play Store), la
+            // notification postee juste en-dessous est livree en notification
+            // normale au lieu de lancer la couverture -- echec 100% SILENCIEUX
+            // cote utilisateur (aucune erreur, juste l'ecran de verrouillage
+            // habituel). Avant ce log, seul dumpsys notification (FSI_REQUESTED_
+            // BUT_DENIED) permettait de le constater. cf. MainActivity.
+            // maybeRequestFullScreenIntentAccess/maybeReRequestFullScreenIntentAccess
+            // pour la remediation (redirection vers les reglages systeme).
+            if (Build.VERSION.SDK_INT >= 34) {
+                val nmCheck = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                if (!nmCheck.canUseFullScreenIntent()) {
+                    NativeEventLog.log(context, "SYS", "LOCK_SCREEN_FSI_DENIED")
+                }
+            }
+
             val contentIntent = Intent(context, MainActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                 putExtra(MainActivity.EXTRA_LOCK_SCREEN_LAUNCH, true)

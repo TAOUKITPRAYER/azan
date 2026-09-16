@@ -64,4 +64,22 @@ object LockScreenPrefs {
     fun wasForegroundAtScreenOff(context: Context): Boolean =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getBoolean(KEY_WAS_FOREGROUND_AT_SCREEN_OFF, false)
+
+    private const val KEY_LAST_FSI_PROMPT_AT_MS = "last_fsi_prompt_at_ms"
+
+    /** Horodatage de la dernière redirection vers les réglages système
+     *  "notifications plein écran" (cf. MainActivity.maybeRequestFullScreenIntentAccess/
+     *  maybeReRequestFullScreenIntentAccess) -- sert uniquement à throttler les
+     *  re-demandes automatiques, pas à savoir si l'autorisation est accordée
+     *  (ça, c'est NotificationManager.canUseFullScreenIntent() côté appelant). */
+    fun getLastFsiPromptAtMs(context: Context): Long =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getLong(KEY_LAST_FSI_PROMPT_AT_MS, 0L)
+
+    fun setLastFsiPromptAtMs(context: Context, atMs: Long) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putLong(KEY_LAST_FSI_PROMPT_AT_MS, atMs)
+            .apply()
+    }
 }

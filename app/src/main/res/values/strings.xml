@@ -21,4 +21,7 @@
     <string name="lock_screen_prompt_no">لا</string>
     <string name="lock_screen_watcher_notif_title">توقيت — شاشة القفل نشطة</string>
     <string name="lock_screen_display_notif_title">توقيت</string>
+    <string name="full_screen_intent_prompt_title">إذن إضافي مطلوب</string>
+    <string name="full_screen_intent_prompt_message">لكي تظهر شاشة توقيت فعليًا فوق شاشة القفل، يطلب نظام أندرويد إذنًا إضافيًا. في الشاشة التالية، فعّل الخيار الخاص بتطبيق Tawkit (يُسمى عادة "الإشعارات بملء الشاشة" أو Full screen notifications) ثم ارجع إلى التطبيق.</string>
+    <string name="full_screen_intent_prompt_ok">فتح الإعدادات</string>
 </resources>
