@@ -504,7 +504,14 @@ serve(async (req: Request) => {
   const osResult = await osResponse.json();
   console.log("OneSignal response:", JSON.stringify(osResult));
 
-  await _logNotification(mosque_id, logType, logBody, osResponse.ok);
+  // OneSignal répond 200 même quand AUCUN appareil ne correspond au filtre
+  // (recipients: 0, ou errors: ["All included players are not subscribed"]) :
+  // sans ce test la notif était journalisée ok=true alors que personne ne l'a
+  // reçue (cas réel 20/09/2026, mosquée Mediouni : visible dans l'historique,
+  // jamais reçue sur un téléphone abonné).
+  const _recipients = typeof osResult?.recipients === "number" ? osResult.recipients : null;
+  const _delivered  = osResponse.ok && !osResult?.errors && (_recipients === null || _recipients > 0);
+  await _logNotification(mosque_id, logType, logBody, _delivered);
 
   return new Response(JSON.stringify(osResult), {
     headers: { ...CORS, "Content-Type": "application/json" },

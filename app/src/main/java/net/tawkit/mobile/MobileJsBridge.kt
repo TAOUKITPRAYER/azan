@@ -940,9 +940,45 @@ class MobileJsBridge(
      */
     @JavascriptInterface
     fun setMosqueId(mosqueId: String) {
+        // 20/09/2026 : le tag mosque_id n'est PLUS posé (informatif/legacy, le
+        // serveur ne cible que mosque_sub_<id>). Le plan gratuit OneSignal limite
+        // le nombre de tags par appareil ("entitlements-tag-limit") : un PATCH
+        // dépassant la limite est rejeté EN BLOC, sans retry -> mosque_sub_<id>
+        // jamais enregistré -> plus aucune notification (cas réel Mediouni).
+        // On retire donc l'éventuel tag hérité pour libérer une place.
         if (mosqueId.isNotBlank()) {
-            OneSignal.User.addTag("mosque_id", mosqueId)
-            Log.d("TWKT", "OneSignal tag mosque_id = $mosqueId")
+            OneSignal.User.removeTag("mosque_id")
+            Log.d("TWKT", "OneSignal tag mosque_id retiré (legacy, limite de tags du plan)")
+        }
+    }
+
+    /**
+     * Aligne les tags mosque_sub_<id> d'OneSignal sur la liste voulue et retire
+     * les tags hérités (mosque_id) ou périmés (mosque_sub_* hors liste) pour rester
+     * sous la limite de tags du plan OneSignal. Ne touche JAMAIS mosque_admin_*.
+     * Journalise l'état complet des tags (diagnostic "entitlements-tag-limit").
+     *
+     *   window.AndroidMobile.pruneMosqueSubscriptionTags('["tn.monastir.hidaya"]')
+     */
+    @JavascriptInterface
+    fun pruneMosqueSubscriptionTags(keepIdsJson: String) {
+        try {
+            val keep = HashSet<String>()
+            val arr = JSONArray(keepIdsJson)
+            for (i in 0 until arr.length()) {
+                keep.add("mosque_sub_" + arr.getString(i).replace(Regex("[^a-zA-Z0-9_]"), "_"))
+            }
+            val current = OneSignal.User.getTags()
+            Log.d("TWKT", "OneSignal tags avant nettoyage (${current.size}) : ${current.keys}")
+            val stale = current.keys.filter { k ->
+                k == "mosque_id" || (k.startsWith("mosque_sub_") && k !in keep)
+            }
+            if (stale.isNotEmpty()) {
+                OneSignal.User.removeTags(stale)
+                Log.d("TWKT", "OneSignal tags retirés : $stale")
+            }
+        } catch (e: Exception) {
+            Log.e("TWKT", "pruneMosqueSubscriptionTags failed: ${e.message}")
         }
     }
 
